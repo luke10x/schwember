@@ -7,9 +7,11 @@ build:
 
 clean:
 	rm -rf build
+
+clean-assets:
 	rm -rf assets/gltf
 
-.PHONY: all build clean
+.PHONY: all build clean clean-assets
 
 assets/gltf:
 	mkdir -p assets/gltf

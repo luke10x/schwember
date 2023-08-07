@@ -1,9 +1,10 @@
 FROM emscripten/emsdk:3.1.25
 
-# Install from sources GLM library
-# (It seems like it does not need to be compiled, headers are enough)
+# Install from sources GLM and library
+# (These are header-only libraries, no need to compile)
 WORKDIR /opt
 RUN git clone https://github.com/g-truc/glm.git
+RUN git clone https://github.com/jkuhlmann/cgltf.git
 
 # WORKDIR /opt/cglm/build
 # RUN emcmake cmake .. \
