@@ -8,8 +8,6 @@ void printAccessorProperties(const cgltf_accessor* accessor, cgltf_data* data) {
     printf("  Count: %zu\n", accessor->count);
     printf("  Type: %d\n", accessor->type);
     printf("  Component Type: %d\n", accessor->component_type);
-    printf("  Buffer View Index: %zu\n", accessor->buffer_view);
-    
 }
 
 void printSamplerData(cgltf_animation_sampler* sampler, cgltf_data* data) {
@@ -27,6 +25,9 @@ void printSamplerData(cgltf_animation_sampler* sampler, cgltf_data* data) {
         case cgltf_interpolation_type_cubic_spline:
             interpolationType = "Cubic Spline";
             break;
+        default:
+            fprintf(stderr, "Unknown interpolation type");
+            exit(0);
     }
     printf("      Interpolation Type: %s\n", interpolationType);
 

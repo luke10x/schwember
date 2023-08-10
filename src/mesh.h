@@ -24,7 +24,7 @@ typedef struct {
 
 
 mesh_t* mesh_create(
-  char* name,
+  const char* name,
   vertex_t* vertices,
   GLsizei vertex_count,
   GLuint* indices,
@@ -39,7 +39,7 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera);
 #include "mesh.h"
 
 mesh_t* mesh_create(
-  char* name,
+  const char* name,
   vertex_t* vertices,
   GLsizei vertex_count,
   GLuint* indices,
@@ -106,7 +106,7 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
 	for (unsigned int i = 0; i < mesh->texture_count; i++)
 	{
-    char* tex0;
+    const char* tex0;
     if (i == 0) { tex0 = "tex0[0]"; }
     if (i == 1) { tex0 = "tex0[1]"; }
     if (i == 2) { tex0 = "tex0[2]"; }
