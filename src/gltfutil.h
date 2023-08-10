@@ -134,8 +134,8 @@ void tinyGltfTest() {
     std::memset(&options, 0, sizeof(cgltf_options));
 
     cgltf_data* data = nullptr;
-    // cgltf_result result = cgltf_parse_file(&options, "assets/gltf/cubeman.glb", &data);
-    cgltf_result result = cgltf_parse_file(&options, "assets/skin.gltf", &data);
+    cgltf_result result = cgltf_parse_file(&options, "assets/gltf/cubeman.glb", &data);
+    // cgltf_result result = cgltf_parse_file(&options, "assets/skin.gltf", &data);
     if (result != cgltf_result_success) {
         std::cerr << "Error loading glTF file: " << result << std::endl;
 

@@ -4,6 +4,10 @@ project(MatrixTransform)
 # Add the path to the src directory
 include_directories(src)
 
+# Find the GLEW library
+find_library(GLEW_LIBRARY GLEW)
+find_library(GLFW_LIBRARY glfw)
+
 # Set the path to the directory containing GLM headers
 set(GLM_INCLUDE_DIR "/opt/homebrew/include")
 
@@ -18,12 +22,33 @@ FetchContent_Declare(
 # Fetch cgltf at configure time
 FetchContent_MakeAvailable(cgltf)
 
+# Use FetchContent to fetch stb_image
+include(FetchContent)
+FetchContent_Declare(
+    stb_image
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(stb_image)
+
 # Add the source file to the project
 add_executable(MatrixTransform src/main.cpp)
 
-# Include the GLM headers
-# Include the Assimp headers
-target_include_directories(MatrixTransform PRIVATE ${GLM_INCLUDE_DIR} ${cgltf_SOURCE_DIR})
+# Include headers
+target_include_directories(MatrixTransform PRIVATE
+  ${GLM_INCLUDE_DIR}
+  ${cgltf_SOURCE_DIR}
+  ${stb_image_SOURCE_DIR}
+  ${GLEW_INCLUDE_DIRS}
+  ${GLFW_INCLUDE_DIRS}
+)
+
+# Link libraries
+target_link_libraries(MatrixTransform PRIVATE
+  ${GLEW_LIBRARY}
+  ${GLFW_LIBRARY}
+  "-framework OpenGL"
+)
 
 # Set the C++ standard (if needed)
 set(CMAKE_CXX_STANDARD 11)
