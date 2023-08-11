@@ -87,8 +87,8 @@ mesh_t* mesh_create(
 	vao_link_attrib(mesh->vao, vbo, 2, 2, GL_FLOAT, sizeof(vertex_t), (void*)(6 * sizeof(float))); // tex_UV
 	vao_link_attrib(mesh->vao, vbo, 3, 1, GL_FLOAT, sizeof(vertex_t), (void*)(8 * sizeof(float))); // tex_id
 	vao_link_attrib(mesh->vao, vbo, 4, 3, GL_FLOAT, sizeof(vertex_t), (void*)(9 * sizeof(float))); // normal
-	// Unbind all to prevent accidentally modifying them
-
+	
+  // Unbind all to prevent accidentally modifying them
   vao_unbind(mesh->vao);
   vbo_unbind(vbo);
   ebo_unbind(ebo);
@@ -100,31 +100,22 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
   shader_activate(shader);
 
-	// Keep track of how many of each type of textures we have
-	unsigned int numDiffuse = 0;
-	unsigned int numSpecular = 0;
-
-	for (unsigned int i = 0; i < mesh->texture_count; i++)
-	{
-    const char* tex0;
-    if (i == 0) { tex0 = "tex0[0]"; }
-    if (i == 1) { tex0 = "tex0[1]"; }
-    if (i == 2) { tex0 = "tex0[2]"; }
-    if (i == 3) { tex0 = "tex0[3]"; }
-		// std::string num;
-		// std::string type = textures[i].type;
-		// if (type == "diffuse")
-		// {
-		// 	num = std::to_string(numDiffuse++);
-		// }
-		// else if (type == "specular")
-		// {
-		// 	num = std::to_string(numSpecular++);
-		// }
-
-    texture_unit(&(mesh->textures[i]), shader, tex0, i);
-    texture_bind(&(mesh->textures[i]));
-	}
+  if (mesh->texture_count > 0) {
+    texture_unit(&(mesh->textures[0]), shader, "sampler[0]", 0);
+    texture_bind(&(mesh->textures[0]));
+  }
+  if (mesh->texture_count > 1) {
+    texture_unit(&(mesh->textures[1]), shader, "sampler[1]", 1);
+    texture_bind(&(mesh->textures[1]));
+  }
+  if (mesh->texture_count > 2) {
+    texture_unit(&(mesh->textures[2]), shader, "sampler[2]", 2);
+    texture_bind(&(mesh->textures[2]));
+  }
+  if (mesh->texture_count > 3) {
+    texture_unit(&(mesh->textures[3]), shader, "sampler[3]", 3);
+    texture_bind(&(mesh->textures[3]));
+  }
 
 	// Take care of the camera Matrix
 	glUniform3f(

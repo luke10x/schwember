@@ -135,11 +135,13 @@ vao_t* vao_create() {
   return self;
 }
 
-void vao_link_attrib(vao_t* self, vbo_t* vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
+void vao_link_attrib(vao_t* self, vbo_t* vbo, GLuint attribIndex, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
   vbo_bind(vbo);
 
-  glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
-  glEnableVertexAttribArray(layout);
+  // Sets up a vertex attribute pointer
+  glVertexAttribPointer(attribIndex, numComponents, type, GL_FALSE, stride, offset);
+  glEnableVertexAttribArray(attribIndex);
+
   vbo_unbind(vbo);
 }
 

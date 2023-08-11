@@ -103,9 +103,9 @@ texture_t* texture_create(
 
 // should not be in this "class"
 void texture_unit(texture_t* self, shader_t* shader, const char* uniform, GLuint unit) {
-  GLuint tex_uni = glGetUniformLocation(shader->ID, uniform);
-  shader_activate(shader);
-  glUniform1i(tex_uni, unit);
+  GLuint location = glGetUniformLocation(shader->ID, uniform);
+  // shader_activate(shader);
+  glUniform1i(location, unit);
 }
 
 void texture_bind(texture_t* self) {
