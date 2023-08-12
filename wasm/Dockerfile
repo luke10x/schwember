@@ -15,6 +15,11 @@ RUN emcmake cmake .. \
   -DCGLM_STATIC=ON
 RUN emmake make install
 
+WORKDIR /opt
+RUN git clone --depth 1 -b v5.2.5  https://github.com/assimp/assimp.git
+WORKDIR /opt/assimp
+RUN emcmake cmake -S . -B build && emmake make -C build
+
 # Install Bullet Physics
 # WORKDIR /opt
 # RUN git clone https://github.com/bulletphysics/bullet3.git \

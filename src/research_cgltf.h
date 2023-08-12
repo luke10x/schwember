@@ -130,7 +130,7 @@ void applyAnimationTransform(cgltf_data* data, size_t animationIndex, double key
     }
 }
 
-void tinyGltfTest() {
+void cgltfTest() {
     cgltf_options options;
     std::memset(&options, 0, sizeof(cgltf_options));
 
@@ -139,8 +139,6 @@ void tinyGltfTest() {
     // cgltf_result result = cgltf_parse_file(&options, "assets/skin.gltf", &data);
     if (result != cgltf_result_success) {
         std::cerr << "Error loading glTF file: " << result << std::endl;
-
-
     }
     // Loading successful, process the data here
     

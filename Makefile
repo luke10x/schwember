@@ -2,8 +2,9 @@ all: build
 
 build:
 	mkdir -p build
-	cd build && cmake ..
-	make -C build
+	cd build && cmake .. --debug-output
+	# && cmake ..
+	make -C build VERBOSE=1
 
 clean:
 	rm -rf build

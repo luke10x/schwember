@@ -6,7 +6,9 @@ CPPFLAGS += -I/opt/stb
 CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
 # CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
 # CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
+
 LDFLAGS += -L/emsdk/upstream/emscripten/cache/sysroot/lib
+
 # LDLIBS += -lLinearlMath -lBulletDynamics -lBulletCollision
 
 build:
@@ -16,6 +18,7 @@ build:
 		../src/main.cpp \
 		-o ./build/index.html \
 		$(CPPFLAGS) $(LDFLAGS) $(LDLIBS) \
+		-s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 \
 		-s FULL_ES2=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -O0 \
 		-s ALLOW_MEMORY_GROWTH=1 -s GL_UNSAFE_OPTS=0 \
 		-s ASSERTIONS=1 -s SAFE_HEAP=1 \

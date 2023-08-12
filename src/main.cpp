@@ -1,5 +1,5 @@
-#include "gpmutil.h"
-#include "gltfutil.h"
+#include "research_glm.h"
+#include "research_cgltf.h"
 
 #include <iostream>
 
@@ -43,7 +43,7 @@ void main_loop() {
 int main() {
   printMatrixTest();
 
-  tinyGltfTest();
+  cgltfTest();
 
   ctx = ctx_create();
 #ifdef __EMSCRIPTEN__
@@ -55,6 +55,9 @@ int main() {
   }
   ctx_delete(ctx);
 #endif
+//
+// THE END
+//
 // Attention, do not add anything bellow
 // because in Emscripten it cannot reach this point.
 }

@@ -8,6 +8,8 @@ include_directories(src)
 find_library(GLEW_LIBRARY GLEW)
 find_library(GLFW_LIBRARY glfw)
 
+find_package(assimp REQUIRED)
+
 # Set the path to the directory containing GLM headers
 set(GLM_INCLUDE_DIR "/opt/homebrew/include")
 
@@ -47,6 +49,7 @@ target_include_directories(MatrixTransform PRIVATE
 target_link_libraries(MatrixTransform PRIVATE
   ${GLEW_LIBRARY}
   ${GLFW_LIBRARY}
+  assimp::assimp
   "-framework OpenGL"
 )
 
