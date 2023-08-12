@@ -124,7 +124,9 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
     camera->Position[1],
     camera->Position[2]
   );
-  camera_matrix(camera, shader, "camMatrix");
+
+  camera_matrix(camera, shader, "worldToView");
+  
   vao_bind(mesh->vao);
 
 	glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, 0);

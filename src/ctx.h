@@ -53,9 +53,6 @@ ctx_t* ctx_create() {
   ctx->light_shader = shader_create("src/shaders/light-vert.glsl", "src/shaders/light-frag.glsl");
   ctx->sky_shader = shader_create("src/shaders/default-vert.glsl", "src/shaders/sky-frag.glsl");
 
-
-
-
 	vec4 lightColor;
   glm_vec4_copy((vec4){ 1.0f, 1.0f, 1.0f, 0.5f }, lightColor);
 
@@ -79,16 +76,16 @@ ctx_t* ctx_create() {
   ctx->lamp = mesh_sample_create_lamp();
 
 	shader_activate(ctx->light_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)lightModel);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)lightModel);
   glUniform4f(glGetUniformLocation(ctx->light_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
 
   shader_activate(ctx->default_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)ctx->pyramidModel);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)ctx->pyramidModel);
 	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
   glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
 
   shader_activate(ctx->sky_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->sky_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)skyModel);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->sky_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)skyModel);
 	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
   glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
 
@@ -186,7 +183,7 @@ inline static void ctx_render(ctx_t* ctx) {
     mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
 
     shader_activate(ctx->default_shader);
-  	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)ctx->pyramidModel);
+  	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)ctx->pyramidModel);
     mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
 
     // Swap the back buffer with the front buffer

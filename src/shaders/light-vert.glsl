@@ -2,9 +2,9 @@
 
 in vec4 aPos;
 
-uniform mat4 model;
-uniform mat4 camMatrix;
+uniform mat4 worldToView;
+uniform mat4 modelToWorld;
 
 void main() {
-  gl_Position = camMatrix * model * vec4(aPos.rgb, 1);
+  gl_Position = worldToView * modelToWorld * vec4(aPos.rgb, 1);
 }

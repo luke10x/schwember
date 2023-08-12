@@ -14,12 +14,12 @@ out vec2  texCoord;
 out float texId;
 out vec3  Normal;
 
-uniform mat4 camMatrix;
-uniform mat4 model;
+uniform mat4 worldToView;
+uniform mat4 modelToWorld;
 
 void main() {
-  crntPos = vec3(model * vec4(aPos, 1.0f));
-  gl_Position = camMatrix * vec4(crntPos, 1.0f);
+  crntPos     = vec3(modelToWorld * vec4(aPos, 1.0f));
+  gl_Position = worldToView       * vec4(crntPos, 1.0f);
   color = aColor;
   texCoord = aTex;
   texId = aTexId;
