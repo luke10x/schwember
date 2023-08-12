@@ -17,6 +17,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "mesh.h"
+#include "mesh_samples.h"
 
 typedef struct {
   int should_continue;
@@ -28,6 +29,7 @@ typedef struct {
   mesh_t* pyramid;
   mat4 pyramidModel;
 
+  mesh_t* lamp;
   
   camera_t* camera;
 } ctx_t;
@@ -51,71 +53,14 @@ ctx_t* ctx_create() {
   ctx->light_shader = shader_create("src/shaders/light-vert.glsl", "src/shaders/light-frag.glsl");
   ctx->sky_shader = shader_create("src/shaders/default-vert.glsl", "src/shaders/sky-frag.glsl");
 
-  // Vertices coordinates
-  vertex_t vertices[] =
-  {
-    { .position = {-0.5f, 0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.0f, -1.0f, 0.0f }}, // Bottom side
-    { .position = {-0.5f, 0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 5.0f }, .tex_id = 0.0, .normal = {  0.0f, -1.0f, 0.0f }}, // Bottom side
-    { .position = {0.5f,  0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 5.0f }, .tex_id = 0.0, .normal = {  0.0f, -1.0f, 0.0f }}, // Bottom side
-    { .position = {0.5f,  0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.0f, -1.0f, 0.0f }}, // Bottom side
-    { .position = {-0.5f, 0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 0.0, .normal = { -0.8f, 0.5f,  0.0f }}, // Left Side
-    { .position = {-0.5f, 0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 0.0, .normal = { -0.8f, 0.5f,  0.0f }}, // Left Side
-    { .position = {0.0f,  0.8f,  0.0f}, .color = { 0.92f, 0.86f, 0.76f }, .texUV = { 2.5f, 5.0f }, .tex_id = 0.0, .normal = { -0.8f, 0.5f,  0.0f }}, // Left Side
-    { .position = {-0.5f, 0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.0f, 0.5f, -0.8f }}, // Non-facing side
-    { .position = {0.5f,  0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.0f, 0.5f, -0.8f }}, // Non-facing side
-    { .position = {0.0f,  0.8f,  0.0f}, .color = { 0.92f, 0.86f, 0.76f }, .texUV = { 2.5f, 5.0f }, .tex_id = 0.0, .normal = {  0.0f, 0.5f, -0.8f }}, // Non-facing side
-    { .position = {0.5f,  0.0f, -0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.8f, 0.5f,  0.0f }}, // Right side
-    { .position = {0.5f,  0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 0.0, .normal = {  0.8f, 0.5f,  0.0f }}, // Right side
-    { .position = {0.0f,  0.8f,  0.0f}, .color = { 0.92f, 0.86f, 0.76f }, .texUV = { 2.5f, 5.0f }, .tex_id = 0.0, .normal = {  0.8f, 0.5f,  0.0f }}, // Right side
-    { .position = {0.5f,  0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}, // Facing side
-    { .position = {-0.5f, 0.0f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}, // Facing side
-    { .position = {0.0f,  0.8f,  0.0f}, .color = { 0.92f, 0.86f, 0.76f }, .texUV = { 2.5f, 5.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}  // Facing side
-  };
-  
-  // Indices for vertices order
-  GLuint indices[] =
-  {
-    0, 1, 2, // Bottom side
-    0, 2, 3, // Bottom side
-    4, 6, 5, // Left side
-    7, 9, 8, // Non-facing side
-    10, 12, 11, // Right side
-    13, 15, 14 // Facing side
-  };
 
-  vertex_t lightVertices[] =
-  { //     COORDINATES     //
-    { .position = {-0.1f, -0.1f,  0.1f}},
-    { .position = {-0.1f, -0.1f, -0.1f}},
-    { .position = {0.1f, -0.1f,  -0.1f}},
-    { .position = {0.1f, -0.1f,   0.1f}},
-    { .position = {-0.1f,  0.1f,  0.1f}},
-    { .position = {-0.1f,  0.1f, -0.1f}},
-    { .position = {0.1f,  0.1f,  -0.1f}},
-    { .position = {0.1f,  0.1f,   0.1f}}
-  };
 
-  GLuint lightIndices[] =
-  {
-    0, 1, 2,
-    0, 2, 3,
-    0, 4, 7,
-    0, 7, 3,
-    3, 7, 6,
-    3, 6, 2,
-    2, 6, 5,
-    2, 5, 1,
-    1, 5, 4,
-    1, 4, 0,
-    4, 5, 6,
-    4, 6, 7
-  };
 
 	vec4 lightColor;
   glm_vec4_copy((vec4){ 1.0f, 1.0f, 1.0f, 0.5f }, lightColor);
 
   vec3 lightPos;
-	glm_vec3_copy((vec3){ 35.0f, 35.0f, 0.5f }, lightPos);
+	glm_vec3_copy((vec3){ 1.0f, 1.0f, 0.5f }, lightPos);
 	mat4 lightModel = GLM_MAT4_IDENTITY_INIT;
   glm_translate(lightModel, lightPos);
 
@@ -130,25 +75,8 @@ ctx_t* ctx_create() {
 	mat4 skyModel = GLM_MAT4_IDENTITY_INIT;
 	glm_translate(skyModel, skyPos);
 
-
-  texture_t* wall_pic_tex = texture_create(
-    "assets/png/05-01-wall.png",
-     GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
-  );
-  texture_t* grass_pic_tex = texture_create(
-    "assets/png/17-03-grass.png",
-     GL_TEXTURE_2D, GL_TEXTURE1, GL_RGBA, GL_UNSIGNED_BYTE
-  );
-  texture_t** pyramid_textures = (texture_t**)malloc(sizeof(texture_t) * 4);
-  pyramid_textures[0] = wall_pic_tex;
-  pyramid_textures[1] = grass_pic_tex;
-
-  ctx->pyramid = mesh_create(
-    "pyram",
-    vertices, sizeof(vertices) / sizeof(vertex_t),
-    indices,  sizeof(indices) / sizeof(GLuint),
-    pyramid_textures, 2
-  );
+  ctx->pyramid = mesh_sample_create_pyramid();
+  ctx->lamp = mesh_sample_create_lamp();
 
 	shader_activate(ctx->light_shader);
 	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)lightModel);
@@ -253,6 +181,9 @@ inline static void ctx_render(ctx_t* ctx) {
     glClearColor(0.4f, 0.33f, 0.17f, 1.0f);
     // Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    shader_activate(ctx->light_shader);
+    mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
 
     shader_activate(ctx->default_shader);
   	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "model"), 1, GL_FALSE, (GLfloat*)ctx->pyramidModel);
