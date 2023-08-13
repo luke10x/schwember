@@ -12,7 +12,12 @@ clean:
 clean-assets:
 	rm -rf assets/gltf
 
-.PHONY: all build clean clean-assets
+run:
+	@echo "Press any key..."
+	@dd bs=1 count=1 2>/dev/null
+	./build/MatrixTransform
+
+.PHONY: all clean clean-assets run
 
 assets/gltf:
 	mkdir -p assets/gltf

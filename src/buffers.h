@@ -2,16 +2,23 @@
 
 #include "gl.h"
 
-#include <cglm/cglm.h>
-
+typedef struct {
+    float x;
+    float y;
+    float z;
+} vec3_t;
+typedef struct {
+    float x;
+    float y;
+} vec2_t;
 // Structure to standardize the vertices used in the meshes
 typedef struct
 {
-	vec3  position;
-	vec3  color;
-	vec2  texUV;
+	vec3_t position;
+	vec3_t  color;
+	vec2_t  texUV;
 	float tex_id;
-	vec3  normal;
+	vec3_t  normal;
 } vertex_t;
 
 /*
@@ -84,7 +91,6 @@ void vao_unbind(vao_t* self);
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "buffers.h"
 
 ebo_t* ebo_create(GLuint* indices, GLsizeiptr size) {
   ebo_t* self = (ebo_t*) malloc(sizeof(ebo_t));

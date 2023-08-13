@@ -2,15 +2,17 @@
 
 #include "shader.h"
 
-#include <cglm/cglm.h>
+#include "glm/ext.hpp"
+#include <glm/gtx/vector_angle.hpp>
+
 #include <math.h>
 
 typedef struct {
-  vec3 Position;
-  vec3 Orientation;
-  vec3 Up;
+  glm::vec3 location;
+  glm::vec3 yaw;
+  glm::vec3 pitch;
 
-  mat4 camera_matrix;
+  glm::mat4 camera_matrix;
 
 	// Prevents the camera from jumping around when first clicking left click
 	int firstClick;
@@ -23,7 +25,7 @@ typedef struct {
 
 } camera_t;
 
-camera_t* camera_create(int width, int height, vec3 position);
+camera_t* camera_create(int width, int height, glm::vec3 position);
 
 void camera_update_matrix(
   camera_t* self,
@@ -44,7 +46,6 @@ void camera_inputs(camera_t* self, GLFWwindow* window);
 // implementatation
 
 
-#include <cglm/cglm.h>
 #include <math.h>
 
 #include "gl.h"
@@ -53,21 +54,21 @@ void camera_inputs(camera_t* self, GLFWwindow* window);
 #include "shader.h"
 
 
-camera_t* camera_create(int width, int height, vec3 position) {
+camera_t* camera_create(int width, int height, glm::vec3 position) {
   camera_t* self = (camera_t*)malloc(sizeof(camera_t));
 
-  glm_vec3_copy(position, self->Position);
+  self->location    = position;
+  self->yaw = glm::vec3(0.0f, 0.0f, -1.0f);
+  self->pitch          = glm::vec3(0.0f, 1.0f, 0.0f);
 
-  glm_vec3_copy((vec3){ 0.0f, 0.0f, -1.0f },  self->Orientation);
-  glm_vec3_copy((vec3){ 0.0f, 1.0f, 0.0f },   self->Up);
-  glm_mat4_copy((mat4)GLM_MAT4_IDENTITY_INIT, self->camera_matrix);
+  self->camera_matrix = glm::mat4(1.0f);
 
-  self->width = width;
+  self->width  = width;
   self->height = height;
 
   self->firstClick = 0;
 
-  self->speed = 0.1f;
+  self->speed       = 0.1f;
   self->sensitivity = 100.0f;
 
   return self;
@@ -81,16 +82,20 @@ void camera_update_matrix(
 ) {
   float aspect = (float) self->width / self->height;
 
-  mat4 sum;
-  glm_vec3_add(self->Position, self->Orientation, (float *)sum);
+	// Initializes identity matrixes
+	glm::mat4 view       = glm::mat4(1.0f);
+	glm::mat4 projection = glm::mat4(1.0f);
 
-  mat4 view = GLM_MAT4_IDENTITY_INIT;
-  glm_lookat(self->Position, (float *)sum, self->Up, view);
+	// Makes camera look in the right direction from the right position
+  glm::vec3 eye    = self->location;
+  glm::vec3 center = self->location + self->yaw;
+	view = glm::lookAt(eye, center, self->pitch);
 
-  mat4 projection = GLM_MAT4_IDENTITY_INIT;
-  glm_perspective(glm_rad(fov_deg), aspect, near_plane, far_plane, projection);
+	// Adds perspective to the scene
+	projection = glm::perspective(glm::radians(fov_deg), aspect, near_plane, far_plane);
 
-  glm_mat4_mul(projection, view, self->camera_matrix);
+	// Sets new camera matrix
+	self->camera_matrix = projection * view;
 }
 
 void camera_matrix(
@@ -99,69 +104,37 @@ void camera_matrix(
   const char* uniform
 ) {
   GLuint location = glGetUniformLocation(shader->ID, uniform);
-  glUniformMatrix4fv(location, 1, GL_FALSE, (GLfloat*)(self->camera_matrix));
+  glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(self->camera_matrix));
 }
 
 void camera_inputs(camera_t* self, GLFWwindow* window) {
 	// Handles key inputs
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    vec3 tempVec;
-    glm_vec3_scale(self->Orientation, self->speed, tempVec); // multiply Orientation vector by speed and store in a temporary vector
-    glm_vec3_add(self->Position, tempVec, self->Position); // add the result to the Position vector
-
+    self->location += self->yaw * self->speed;;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    vec3 temp1, temp2, result;
-
-    // Compute the cross product between Orientation and Up vectors
-    glm_vec3_cross(self->Orientation, self->Up, temp1);
-
-    // Normalize the resulting vector
-    glm_normalize_to(temp1, temp2);
-
-    // Compute the vector to be added to the Position
-    glm_vec3_scale(temp2, -self->speed, result);
-
-    // Add the resulting vector to the Position
-    glm_vec3_add(self->Position, result, self->Position);
+    self->location += glm::normalize(glm::cross(self->yaw, self->pitch)) * -self->speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    vec3 tempVec;
-    glm_vec3_scale(self->Orientation, -self->speed, tempVec); // multiply Orientation vector by speed and store in a temporary vector
-    glm_vec3_add(self->Position, tempVec, self->Position); // add the result to the Position vector
-
+    glm::vec3 tempVec = self->yaw * -self->speed;
+    self->location += tempVec;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    vec3 temp1, temp2, result;
-
-    // Compute the cross product between Orientation and Up vectors
-    glm_vec3_cross(self->Orientation, self->Up, temp1);
-
-    // Normalize the resulting vector
-    glm_normalize_to(temp1, temp2);
-
-    // Compute the vector to be added to the Position
-    glm_vec3_scale(temp2, self->speed, result);
-
-    // Add the resulting vector to the Position
-    glm_vec3_add(self->Position, result, self->Position);
+    self->location += glm::normalize(glm::cross(self->yaw, self->pitch)) * self->speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    vec3 scaled_up;
-    glm_vec3_scale(self->Up, self->speed, scaled_up);
-    glm_vec3_add(self->Position, scaled_up, self->Position);
+    self->location += self->pitch * self->speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-    vec3 scaled_up;
-    glm_vec3_scale(self->Up, -self->speed, scaled_up);
-    glm_vec3_add(self->Position, scaled_up, self->Position);
+    self->location -= self->pitch * self->speed;
 	}
 
-  // Calculates upcoming vertical change in the Orientation
-  vec3 crossed, normalized, orientation_copy;
-  glm_vec3_copy(self->Orientation, orientation_copy);
-  glm_vec3_cross(self->Orientation, self->Up, crossed);
-  glm_normalize_to(crossed, normalized);
+  glm::vec3 orientation_copy = self->yaw;
+  glm::vec3 crossed = glm::cross(self->yaw, self->pitch);
+
+    // Normalize the resulting vector
+  glm::vec3 normalized = glm::normalize(crossed);
+
 
   float rot_x = 0.0f;
   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
@@ -172,11 +145,10 @@ void camera_inputs(camera_t* self, GLFWwindow* window) {
   }
 
   if (rot_x != 0.0f) {
-    float angle = glm_vec3_angle(normalized, self->Up);
-
-    glm_vec3_rotate(orientation_copy, glm_rad(-rot_x), normalized);
-		if (fabsf(angle - glm_rad(90.0f)) <= glm_rad(85.0f)) {
-      glm_vec3_copy(orientation_copy, self->Orientation);
+    float angle = glm::angle(normalized, self->pitch);
+    glm::vec3 new_orientation = glm::rotate(orientation_copy, glm::radians(-rot_x), normalized);
+		if (fabsf(angle - glm::radians(90.0f)) <= glm::radians(85.0f)) {
+      self->yaw = new_orientation;
 		}
   }
 
@@ -190,7 +162,7 @@ void camera_inputs(camera_t* self, GLFWwindow* window) {
 
   if (rot_y != 0.0f) {
     // Rotates the Orientation left and right
-    glm_vec3_rotate(self->Orientation, glm_rad(rot_y), self->Up);
+    self->yaw = glm::rotate(self->yaw, glm::radians(rot_y), self->pitch);
   }
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -203,12 +175,13 @@ void camera_inputs(camera_t* self, GLFWwindow* window) {
 	}
 
 	// Handles mouse inputs
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
 		// Hides mouse cursor
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 		// Prevents camera from jumping on the first click
-		if (self->firstClick == 1)
+		if (self->firstClick)
 		{
 			glfwSetCursorPos(window, (self->width / 2), (self->height / 2));
 			self->firstClick = 0;
@@ -223,24 +196,23 @@ void camera_inputs(camera_t* self, GLFWwindow* window) {
 		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
 		// and then "transforms" them into degrees 
 		float rotX = self->sensitivity * (float)(mouseY - (self->height / 2)) / self->height;
-		float rotY = self->sensitivity * (float)(mouseX - (self->width / 2)) /  self->width;
+		float rotY = self->sensitivity * (float)(mouseX - (self->width / 2))  / self->width;
 
 		// Calculates upcoming vertical change in the Orientation
-    vec3 crossed, normalized, orientation_copy;
+		glm::vec3 newOrientation = glm::rotate(
+      self->yaw,
+      glm::radians(-rotX),
+      glm::normalize(glm::cross(self->yaw, self->pitch))
+    );
 
-    glm_vec3_copy(self->Orientation, orientation_copy);
-    glm_vec3_cross(self->Orientation, self->Up, crossed);
-    glm_normalize_to(crossed, normalized);
-    glm_vec3_rotate(orientation_copy, glm_rad(-rotX), normalized);
-
-    float angle = glm_vec3_angle(normalized, self->Up);
 		// Decides whether or not the next vertical Orientation is legal or not
-		if (fabsf(angle - glm_rad(90.0f)) <= glm_rad(85.0f)) {
-      glm_vec3_copy(orientation_copy, self->Orientation);
+		if (abs(glm::angle(newOrientation, self->pitch) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			self->yaw = newOrientation;
 		}
 
 		// Rotates the Orientation left and right
-    glm_vec3_rotate(self->Orientation, glm_rad(-rotY), self->Up);
+		self->yaw = glm::rotate(self->yaw, glm::radians(-rotY), self->pitch);
 
 		// Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
 		glfwSetCursorPos(window, (self->width / 2), (self->height / 2));
@@ -250,6 +222,6 @@ void camera_inputs(camera_t* self, GLFWwindow* window) {
 		// Unhides cursor since camera is not looking around anymore
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		// Makes sure the next time the camera looks around it doesn't jump
-		self->firstClick = 1;
+		self->firstClick = true;
 	}
 }
