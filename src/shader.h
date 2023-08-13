@@ -170,6 +170,35 @@ void shader_activate(const shader_t* self) {
   glUseProgram(self->ID);
 }
 
+void shader_set_uniform_mat4(shader_t* self, const char* uniform, glm::mat4 value) {
+    shader_activate(self);
+
+    glUniformMatrix4fv(
+      glGetUniformLocation(self->ID, uniform), // location
+      1,                                       // count
+      GL_FALSE,                                // transpose
+      (GLfloat*)glm::value_ptr(value)          // value
+    );
+}
+
+void shader_set_uniform_vec4(shader_t* self, const char* uniform, glm::vec4 value) {
+  shader_activate(self);
+
+  glUniform4f(
+    glGetUniformLocation(self->ID, uniform), // location
+    value[0], value[1], value[2], value[3]   // value
+  ); 
+}
+
+void shader_set_uniform_vec3(shader_t* self, const char* uniform, glm::vec3 value) {
+  shader_activate(self);
+
+  glUniform3f(
+    glGetUniformLocation(self->ID, uniform), // location
+    value[0], value[1], value[2]             // value
+  ); 
+}
+
 void shader_delete(const shader_t* self) {
   
 }

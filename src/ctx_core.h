@@ -94,7 +94,16 @@ void ctx_perform_one_cycle(ctx_t* ctx) {
   // Handle input, advance state, and render the scene
   ctx_handle_input(ctx);
   ctx_advance_state(ctx);
+
+
+  glClearColor(0.4f, 0.33f, 0.17f, 1.0f);
+  // Clean the back buffer and assign the new color to it
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   ctx_render(ctx);
+
+  // Swap the back buffer with the front buffer
+  glfwSwapBuffers(ctx->window);
   
   // Poll events from the window system's event queue
   glfwPollEvents();

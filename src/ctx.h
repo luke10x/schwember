@@ -36,58 +36,54 @@ typedef struct {
 } ctx_t;
 
 void ctx_load(ctx_t* ctx, int width, int height) {
+  // Setup shaders
   ctx->default_shader = shader_create("src/shaders/default.vert", "src/shaders/default.frag");
   ctx->light_shader   = shader_create("src/shaders/light.vert", "src/shaders/light.frag");
   ctx->sky_shader     = shader_create("src/shaders/default.vert", "src/shaders/sky.frag");
 
-  glm::vec4 light_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
-  glm::vec3 light_pos   = glm::vec3(1.0f, 1.0f, 0.5f);
-  glm::mat4 lamp_transform = translate(glm::mat4(1.0f), light_pos);
-  ctx->lamp                = mesh_sample_create_lamp();
+  // light source
+  glm::vec4 light_color = glm::vec4(1.0f, 0.9f, 0.7f, 0.5f);
+  glm::vec3 light_pos   = glm::vec3(-3.0f, 2.5f, 0.0f); // 03:00
 
-  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
+  // all shaders use the light source (for reflections)
+  shader_set_uniform_vec4(ctx->light_shader, "lightColor", light_color);
+  shader_set_uniform_vec4(ctx->default_shader, "lightColor", light_color);
+  shader_set_uniform_vec3(ctx->default_shader, "lightPos",   light_pos);
+  shader_set_uniform_vec4(ctx->sky_shader, "lightColor", light_color);
+  shader_set_uniform_vec3(ctx->sky_shader, "lightPos",   light_pos);
+
+  // Lamp is placed where the light source is
+  glm::mat4 lamp_transform = translate(glm::mat4(1.0f), light_pos);
+  shader_set_uniform_mat4(ctx->light_shader, "modelToWorld", lamp_transform);
+  ctx->lamp = mesh_sample_create_lamp();
+
+  // Pyramid
   ctx->pyramid           = mesh_sample_create_pyramid();
 
+  // Just in the middle
   ctx->floor = mesh_sample_create_floor();
 
+  // TODO add skybox mesh
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
+  shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
 
-	shader_activate(ctx->light_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(lamp_transform));
-  glUniform4f(glGetUniformLocation(ctx->light_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
+  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2)); // 12:00
+  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f)); // x2
 
-  shader_activate(ctx->default_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(ctx->pyramid_transform));
-	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
-  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), light_pos[0], light_pos[1], light_pos[2]);
-
-  shader_activate(ctx->sky_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->sky_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(skybox_transform));
-	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
-  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), light_pos[0], light_pos[1], light_pos[2]);
-
-  ctx->camera = camera_create(width, height, glm::vec3(2.0f, 1.8f, 3.0f));
+  ctx->camera = camera_create(width, height,
+    glm::vec3(-glm::sqrt(3), 1.8f, -3) // 05:00
+    // glm::vec3(ctx->pyramid_transform[3][0], ctx->pyramid_transform[3][1], ctx->pyramid_transform[3][2])    
+    // light_pos  
+  ); 
 }
 
-
 inline static void ctx_render(ctx_t* ctx) {
-    // Specify the color of the background
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
+  mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
 
-    glClearColor(0.4f, 0.33f, 0.17f, 1.0f);
-    // Clean the back buffer and assign the new color to it
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", glm::mat4(1.0));
+  mesh_draw(ctx->floor, ctx->default_shader, ctx->camera);
 
-    mesh_draw(ctx->floor,   ctx->default_shader, ctx->camera);
-
-    shader_activate(ctx->light_shader);
-    mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
-
-    shader_activate(ctx->default_shader);
-  	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)glm::value_ptr(ctx->pyramid_transform));
-    mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
-
-    mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
-
-    // Swap the back buffer with the front buffer
-    glfwSwapBuffers(ctx->window);
+  // transparent must render last
+  mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
 }

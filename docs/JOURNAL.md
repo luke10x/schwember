@@ -38,6 +38,8 @@ There is the entry for today:
 
 ## 2023-08-13, Sun
 
-## 2023-08-13, Sun
+- make shaders more aware of uniforms
+- still looking on ways to play animations
+- in not too much detail is described in FloatyMonke's YT
+- also ozz-animation seems to may be useful
 
-## 2023-08-13, Sun
