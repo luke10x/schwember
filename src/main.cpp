@@ -13,7 +13,7 @@
 #include <emscripten.h>
 #endif
 
-#include "ctx.h"
+#include "ctx_core.h"
 
 /*
  * This context holds data between cycles

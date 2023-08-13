@@ -36,4 +36,8 @@ There is the entry for today:
 - And if to apply skeletal transformations outside of the shader in CPU,
   would it be fast enough?
 
+## 2023-08-13, Sun
 
+## 2023-08-13, Sun
+
+## 2023-08-13, Sun
