@@ -26,8 +26,10 @@ typedef struct {
   shader_t* light_shader;
   shader_t* sky_shader;
 
-  mesh_t* pyramid;
-  glm::mat4 pyramidModel;
+  mesh_t*   pyramid;
+  glm::mat4 pyramid_transform;
+
+  mesh_t* floor;
 
   mesh_t* lamp;
   
@@ -52,40 +54,35 @@ ctx_t* ctx_create() {
   int width, height; // Actuall values can be doubled on Apple
   ctx_resize_framebuffer_to_window(ctx, &width, &height);
 
-  ctx->default_shader = shader_create("src/shaders/default-vert.glsl", "src/shaders/default-frag.glsl");
-  ctx->light_shader   = shader_create("src/shaders/light-vert.glsl", "src/shaders/light-frag.glsl");
-  ctx->sky_shader     = shader_create("src/shaders/default-vert.glsl", "src/shaders/sky-frag.glsl");
+  ctx->default_shader = shader_create("src/shaders/default.vert", "src/shaders/default.frag");
+  ctx->light_shader   = shader_create("src/shaders/light.vert", "src/shaders/light.frag");
+  ctx->sky_shader     = shader_create("src/shaders/default.vert", "src/shaders/sky.frag");
 
-  glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
-  glm::vec3 lightPos   = glm::vec3(1.0f, 1.0f, 0.5f);
-  glm::mat4 lightModel = translate(glm::mat4(1.0f), lightPos);
+  glm::vec4 light_color = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
+  glm::vec3 light_pos   = glm::vec3(1.0f, 1.0f, 0.5f);
+  glm::mat4 lamp_transform = translate(glm::mat4(1.0f), light_pos);
+  ctx->lamp                = mesh_sample_create_lamp();
 
-  ctx->pyramidModel = glm::translate(
-    glm::mat4(1.0f),
-    glm::vec3(-0.5, -0.5, 0.0f)
-  );
+  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
+  ctx->pyramid           = mesh_sample_create_pyramid();
 
-  glm::mat4 skyModel = glm::translate(
-    glm::mat4(1.0f),
-    glm::vec3(-0.5, -0.5, 0.0f)
-  );
+  ctx->floor = mesh_sample_create_floor();
 
-  ctx->pyramid = mesh_sample_create_pyramid();
-  ctx->lamp    = mesh_sample_create_lamp();
+  glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
 
 	shader_activate(ctx->light_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(lightModel));
-  glUniform4f(glGetUniformLocation(ctx->light_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->light_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(lamp_transform));
+  glUniform4f(glGetUniformLocation(ctx->light_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
 
   shader_activate(ctx->default_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(ctx->pyramidModel));
-	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
-  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(ctx->pyramid_transform));
+	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
+  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), light_pos[0], light_pos[1], light_pos[2]);
 
   shader_activate(ctx->sky_shader);
-	glUniformMatrix4fv(glGetUniformLocation(ctx->sky_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(skyModel));
-	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
-  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), lightPos[0], lightPos[1], lightPos[2]);
+	glUniformMatrix4fv(glGetUniformLocation(ctx->sky_shader->ID, "modelToWorld"), 1, GL_FALSE, glm::value_ptr(skybox_transform));
+	glUniform4f(glGetUniformLocation(ctx->default_shader->ID, "lightColor"), light_color[0], light_color[1], light_color[2], light_color[3]);
+  glUniform3f(glGetUniformLocation(ctx->default_shader->ID, "lightPos"), light_pos[0], light_pos[1], light_pos[2]);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -179,8 +176,11 @@ inline static void ctx_render(ctx_t* ctx) {
     mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
 
     shader_activate(ctx->default_shader);
-  	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)glm::value_ptr(ctx->pyramidModel));
+  	glUniformMatrix4fv(glGetUniformLocation(ctx->default_shader->ID, "modelToWorld"), 1, GL_FALSE, (GLfloat*)glm::value_ptr(ctx->pyramid_transform));
     mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
+
+    mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
+    mesh_draw(ctx->floor,   ctx->default_shader, ctx->camera);
 
     // Swap the back buffer with the front buffer
     glfwSwapBuffers(ctx->window);

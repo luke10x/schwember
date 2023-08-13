@@ -57,9 +57,9 @@ void camera_inputs(camera_t* self, GLFWwindow* window);
 camera_t* camera_create(int width, int height, glm::vec3 position) {
   camera_t* self = (camera_t*)malloc(sizeof(camera_t));
 
-  self->location    = position;
-  self->yaw = glm::vec3(0.0f, 0.0f, -1.0f);
-  self->pitch          = glm::vec3(0.0f, 1.0f, 0.0f);
+  self->location  = position;
+  self->yaw       = glm::vec3(0.0f, 0.0f, -1.0f); // look around left/right directions
+  self->pitch     = glm::vec3(0.0f, 1.0f, 0.0f);  // look up/down
 
   self->camera_matrix = glm::mat4(1.0f);
 

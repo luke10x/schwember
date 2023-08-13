@@ -10,26 +10,22 @@ CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
 LDFLAGS += -L/emsdk/upstream/emscripten/cache/sysroot/lib
 
 # LDLIBS += -lLinearlMath -lBulletDynamics -lBulletCollision
+EMSCRIPTENFLAGS := -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 
+EMSCRIPTENFLAGS += -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1
+EMSCRIPTENFLAGS += -s FULL_ES2=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -O0
+EMSCRIPTENFLAGS += -s ALLOW_MEMORY_GROWTH=1 -s GL_UNSAFE_OPTS=0
+EMSCRIPTENFLAGS += -s ASSERTIONS=1 -s SAFE_HEAP=1
+EMSCRIPTENFLAGS += $(shell ls ../src/shaders | sed -e \
+	's|.*|--preload-file ../src/shaders/\0@src/shaders/\0|')
+EMSCRIPTENFLAGS += $(shell ls ../assets/gltf | sed -e \
+	's|.*|--preload-file ../assets/gltf/\0@assets/gltf/\0|')
+EMSCRIPTENFLAGS += $(shell ls ../assets/png | sed -e \
+	's|.*|--preload-file ../assets/png/\0@assets/png/\0|')
 
 build:
-
 	mkdir -p ./build
-	em++ \
-		../src/main.cpp \
-		-o ./build/index.html \
-		$(CPPFLAGS) $(LDFLAGS) $(LDLIBS) \
-		-s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 \
-		-s FULL_ES2=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -O0 \
-		-s ALLOW_MEMORY_GROWTH=1 -s GL_UNSAFE_OPTS=0 \
-		-s ASSERTIONS=1 -s SAFE_HEAP=1 \
-    --preload-file ../src/shaders/light-vert.glsl@src/shaders/light-vert.glsl \
-    --preload-file ../src/shaders/light-frag.glsl@src/shaders/light-frag.glsl \
-    --preload-file ../src/shaders/default-vert.glsl@src/shaders/default-vert.glsl \
-    --preload-file ../src/shaders/default-frag.glsl@src/shaders/default-frag.glsl \
-    --preload-file ../src/shaders/sky-frag.glsl@src/shaders/sky-frag.glsl \
-		--preload-file ../assets/png/05-01-wall.png@assets/png/05-01-wall.png \
-		--preload-file ../assets/png/17-03-grass.png@assets/png/17-03-grass.png \
-		--preload-file ../assets/gltf/cubeman.glb@assets/gltf/cubeman.glb
+	em++ ../src/main.cpp -o ./build/index.html \
+		$(CPPFLAGS) $(LDFLAGS) $(LDLIBS) $(EMSCRIPTENFLAGS)
 
 clean:
 	rm -rf build
