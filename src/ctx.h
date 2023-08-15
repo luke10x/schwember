@@ -57,8 +57,11 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   shader_set_uniform_mat4(ctx->light_shader, "modelToWorld", lamp_transform);
   ctx->lamp = mesh_sample_create_lamp();
 
-  // Pyramid
-  ctx->pyramid           = mesh_sample_create_pyramid();
+  // Pyramid in the north
+  ctx->pyramid = mesh_sample_create_pyramid();
+  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2));
+  // inflate it a bit so that it matches floor texture
+  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
 
   // Just in the middle
   ctx->floor = mesh_sample_create_floor();
@@ -67,13 +70,9 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
 
-  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 2)); // 12:00
-  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f)); // x2
-
   ctx->camera = camera_create(width, height,
-    glm::vec3(-glm::sqrt(3), 1.8f, -3) // 05:00
-    // glm::vec3(ctx->pyramid_transform[3][0], ctx->pyramid_transform[3][1], ctx->pyramid_transform[3][2])    
-    // light_pos  
+    glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
+    glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
   ); 
 }
 

@@ -42,4 +42,27 @@ There is the entry for today:
 - still looking on ways to play animations
 - in not too much detail is described in FloatyMonke's YT
 - also ozz-animation seems to may be useful
+- all day very hard trying ot implement camera controls
+- all controls working except yawing to sides does not stay
+  on floor plane, which makes camera roll
+- trying very hard just to get that right
+- I changed view_matrix to be the main source of camera position data
+- before it was tracking the angles and recalculating it
 
+## 2023-08-14, Mon
+
+- got the camera movement vorking in consistent way
+- it supports 3 degree of freedom of movement and 3 of rotation
+- it would be more practical to always keep camera horizontally aligned
+  but then it is difficult to do it directly iterracting to view matrix.
+- actually in the end of the day it is sometheing that makes sense
+  (direct control on camera), in practical applications there 
+  will have to be different controllers. but it is not necessary
+  to have them figured now
+
+    W     - Move forward   UP     - Pitch up
+    S     - Move backward  DOWN   - Pitch down
+    A     - Strafe left    LEFT   - Yaw left
+    D     - Strafe right   RIGHT  - Yaw right
+    Shift - Move up        Comma  - Roll left
+    Space - Move down      Period - Roll right 

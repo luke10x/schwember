@@ -120,9 +120,9 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 	// Take care of the camera Matrix
 	glUniform3f(
     glGetUniformLocation(shader->ID, "camPos"),
-    camera->location[0],
-    camera->location[1],
-    camera->location[2]
+    camera->view_matrix[3][0],
+    camera->view_matrix[3][1],
+    camera->view_matrix[3][2]
   );
 
   camera_matrix(camera, shader, "worldToView");
