@@ -12,6 +12,7 @@
 #include "texture.h"
 #include "mesh.h"
 #include "mesh_samples.h"
+#include "mesh_load.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -69,6 +70,8 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // TODO add skybox mesh
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
+
+  load_mesh_from_file("assets/gltf/texture-test.glb");
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00

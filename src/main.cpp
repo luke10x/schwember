@@ -1,5 +1,3 @@
-#include "research_glm.h"
-#include "research_cgltf.h"
 
 #include <iostream>
 
@@ -41,10 +39,6 @@ void main_loop() {
  * and starts the main loop.
  */
 int main() {
-  printMatrixTest();
-
-  cgltfTest();
-
   ctx = ctx_create();
 #ifdef __EMSCRIPTEN__
   int fps = 0;

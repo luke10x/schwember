@@ -24,8 +24,3 @@ run: build/schwember
 	./build/schwember
 
 .PHONY: all clean clean-assets run
-
-assets/gltf:
-	mkdir -p assets/gltf
-	blender -b resources/cubeman.blend -o assets/obj/cubeman.gltf --python-expr \
-		"import bpy; bpy.ops.export_scene.gltf(filepath='assets/gltf/cubeman.gltf')"

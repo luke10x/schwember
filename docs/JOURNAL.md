@@ -74,5 +74,5 @@ There is the entry for today:
 - My shaders contain of up to 4 tectures which is just a base color
   I will have to redo shader system to only support one texture per
   mesh (or primitive).
-- I should rename my mesh to primitive following the GLTF structure
-- They will be endered separatelly
+- I will try to keep mesh object containing data for entire mesh,
+  but it wil have to render each primitives data separatelly

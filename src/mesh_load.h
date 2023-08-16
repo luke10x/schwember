@@ -1,7 +1,10 @@
+#pragma once
+
 #include <iostream>
 
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
+#include "mesh.h"
 
 void printAccessorProperties(const cgltf_accessor* accessor, cgltf_data* data) {
     printf("Accessor Properties (%zu): \n", accessor->stride);
@@ -130,13 +133,13 @@ void applyAnimationTransform(cgltf_data* data, size_t animationIndex, double key
     }
 }
 
-void cgltfTest() {
+mesh_t* load_mesh_from_file(const char *gltf_file_name) {
     cgltf_options options;
     std::memset(&options, 0, sizeof(cgltf_options));
 
     cgltf_data* data = nullptr;
-    cgltf_result result = cgltf_parse_file(&options, "assets/gltf/cubeman.glb", &data);
-    // cgltf_result result = cgltf_parse_file(&options, "assets/skin.gltf", &data);
+    cgltf_result result = cgltf_parse_file(&options, gltf_file_name, &data);
+
     if (result != cgltf_result_success) {
         std::cerr << "Error loading glTF file: " << result << std::endl;
     }
@@ -166,4 +169,6 @@ void cgltfTest() {
     std::cout << "Success " << result << std::endl;
 
     cgltf_free(data);
+
+    return NULL;
 }
