@@ -66,3 +66,13 @@ There is the entry for today:
     D     - Strafe right   RIGHT  - Yaw right
     Shift - Move up        Comma  - Roll left
     Space - Move down      Period - Roll right 
+
+## 2023-08-15, Tue
+
+- Reading about structure of GLTF, apparently what I call mesh
+  is referred as primitive.
+- My shaders contain of up to 4 tectures which is just a base color
+  I will have to redo shader system to only support one texture per
+  mesh (or primitive).
+- I should rename my mesh to primitive following the GLTF structure
+- They will be endered separatelly

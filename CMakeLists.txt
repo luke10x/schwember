@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(MatrixTransform)
+project(schwember)
 
 # Add the path to the src directory
 include_directories(src)
@@ -34,10 +34,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(stb_image)
 
 # Add the source file to the project
-add_executable(MatrixTransform src/main.cpp)
+add_executable(schwember src/main.cpp)
 
 # Include headers
-target_include_directories(MatrixTransform PRIVATE
+target_include_directories(schwember PRIVATE
   ${GLM_INCLUDE_DIR}
   ${cgltf_SOURCE_DIR}
   ${stb_image_SOURCE_DIR}
@@ -46,7 +46,7 @@ target_include_directories(MatrixTransform PRIVATE
 )
 
 # Link libraries
-target_link_libraries(MatrixTransform PRIVATE
+target_link_libraries(schwember PRIVATE
   ${GLEW_LIBRARY}
   ${GLFW_LIBRARY}
   assimp::assimp
