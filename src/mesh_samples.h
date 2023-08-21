@@ -62,7 +62,7 @@ mesh_t* mesh_sample_create_pyramid() {
   
   GLuint indices[] =
   {
-    0, 1, 2, // Bottom side
+    0, 1, 11, // Bottom side
     0, 2, 3, // Bottom side
     4, 6, 5, // Left side
     7, 9, 8, // Non-facing side

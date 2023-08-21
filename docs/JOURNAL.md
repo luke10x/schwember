@@ -76,3 +76,10 @@ There is the entry for today:
   mesh (or primitive).
 - I will try to keep mesh object containing data for entire mesh,
   but it wil have to render each primitives data separatelly
+
+## 2023-08-20, Sun
+
+- Trying to remember what progress was done
+- I have been learning some OpenGL 3.0 ES meanwhile
+- Looks like I have a plan to	call glDrawElements with more args,
+  to define the offset and render just a part of the triangles;

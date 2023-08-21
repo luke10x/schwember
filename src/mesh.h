@@ -129,5 +129,6 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
   
   vao_bind(mesh->vao);
 
-	glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+  
 }
