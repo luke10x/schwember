@@ -49,8 +49,7 @@ texture_t* texture_create(
       exit(1);
   }
 
-  printf("Width %d, height %d, bpp %d\n", width, height, bpp);
-
+  // printf("Width %d, height %d, bpp %d\n", width, height, bpp);
 
   texture_t* self = (texture_t*)malloc(sizeof(texture_t));
   self->type = tex_type;

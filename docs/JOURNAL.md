@@ -83,3 +83,9 @@ There is the entry for today:
 - I have been learning some OpenGL 3.0 ES meanwhile
 - Looks like I have a plan to	call glDrawElements with more args,
   to define the offset and render just a part of the triangles;
+
+## 2023-08-22, Tue
+
+- GPT did not give any valuable advice how to parse vertices and indexes from gltf
+- But CgltfLoader.cpp in MaterialX project has a good example
+- use GH/search page is very good

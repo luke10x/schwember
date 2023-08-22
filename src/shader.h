@@ -97,7 +97,6 @@ GLuint _loadShader(GLenum type, const char *source)
 {
   // create shader
   GLenum error;
-  printf("errorrs so far:\n");
   while ((error = glGetError()) != GL_NO_ERROR){
 	  printf("gl error %d\n", error);
   }
@@ -120,9 +119,7 @@ GLuint _loadShader(GLenum type, const char *source)
     fprintf(stderr, "Shader compilation error\n");
     glDeleteShader(shader);
     return 0;
-  } else {
-    fprintf(stdout, "Success\n");
-  }
+  } else { /* shader compiled, BAU */}
   return shader;
 } 
 
@@ -155,9 +152,9 @@ shader_t* shader_create(const char* vertex_file, const char* fragment_file) {
   char* fragment_source = _get_file_contents(fragment_file);
 
   // load vertex and fragment shaders
-  fprintf(stdout, "Compiling vertex shader: %s\n", vertex_file);
+  // fprintf(stdout, "Compiling vertex shader: %s\n", vertex_file);
   GLuint vertexShader   = _loadShader(GL_VERTEX_SHADER, vertex_source);
-  fprintf(stdout, "Compiling fragment shader: %s\n", fragment_file);
+  // fprintf(stdout, "Compiling fragment shader: %s\n", fragment_file);
   GLuint fragmentShader = _loadShader(GL_FRAGMENT_SHADER, fragment_source);
 
   shader_t* self = (shader_t*) malloc(sizeof(shader_t));

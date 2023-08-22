@@ -4,6 +4,8 @@
 
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
+// #include "cgltf/cgltf.h"
+
 #include "mesh.h"
 
 void printAccessorProperties(const cgltf_accessor* accessor, cgltf_data* data) {
@@ -134,23 +136,175 @@ void applyAnimationTransform(cgltf_data* data, size_t animationIndex, double key
 }
 
 mesh_t* load_mesh_from_file(const char *gltf_file_name) {
-    cgltf_options options;
-    std::memset(&options, 0, sizeof(cgltf_options));
+  cgltf_options options;
+  std::memset(&options, 0, sizeof(cgltf_options));
 
-    cgltf_data* data = nullptr;
-    cgltf_result result = cgltf_parse_file(&options, gltf_file_name, &data);
+  cgltf_data* data = nullptr;
+  cgltf_result result = cgltf_parse_file(&options, gltf_file_name, &data);
 
-    if (result != cgltf_result_success) {
-        std::cerr << "Error loading glTF file: " << result << std::endl;
-    }
+  if (result != cgltf_result_success) {
+      std::cerr << "Error loading glTF file: " << result << std::endl;
+  }
+
+  result = cgltf_load_buffers(&options, data, gltf_file_name);
+  if (result != cgltf_result_success) {
+      std::cerr << "Error loading glTF file (BUFFERS): " << result << std::endl;
+      exit(1);
+  }
     // Loading successful, process the data here
     
         // Iterate through meshes and print their names
     printf("Meshes:\n");
-    for (size_t i = 0; i < data->meshes_count; ++i) {
-        cgltf_mesh* mesh = &data->meshes[i];
-        printf("  %zu: %s\n", i, mesh->name ? mesh->name : "Unnamed");
+  for (size_t i = 0; i < data->meshes_count; ++i) {
+    cgltf_mesh* mesh = &data->meshes[i];
+    printf("  %zu: %s\n", i, mesh->name ? mesh->name : "Unnamed");
+    for (cgltf_size i_prim = 0; i_prim < mesh->primitives_count; i_prim++) {
+      cgltf_primitive* primitive = &mesh->primitives[i_prim];
+      
+      cgltf_material* material = primitive->material;
+      const char* materialName = material ? material->name : "  No Material";
+      printf("   Material Name: %s\n", materialName);
+
+
+
+      // For each primitive attribute:
+      for (cgltf_size i_attr = 0; i_attr < primitive->attributes_count; i_attr++) {
+
+        cgltf_attribute* attribute = &primitive->attributes[i_attr];
+        cgltf_accessor* accessor = attribute->data;
+
+        if (!accessor) { continue; }
+
+        cgltf_int index = attribute->index;
+        if (index != 0) { continue; }
+              
+        cgltf_size float_count = cgltf_accessor_unpack_floats(accessor, NULL, 0);
+        float* buffer = (float *) malloc(sizeof(float) * float_count);
+        float_count = cgltf_accessor_unpack_floats(accessor, &buffer[0], float_count);
+
+        if (attribute->type == cgltf_attribute_type_position) {
+          printf("P");
+          int stride = 3;
+          for (int i = 0; i < float_count; i++) {
+            printf(" %.2f ", buffer[i]);
+          }
+          if (i % stride == 0) {
+            printf(">> ");
+
+          }
+        
+        }
+
+        if (attribute->type == cgltf_attribute_type_normal) {
+          printf("N");
+          for (int i = 0; i < float_count; i++) {
+            printf(" %.2f ", buffer[i]);
+          }
+        }
+        if (attribute->type == cgltf_attribute_type_color) {
+          printf("C");
+        }
+        if (attribute->type == cgltf_attribute_type_texcoord) {
+          printf("X");
+          for (int i = 0; i < float_count; i++) {
+            printf(" %.2f ", buffer[i]);
+          }
+        }
+      printf("\n");
+
+        free(buffer);
+      }
+
+      
+      cgltf_accessor* index_accessor = primitive->indices;
+      if (!index_accessor) {
+        std::cerr << "Cannot find index accessor" << std::endl;
+        exit(1);
+      }
+      
+      size_t index_count = index_accessor->count;
+
+
+      uint32_t* indices = (uint32_t*)malloc(sizeof(uint32_t) * index_count);
+      for (cgltf_size i = 0; i < index_count; i++) {
+          uint32_t index = static_cast<uint32_t>(cgltf_accessor_read_index(index_accessor, i));
+          indices[i] = index;
+      }
+      printf("IND: ");
+
+      for (int i = 0; i < index_count; i++) {
+        printf(" %d ", indices[i]);
+
+      }
+
+      printf("\n");
+
+
     }
+  }
+
+
+
+
+
+            // Access vertex data here
+            ////////////////////
+
+    
+    // printf("      Vertex Attributes:\n");
+    // printf("      %-15s %-15s %-15s\n", "Attribute", "Type", "Values");
+
+    // // Assume POSITION and NORMAL attributes are present
+    // cgltf_attribute* positionAttribute = NULL;
+    // cgltf_attribute* normalAttribute = NULL;
+
+    // for (cgltf_size j = 0; j < primitive->attributes_count; ++j) {
+    //     cgltf_attribute* attribute = &primitive->attributes[j];
+
+    //     if (strcmp(attribute->name, "POSITION") == 0) {
+    //         positionAttribute = attribute;
+    //     } else if (strcmp(attribute->name, "NORMAL") == 0) {
+    //         normalAttribute = attribute;
+    //     }
+
+
+    //            // Print attribute values        
+    //            int numComponents = attribute->data->type == cgltf_type_scalar 
+    //               ? 1 
+    //               : attribute->data->type - cgltf_type_vec2 + 2;
+
+    //     for (cgltf_size k = 0; k < attribute->data->count; ++k) {
+    //         printf(" [");
+    //         for (int l = 0; l < numComponents; ++l) {
+    //             float value = 0.0f;
+    //             cgltf_accessor_read_float(attribute->data, k * numComponents + l, &value, 1);
+    //             printf(" %.2f", value);
+    //         }
+    //         printf(" ]");
+    //     }
+    // }
+
+    // if (positionAttribute != NULL) {
+    //     // Access and print position attribute
+    //     // (Assuming it's a float vector with 3 components)
+    //     // You can use positionAttribute->data to access the accessor
+    //     // printf("POSITION       %-15s", positionAttribute->data->type);
+    //     // Print position attribute values here
+    //     printf("\n");
+    // }
+
+    // if (normalAttribute != NULL) {
+    //     // Access and print normal attribute
+    //     // (Assuming it's a float vector with 3 components)
+    //     // You can use normalAttribute->data to access the accessor
+    //     // printf("NORMAL         %-15s", normalAttribute->data->type);
+    //     // Print normal attribute values here
+    //     printf("\n");
+    // }
+
+    //         ////
+    //     }
+    // }
 
     // Iterate through animations and print their names
      // Iterate through animations and print their names
