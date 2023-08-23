@@ -89,3 +89,8 @@ There is the entry for today:
 - GPT did not give any valuable advice how to parse vertices and indexes from gltf
 - But CgltfLoader.cpp in MaterialX project has a good example
 - use GH/search page is very good
+- I still need to find how to load textures using cgltf
+- finally found how image data is located in raylib project
+- also looked at projects like Defold and MeshOptimizer
+- apparently somethimes gltf encode image data in image->uri base64 encoded
+- but this time my gltf generated in Blender has it in buffer_view
