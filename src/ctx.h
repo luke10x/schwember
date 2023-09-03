@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "mesh_samples.h"
 #include "mesh_load.h"
+#include "model.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -32,6 +33,8 @@ typedef struct {
   mesh_t* floor;
 
   mesh_t* lamp;
+
+  model_t* test_model;
   
   camera_t* camera;
 } ctx_t;
@@ -71,7 +74,8 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
 
-  load_mesh_from_file("assets/gltf/texture-test.glb");
+  ctx->test_model = model_create();
+  load_mesh_from_file("assets/gltf/texture-test.glb", ctx->test_model);
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -88,4 +92,6 @@ inline static void ctx_render(ctx_t* ctx) {
 
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
+
+  model_draw(ctx->test_model, ctx->default_shader, ctx->camera);
 }

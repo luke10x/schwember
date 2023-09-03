@@ -94,3 +94,16 @@ There is the entry for today:
 - also looked at projects like Defold and MeshOptimizer
 - apparently somethimes gltf encode image data in image->uri base64 encoded
 - but this time my gltf generated in Blender has it in buffer_view
+
+
+## 2023-09-01, Fri
+
+- I was off sick, now trying to go back to the project
+- Amount of work left to do to load models look overwhelming
+- although I know exactly what to do.
+
+## 2023-09-03, Sun
+
+- Got some time today, and got model vertex loaded
+- No colors yet, and all in a dirty way
+- model position is not applied, where is it in gltf?

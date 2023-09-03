@@ -31,7 +31,7 @@ ctx_t* ctx_create() {
 
   ctx_t* ctx = (ctx_t*) malloc(sizeof(ctx_t));
   ctx->should_continue = 1;
-  ctx->window = ctx_init_window(640, 480);
+  ctx->window = ctx_init_window(320, 240);
 
   int width, height; // Actuall values can be doubled on Apple
   ctx_resize_framebuffer_to_window(ctx, &width, &height);
