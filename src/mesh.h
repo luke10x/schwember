@@ -101,20 +101,8 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
   shader_activate(shader);
 
   if (mesh->texture_count > 0) {
-    texture_unit(&(mesh->textures[0]), shader, "sampler[0]", 0);
+    texture_unit(&(mesh->textures[0]), shader, "sampler", 0);
     texture_bind(&(mesh->textures[0]));
-  }
-  if (mesh->texture_count > 1) {
-    texture_unit(&(mesh->textures[1]), shader, "sampler[1]", 1);
-    texture_bind(&(mesh->textures[1]));
-  }
-  if (mesh->texture_count > 2) {
-    texture_unit(&(mesh->textures[2]), shader, "sampler[2]", 2);
-    texture_bind(&(mesh->textures[2]));
-  }
-  if (mesh->texture_count > 3) {
-    texture_unit(&(mesh->textures[3]), shader, "sampler[3]", 3);
-    texture_bind(&(mesh->textures[3]));
   }
 
 	// Take care of the camera Matrix

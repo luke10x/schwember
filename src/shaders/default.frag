@@ -10,7 +10,7 @@ in float texId;
 
 in vec3 Normal;
 
-uniform sampler2D sampler[4];
+uniform sampler2D sampler;
 uniform vec4 lightColor;
 uniform vec3 lightPos;
 
@@ -35,16 +35,7 @@ void main() {
 	float specular = specAmount * specularLight;
 
 	// outputs final color
-	vec4 color;
-	if (texId == 0.0) {
-		color = texture(sampler[0], texCoord);
-	} else if (texId == 1.0) {
-		color = texture(sampler[1], texCoord);
-	} else if (texId == 2.0) {
-		color = texture(sampler[2], texCoord);
-	} else {
-		color = texture(sampler[3], texCoord);
-	}
+	vec4 color = texture(sampler, texCoord);
 
 	fragColor = color * vec4(vec3(lightColor * (diffuse + ambient + specular)), 1.0f);
 }

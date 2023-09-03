@@ -28,21 +28,31 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
   // Loading successful, process the data here
     
   // Iterate through meshes and print their names
-  printf("Meshes:\n");
   for (size_t i = 0; i < data->meshes_count; ++i) {
     cgltf_mesh* mesh = &data->meshes[i];
     printf("  %zu: %s\n", i, mesh->name ? mesh->name : "Unnamed");
+
+    // Finds node for current mesh
+    cgltf_node* current_node = NULL;
+    for (int node_ind = 0; node_ind < data->nodes_count; node_ind++) {
+      cgltf_node* node = &(data->nodes[node_ind]);
+      cgltf_mesh* node_mesh = node->mesh;
+      if(node_mesh == mesh) {
+        current_node = node;
+        printf("    Found node: %s\n", current_node->name);
+      }
+    }
+
     for (cgltf_size i_prim = 0; i_prim < mesh->primitives_count; i_prim++) {
       cgltf_primitive* primitive = &mesh->primitives[i_prim];
       
       cgltf_accessor* position_accessor = primitive->attributes[0].data;
       size_t num_vertices = position_accessor->count;
-      printf("      Allocating %zu vertices", num_vertices);
       vertex_t* vertices = (vertex_t*) malloc(num_vertices * sizeof(vertex_t));
       
       cgltf_material* material = primitive->material;
       const char* materialName = material ? material->name : "  No Material";
-      printf("   Material Name: %s\n", materialName);
+      // printf("   Material Name: %s\n", materialName);
 
       cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
       cgltf_image* image = texture->image;
@@ -72,7 +82,7 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
 
         texture_of_primitive = texture_create_of_image_data(
           stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
-        printf("   Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
+        printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
 
         free (data);
       }
@@ -100,6 +110,36 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
             current_vertex->position.y = buffer[i + 1];
             current_vertex->position.z = buffer[i + 2];
           }
+
+          if (current_node != NULL && current_node->has_translation) {
+            float translation[3];
+            memcpy(translation, current_node->translation, sizeof(float) * 3);
+
+            printf("    Translation for %s: %f, %f, %f\n", current_node->name, translation[0], translation[1], translation[2]);
+            for(int i = 0; i < num_vertices; i++) {
+              vertex_t* current_vertex = (vertex_t*) (&vertices[i]);
+              current_vertex->position.x += translation[0];
+              current_vertex->position.y += translation[1];
+              current_vertex->position.z += translation[2];
+            }
+          }
+
+          if (current_node != NULL && current_node->has_rotation) {
+            float rotation[4];
+            memcpy(rotation, current_node->rotation, sizeof(float) * 4);
+            // rotate current_vertex->position
+          }
+
+          if (current_node != NULL && current_node->has_scale) {
+            float scale[3];
+            memcpy(scale, current_node->scale, sizeof(float) * 3);
+            for(int i = 0; i < float_count; i += 3) {
+              vertex_t* current_vertex = (vertex_t*) (&vertices[i / 3]);
+              current_vertex->position.x *= scale[0];
+              current_vertex->position.y *= scale[1];
+              current_vertex->position.z *= scale[2];
+            }
+          }
         }
         if (attribute->type == cgltf_attribute_type_normal) {
           for(int i = 0; i < float_count; i += 3) {
@@ -112,6 +152,7 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
         if (attribute->type == cgltf_attribute_type_color) {
           printf("C");
         }
+
         if (attribute->type == cgltf_attribute_type_texcoord) {
           for(int i = 0; i < float_count; i += 2) {
             vertex_t* current_vertex = (vertex_t*) (&vertices[i / 2]);
@@ -119,11 +160,9 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
             current_vertex->texUV.y = buffer[i + 1];
           }
         }
-        printf("\n");
-
+        
         free(buffer);
       }
-      printf("FRI: \n");
 
       cgltf_accessor* index_accessor = primitive->indices;
       if (!index_accessor) {
@@ -132,24 +171,22 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
       }
       
       size_t index_count = index_accessor->count;
-      printf("DRI: %zu index \n", index_count);
 
       uint32_t* indices = (uint32_t*)malloc(sizeof(uint32_t) * index_count);
       for (cgltf_size i = 0; i < index_count; i++) {
           uint32_t index = cgltf_accessor_read_index(index_accessor, i);
           indices[i] = index;
       }
-      printf("IND: ");
+      // printf("IND: ");
 
-      for (int i = 0; i < index_count; i++) {
-        printf(" %d ", indices[i]);
-      }
+      // for (int i = 0; i < index_count; i++) {
+      //   printf(" %d ", indices[i]);
+      // }
 
-
-      mesh_t* mesh = mesh_create("named", vertices, num_vertices,
+      mesh_t* model_mesh = mesh_create("named", vertices, num_vertices,
         indices, index_count, &texture_of_primitive, 1);
       
-      model->meshes[model->num_meshes] = mesh;
+      model->meshes[model->num_meshes] = model_mesh;
       
       model->num_meshes++;
       printf(" %zu) mesh added\n", model->num_meshes);
@@ -171,11 +208,10 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
           if (image != NULL) {
             const char* image_name = image->name;
             
-
             const cgltf_buffer_view* buffer_view = image->buffer_view;
             int image_index = texture->image - data->images;
   
-            printf("image name : %s (%d) \n ", image_name, image_index);
+            // printf("image name : %s (%d) \n ", image_name, image_index);
           }
       }
     }
