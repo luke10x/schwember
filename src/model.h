@@ -19,7 +19,10 @@ typedef struct {
 model_t* model_create() {
   model_t* self = (model_t*) malloc(sizeof(model_t));
 
-  self->meshes = (mesh_t**) malloc(16 * sizeof(mesh_t*));
+  self->meshes = (mesh_t**) malloc(128 * sizeof(mesh_t*));
+  self->num_meshes = 0;
+
+  self->num_materials = 0;
   return self;
 }
 

@@ -37,7 +37,7 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
       
       cgltf_accessor* position_accessor = primitive->attributes[0].data;
       size_t num_vertices = position_accessor->count;
-      printf("      Allocating %u vertices", num_vertices);
+      printf("      Allocating %zu vertices", num_vertices);
       vertex_t* vertices = (vertex_t*) malloc(num_vertices * sizeof(vertex_t));
       
       cgltf_material* material = primitive->material;
@@ -50,6 +50,8 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
       const char* image_name = image->name;
       const char* image_uri = image->uri;
       cgltf_image* cgltfImage = image;
+
+      texture_t* texture_of_primitive = NULL;
 
       if (image->buffer_view->buffer->data != NULL) {
         unsigned char *data = (unsigned char*) malloc(cgltfImage->buffer_view->size);
@@ -66,15 +68,14 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
 
         int width, height, bpp;
         unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
-                    
+
+
+        texture_of_primitive = texture_create_of_image_data(
+          stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
         printf("   Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
 
         free (data);
       }
-
-
-      
-
 
       // For each primitive attribute:
       for (cgltf_size i_attr = 0; i_attr < primitive->attributes_count; i_attr++) {
@@ -122,7 +123,8 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
 
         free(buffer);
       }
-      
+      printf("FRI: \n");
+
       cgltf_accessor* index_accessor = primitive->indices;
       if (!index_accessor) {
         std::cerr << "Cannot find index accessor" << std::endl;
@@ -130,10 +132,11 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
       }
       
       size_t index_count = index_accessor->count;
+      printf("DRI: %zu index \n", index_count);
 
       uint32_t* indices = (uint32_t*)malloc(sizeof(uint32_t) * index_count);
       for (cgltf_size i = 0; i < index_count; i++) {
-          uint32_t index = static_cast<uint32_t>(cgltf_accessor_read_index(index_accessor, i));
+          uint32_t index = cgltf_accessor_read_index(index_accessor, i);
           indices[i] = index;
       }
       printf("IND: ");
@@ -142,12 +145,14 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
         printf(" %d ", indices[i]);
       }
 
+
       mesh_t* mesh = mesh_create("named", vertices, num_vertices,
-        indices, index_count, NULL, 0);
+        indices, index_count, &texture_of_primitive, 1);
       
       model->meshes[model->num_meshes] = mesh;
+      
       model->num_meshes++;
-      printf("\n");
+      printf(" %zu) mesh added\n", model->num_meshes);
     }
 
     for (cgltf_size i = 0; i < data->materials_count; ++i) {
