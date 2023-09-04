@@ -12,8 +12,8 @@
 #include "texture.h"
 #include "mesh.h"
 #include "mesh_samples.h"
-#include "mesh_load.h"
 #include "model.h"
+#include "model_load.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -35,7 +35,12 @@ typedef struct {
   mesh_t* lamp;
 
   model_t* test_model;
-  
+
+  model_t* map_model;
+
+  model_t* subject;
+  glm::mat4 subject_transform;
+
   camera_t* camera;
 } ctx_t;
 
@@ -75,7 +80,14 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
 
   ctx->test_model = model_create();
-  load_mesh_from_file("assets/gltf/texture-test.glb", ctx->test_model);
+  model_load_from_file(ctx->test_model, "assets/gltf/texture-test.glb");
+  
+  ctx->map_model = model_create();
+  model_load_from_file(ctx->map_model, "assets/gltf/noob-level-map.glb");
+  
+  ctx->subject = model_create();
+  model_load_from_file(ctx->subject, "assets/gltf/noob.glb");
+  ctx->subject_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, 1));
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -90,8 +102,12 @@ inline static void ctx_render(ctx_t* ctx) {
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", glm::mat4(1.0));
   mesh_draw(ctx->floor, ctx->default_shader, ctx->camera);
 
+  model_draw(ctx->test_model, ctx->default_shader, ctx->camera);
+  model_draw(ctx->map_model, ctx->default_shader, ctx->camera);
+
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->subject_transform);
+  model_draw(ctx->subject, ctx->default_shader, ctx->camera);
+
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
-
-  model_draw(ctx->test_model, ctx->default_shader, ctx->camera);
 }

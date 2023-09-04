@@ -9,7 +9,49 @@
 #include "mesh.h"
 #include "model.h"
 
-mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
+void __apply_node_transformations(vertex_t* current_vertex, cgltf_node* current_node) {
+  if (current_node == NULL) return;
+
+  if (current_node->has_scale) {
+    current_vertex->position.x *= current_node->scale[0];
+    current_vertex->position.y *= current_node->scale[1];
+    current_vertex->position.z *= current_node->scale[2];
+  }
+
+  if (current_node->has_rotation) {
+    glm::quat glmRotationQuaternion = glm::quat(
+      current_node->rotation[3],
+      current_node->rotation[0],
+      current_node->rotation[1],
+      current_node->rotation[2]
+    );
+
+    glm::vec3 glm_vertex = glm::vec3(
+      current_vertex->position.x,
+      current_vertex->position.y,
+      current_vertex->position.z
+    );
+
+    glm_vertex = glm::rotate(glmRotationQuaternion, glm_vertex);
+
+    current_vertex->position.x = glm_vertex.x;
+    current_vertex->position.y = glm_vertex.y;
+    current_vertex->position.z = glm_vertex.z;
+  }
+
+  if (current_node->has_translation) {
+    current_vertex->position.x += current_node->translation[0];
+    current_vertex->position.y += current_node->translation[1];
+    current_vertex->position.z += current_node->translation[2];
+  }
+
+  // Recurse to parents
+  if (current_node->parent != NULL) {
+    __apply_node_transformations(current_vertex, current_node->parent);
+  }
+}
+
+mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
   cgltf_options options;
   std::memset(&options, 0, sizeof(cgltf_options));
 
@@ -77,8 +119,8 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
         int size = (int)cgltfImage->buffer_view->size;
 
         int width, height, bpp;
+        stbi_set_flip_vertically_on_load(0);
         unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
-
 
         texture_of_primitive = texture_create_of_image_data(
           stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
@@ -89,8 +131,6 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
 
       // For each primitive attribute:
       for (cgltf_size i_attr = 0; i_attr < primitive->attributes_count; i_attr++) {
-
-
         cgltf_attribute* attribute = &primitive->attributes[i_attr];
         cgltf_accessor* accessor = attribute->data;
 
@@ -110,36 +150,6 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
             current_vertex->position.y = buffer[i + 1];
             current_vertex->position.z = buffer[i + 2];
           }
-
-          if (current_node != NULL && current_node->has_translation) {
-            float translation[3];
-            memcpy(translation, current_node->translation, sizeof(float) * 3);
-
-            printf("    Translation for %s: %f, %f, %f\n", current_node->name, translation[0], translation[1], translation[2]);
-            for(int i = 0; i < num_vertices; i++) {
-              vertex_t* current_vertex = (vertex_t*) (&vertices[i]);
-              current_vertex->position.x += translation[0];
-              current_vertex->position.y += translation[1];
-              current_vertex->position.z += translation[2];
-            }
-          }
-
-          if (current_node != NULL && current_node->has_rotation) {
-            float rotation[4];
-            memcpy(rotation, current_node->rotation, sizeof(float) * 4);
-            // rotate current_vertex->position
-          }
-
-          if (current_node != NULL && current_node->has_scale) {
-            float scale[3];
-            memcpy(scale, current_node->scale, sizeof(float) * 3);
-            for(int i = 0; i < float_count; i += 3) {
-              vertex_t* current_vertex = (vertex_t*) (&vertices[i / 3]);
-              current_vertex->position.x *= scale[0];
-              current_vertex->position.y *= scale[1];
-              current_vertex->position.z *= scale[2];
-            }
-          }
         }
         if (attribute->type == cgltf_attribute_type_normal) {
           for(int i = 0; i < float_count; i += 3) {
@@ -152,7 +162,6 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
         if (attribute->type == cgltf_attribute_type_color) {
           printf("C");
         }
-
         if (attribute->type == cgltf_attribute_type_texcoord) {
           for(int i = 0; i < float_count; i += 2) {
             vertex_t* current_vertex = (vertex_t*) (&vertices[i / 2]);
@@ -162,6 +171,12 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
         }
         
         free(buffer);
+      }
+
+      // Apply transformations from node and its parents
+      for (int i = 0; i < num_vertices; i++) {
+        vertex_t* current_vertex = (vertex_t*) (&vertices[i]);
+        __apply_node_transformations(current_vertex, current_node);
       }
 
       cgltf_accessor* index_accessor = primitive->indices;
@@ -177,19 +192,12 @@ mesh_t* load_mesh_from_file(const char *gltf_file_name, model_t* model) {
           uint32_t index = cgltf_accessor_read_index(index_accessor, i);
           indices[i] = index;
       }
-      // printf("IND: ");
-
-      // for (int i = 0; i < index_count; i++) {
-      //   printf(" %d ", indices[i]);
-      // }
 
       mesh_t* model_mesh = mesh_create("named", vertices, num_vertices,
         indices, index_count, &texture_of_primitive, 1);
       
       model->meshes[model->num_meshes] = model_mesh;
-      
       model->num_meshes++;
-      printf(" %zu) mesh added\n", model->num_meshes);
     }
 
     for (cgltf_size i = 0; i < data->materials_count; ++i) {

@@ -107,3 +107,7 @@ There is the entry for today:
 - Got some time today, and got model vertex loaded
 - No colors yet, and all in a dirty way
 - model position is not applied, where is it in gltf?
+- Yes, finally I had to recurse to parents to apply
+  parent transformations too.
+- Transformations should be applied in SRT order:
+  Scale, Rotation, Translaion
