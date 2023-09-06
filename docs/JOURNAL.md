@@ -111,3 +111,23 @@ There is the entry for today:
   parent transformations too.
 - Transformations should be applied in SRT order:
   Scale, Rotation, Translaion
+
+
+## 2023-09-04, Mon
+
+- Today, I took a look around to Raylib and got an example
+  of Raylib+Bullet working on WASM in another repo
+- It makes 30FPS
+- Raylib is far ahead of Schwember, it maybe a point where
+  I will be using more Raylib than developing Schwember
+- Bullet requires asyncify to work on emcc
+
+
+## 2023-09-05, Tue
+
+- I added a "pixel perfect" sign textured from this
+  [youtube video](https://www.youtube.com/watch?v=RQVAUaSUP-k)
+- Except texture surface must be Principal BSDF
+- and it must use the texture for the base color
+- otherwise gltf loading segfaults right now
+- And I did not use suggested plugins from the video

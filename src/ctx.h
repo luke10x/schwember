@@ -38,6 +38,11 @@ typedef struct {
 
   model_t* map_model;
 
+  model_t* skybox;
+
+  model_t* sign;
+  glm::mat4 sign_transform;
+
   model_t* subject;
   glm::mat4 subject_transform;
 
@@ -78,6 +83,13 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // TODO add skybox mesh
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
+  ctx->skybox = model_create();
+  model_load_from_file(ctx->skybox, "assets/gltf/skybox.glb");
+
+  ctx->sign = model_create();
+  model_load_from_file(ctx->sign, "assets/gltf/pixel-perfect-sign.glb");
+  ctx->sign_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, -2));
+
 
   ctx->test_model = model_create();
   model_load_from_file(ctx->test_model, "assets/gltf/texture-test.glb");
@@ -104,9 +116,14 @@ inline static void ctx_render(ctx_t* ctx) {
 
   model_draw(ctx->test_model, ctx->default_shader, ctx->camera);
   model_draw(ctx->map_model, ctx->default_shader, ctx->camera);
+  model_draw(ctx->skybox, ctx->sky_shader, ctx->camera);
+
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->sign_transform);
+  model_draw(ctx->sign, ctx->default_shader, ctx->camera);
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->subject_transform);
   model_draw(ctx->subject, ctx->default_shader, ctx->camera);
+
 
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
