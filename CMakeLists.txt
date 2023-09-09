@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.12)
 project(schwember)
 
+execute_process(
+  COMMAND brew --prefix
+  OUTPUT_VARIABLE BREW_PREFIX
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Check if the command was successful
+if(NOT BREW_PREFIX)
+    message(FATAL_ERROR "Homebrew not found or brew --prefix failed")
+endif()
+
 # Add the path to the src directory
 include_directories(src)
 
@@ -8,7 +19,9 @@ include_directories(src)
 find_library(GLEW_LIBRARY GLEW)
 find_library(GLFW_LIBRARY glfw)
 
-find_package(assimp REQUIRED)
+find_package(Bullet REQUIRED)
+
+# message(FATAL_ERROR "Bullet Physics ${BULLET_LIBRARY}")
 
 # Set the path to the directory containing GLM headers
 set(GLM_INCLUDE_DIR "/opt/homebrew/include")
@@ -36,7 +49,10 @@ FetchContent_MakeAvailable(stb_image)
 # Add the source file to the project
 add_executable(schwember src/main.cpp)
 
+
 # Include headers
+include_directories(${BULLET_INCLUDE_DIRS})
+
 target_include_directories(schwember PRIVATE
   ${GLM_INCLUDE_DIR}
   ${cgltf_SOURCE_DIR}
@@ -49,7 +65,7 @@ target_include_directories(schwember PRIVATE
 target_link_libraries(schwember PRIVATE
   ${GLEW_LIBRARY}
   ${GLFW_LIBRARY}
-  assimp::assimp
+  ${BULLET_LIBRARIES}
   "-framework OpenGL"
 )
 

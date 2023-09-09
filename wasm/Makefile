@@ -8,6 +8,7 @@ CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
 # CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
 
 LDFLAGS += -L/emsdk/upstream/emscripten/cache/sysroot/lib
+LDLIBS += -lLinearMath -lBulletDynamics -lBulletCollision
 
 # LDLIBS += -lLinearlMath -lBulletDynamics -lBulletCollision
 EMSCRIPTENFLAGS := -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 

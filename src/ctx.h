@@ -14,18 +14,20 @@
 #include "mesh_samples.h"
 #include "model.h"
 #include "model_load.h"
+#include "physics.h"
 
 /*
 ** Context is the initialization data, and data that
 ** has to persist between frames
 */
-
 typedef struct {
   int should_continue;
   GLFWwindow* window;
   shader_t* default_shader;
   shader_t* light_shader;
   shader_t* sky_shader;
+
+  physics_t* physics;
 
   mesh_t*   pyramid;
   glm::mat4 pyramid_transform;
@@ -104,7 +106,9 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
-  ); 
+  );
+
+  ctx->physics = physics_create();
 }
 
 inline static void ctx_render(ctx_t* ctx) {

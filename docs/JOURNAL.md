@@ -1,7 +1,7 @@
 #!/bin/bash
-current_date=$(date '+%Y-%m-%d, %a')
-echo -e "\n## $current_date" >> "$0"
-exit()
+today=$(date '+%Y-%m-%d, %a')
+echo -e "\n## $today" >> "$0"
+exit 0
 
 ## 2023-08-12, Sat
 
@@ -118,7 +118,7 @@ There is the entry for today:
 - Today, I took a look around to Raylib and got an example
   of Raylib+Bullet working on WASM in another repo
 - It makes 30FPS
-- Raylib is far ahead of Schwember, it maybe a point where
+- Raylib is far ahead of Schwember, it maybe a point wherez
   I will be using more Raylib than developing Schwember
 - Bullet requires asyncify to work on emcc
 
@@ -131,3 +131,11 @@ There is the entry for today:
 - and it must use the texture for the base color
 - otherwise gltf loading segfaults right now
 - And I did not use suggested plugins from the video
+
+## 2023-09-09, Sat
+
+- After trying it with Raylib, I am starting to port Bullet
+  to this project
+- It will not be exact Raylib test copy, but instead I
+  need to load collission shapes from model/mesh data
+  
