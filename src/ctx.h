@@ -36,6 +36,7 @@ typedef struct {
   mesh_t*   myramid;
   glm::mat4 myramid_transform;
   btRigidBody* myramid_body__;
+  glm::vec3 pbbc__;
 
   mesh_t* floor;
   glm::mat4 floor_transform;
@@ -160,8 +161,12 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   glm::vec3 pbb = mesh_calculate_bounding_box(ctx->pyramid);
   printf("Pyramid BOUNDiNG: %f, %f, %f\n", pbb.x, pbb.y, pbb.z);
 
-  glm::vec3 pbbc =mesh_calculate_center_shift(ctx->pyramid);
-    printf("Pyramid Center shift: %f, %f, %f\n", pbbc.x, pbbc.y, pbbc.z);
+  ctx->pbbc__ = mesh_calculate_center_shift(ctx->pyramid);
+    printf("Pyramid Bounding Center shift: %f, %f, %f\n",
+    ctx->pbbc__.x,
+    ctx->pbbc__.y,
+    ctx->pbbc__.z
+  );
 
   btCollisionShape* pyramid_collision_shape = new btBoxShape(
     btVector3(
@@ -173,6 +178,15 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 
   ctx->physics->collision_shapes.push_back(pyramid_collision_shape);
 	
+  // glm::mat4 this_pyramid_transform = glm::translate(
+  //   ctx->pyramid_transform,
+  //   -glm::vec3(
+  //     pbbc.x * 4.0f,
+  //     pbbc.y * 4.0f,
+  //     pbbc.z * 4.0f
+  //   )
+  // );
+
   btTransform pyramid_bt_transform;
   // Use the glm matrix's first column
   // which contains the rotation and scale components
@@ -186,9 +200,11 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     pyramid_mass, pyramid_local_inertia
   );
 
-  btDefaultMotionState* pyramid_motion_state = new btDefaultMotionState(
-    pyramid_bt_transform
-  );
+
+
+btDefaultMotionState* pyramid_motion_state = new btDefaultMotionState(
+  pyramid_bt_transform 
+);
 
 	btRigidBody::btRigidBodyConstructionInfo pyramid_rb_info(
     pyramid_mass,
@@ -269,6 +285,13 @@ inline static void ctx_render(ctx_t* ctx) {
   // );
 
   trans.getOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
+
+  // Compensation for collision shape center offet
+  ctx->pyramid_transform = glm::translate(
+    ctx->pyramid_transform,
+    glm::vec3(0.0f, -0.8f, 0.0f)
+  );
+  
   ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
 
 
