@@ -32,6 +32,10 @@ typedef struct {
   mesh_t*   pyramid;
   glm::mat4 pyramid_transform;
   btRigidBody* pyramid_body__;
+  
+  mesh_t*   myramid;
+  glm::mat4 myramid_transform;
+  btRigidBody* myramid_body__;
 
   mesh_t* floor;
   glm::mat4 floor_transform;
@@ -75,11 +79,16 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   shader_set_uniform_mat4(ctx->light_shader, "modelToWorld", lamp_transform);
   ctx->lamp = mesh_sample_create_lamp();
 
-  // Pyramid in the north
+  // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
   ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 2));
-  // inflate it a bit so that it matches floor texture
   ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+
+  // Myramid
+  ctx->myramid = mesh_sample_create_pyramid();
+  ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 2));
+  ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+
 
   // Just in the middle
   ctx->floor = mesh_sample_create_floor();
@@ -114,16 +123,16 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Floor physics
 
   // Define the plane's normal (the direction perpendicular to the plane)
-btVector3 planeNormal(0, 1, 0); // In this example, it's a horizontal plane with the normal pointing up (Y-axis)
+  btVector3 planeNormal(0, 1, 0); // In this example, it's a horizontal plane with the normal pointing up (Y-axis)
 
-// Define the plane's constant (distance from the origin along the normal)
-btScalar planeConstant = 0.0; // You can adjust this value to move the plane up or down along the normal
+  // Define the plane's constant (distance from the origin along the normal)
+  btScalar planeConstant = 0.0; // You can adjust this value to move the plane up or down along the normal
 
-// Create a btStaticPlaneShape
-btCollisionShape* floor_collision_shape = new btStaticPlaneShape(planeNormal, planeConstant);
-
-
-
+  // Create a btStaticPlaneShape
+  btCollisionShape* floor_collision_shape = new btStaticPlaneShape(
+    planeNormal,
+    planeConstant
+  ); 
 
   ctx->physics->collision_shapes.push_back(floor_collision_shape);
 	
@@ -156,9 +165,9 @@ btCollisionShape* floor_collision_shape = new btStaticPlaneShape(planeNormal, pl
 
   btCollisionShape* pyramid_collision_shape = new btBoxShape(
     btVector3(
-      btScalar(pbb.x / 2.0f - (pbbc.x * 2)),
-      btScalar(pbb.y / 2.0f - (pbbc.y * 2)),
-      btScalar(pbb.z / 2.0f - (pbbc.z * 2))
+      btScalar(pbb.x),
+      btScalar(pbb.y),
+      btScalar(pbb.z)
     )
   );
 
@@ -191,9 +200,59 @@ btCollisionShape* floor_collision_shape = new btStaticPlaneShape(planeNormal, pl
 	ctx->pyramid_body__ = new btRigidBody(pyramid_rb_info);
 
 	ctx->physics->dynamics_world->addRigidBody(ctx->pyramid_body__);
+
+  // Myramid physics
+
+  glm::vec3 mbb = mesh_calculate_bounding_box(ctx->pyramid);
+  printf("Pyramid BOUNDiNG: %f, %f, %f\n", mbb.x, mbb.y, mbb.z);
+
+  glm::vec3 mbbc =mesh_calculate_center_shift(ctx->pyramid);
+    printf("Pyramid Center shift: %f, %f, %f\n", mbbc.x, mbbc.y, mbbc.z);
+
+  btCollisionShape* myramid_collision_shape = new btBoxShape(
+    btVector3(
+      btScalar(mbb.x),
+      btScalar(mbb.y),
+      btScalar(mbb.z)
+    )
+  );
+
+  ctx->physics->collision_shapes.push_back(myramid_collision_shape);
+	
+
+  btTransform myramid_bt_transform;
+  // Use the glm matrix's first column
+  // which contains the rotation and scale components
+  myramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->myramid_transform));
+	
+  btScalar myramid_mass(1.0);
+	btVector3 myramid_local_inertia(0, 0, 0);
+
+  // Dynamic is this Pyramid
+	myramid_collision_shape->calculateLocalInertia(
+    myramid_mass, myramid_local_inertia
+  );
+
+  btDefaultMotionState* myramid_motion_state = new btDefaultMotionState(
+    myramid_bt_transform
+  );
+
+	btRigidBody::btRigidBodyConstructionInfo myramid_rb_info(
+    myramid_mass,
+    myramid_motion_state,
+    myramid_collision_shape,
+    myramid_local_inertia
+  );
+
+	ctx->myramid_body__ = new btRigidBody(myramid_rb_info);
+
+	ctx->physics->dynamics_world->addRigidBody(ctx->myramid_body__);
+
 }
 
-
+/**
+ * Render frame
+ */
 inline static void ctx_render(ctx_t* ctx) {
 
   int fps = 100; // TODO use real value
@@ -201,7 +260,6 @@ inline static void ctx_render(ctx_t* ctx) {
   physics_step_simulation(ctx->physics, time_step);
 
 	btTransform trans;
-
   ctx->pyramid_body__->getMotionState()->getWorldTransform(trans);
 
   // printf("TARNS: %f, %f, %f \n",
@@ -216,6 +274,18 @@ inline static void ctx_render(ctx_t* ctx) {
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
   mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
+
+
+
+	btTransform m_trans;
+  ctx->myramid_body__->getMotionState()->getWorldTransform(m_trans);
+
+  m_trans.getOpenGLMatrix(glm::value_ptr(ctx->myramid_transform));
+  ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->myramid_transform);
+  mesh_draw(ctx->myramid, ctx->default_shader, ctx->camera);
+
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->floor_transform);
   mesh_draw(ctx->floor, ctx->default_shader, ctx->camera);
