@@ -95,10 +95,10 @@ mesh_t* mesh_sample_create_floor() {
   // Vertices coordinates
   vertex_t vertices[] =
   {
-    { .position = {-4.0f, 0.1f,  4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = {  0.0f,  0.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
-    { .position = {-4.0f, 0.1f, -4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = {  0.0f, 01.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
-    { .position = { 4.0f, 0.1f, -4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 01.0f, 01.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
-    { .position = { 4.0f, 0.1f,  4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 01.0f,  0.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}
+    { .position = {-4.0f, 0.0f,  4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = {  0.0f,  0.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
+    { .position = {-4.0f, 0.0f, -4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = {  0.0f, 01.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
+    { .position = { 4.0f, 0.0f, -4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 01.0f, 01.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}, 
+    { .position = { 4.0f, 0.0f,  4.0f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 01.0f,  0.0f }, .tex_id = 0.0, .normal = {  0.0f, 1.0f, 0.0f }}
   };
   GLuint indices[] =
   {

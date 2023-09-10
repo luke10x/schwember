@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include <glm/glm.hpp>
+
 #include "buffers.h"
 #include "camera.h"
 #include "texture.h"
@@ -53,14 +55,12 @@ mesh_t* mesh_create(
 
   mesh_t* mesh = (mesh_t*) malloc(sizeof(mesh_t));
 
-  // TODO copy vertices and indices, becuase it is owned by outside code,
-  // and can be gone at any moment.
-  // Yet, these are not used anyway but in case they are planned to be used
-  // then thy must be copied
-  mesh->vertices = vertices;
+  mesh->vertices = (vertex_t*) malloc(vertex_count * sizeof(vertex_t));
+  memcpy(mesh->vertices, vertices, vertex_count * sizeof(vertex_t));
   mesh->vertex_count = vertex_count;
 
-  mesh->indices = indices;
+  mesh->indices = (GLuint*) malloc(index_count * sizeof(GLuint));
+  memcpy(mesh->indices, indices, index_count * sizeof(GLuint));
   mesh->index_count = index_count;
 
   // Probably it makes more sense that it is allready packed to textures blob
@@ -119,4 +119,23 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
 	glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
   
+}
+
+/**
+ * Calculates bounding box vector of mesh vertices
+ */
+glm::vec3 mesh_calculate_bounding_box(mesh_t* self) {
+    // Use first vertex as initial min and max value
+    vertex_t* vertex = self->vertices + 0;
+    glm::vec3 min_bounds = glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z);
+    glm::vec3 max_bounds = glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z);
+
+    for (int i = 0; i < self->vertex_count; i++) {
+      vertex_t* vertex = self->vertices + i;
+
+      min_bounds = glm::min(min_bounds, glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z));
+      max_bounds = glm::max(max_bounds, glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z));
+    }
+
+    return max_bounds - min_bounds;
 }

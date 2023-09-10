@@ -95,7 +95,6 @@ There is the entry for today:
 - apparently somethimes gltf encode image data in image->uri base64 encoded
 - but this time my gltf generated in Blender has it in buffer_view
 
-
 ## 2023-09-01, Fri
 
 - I was off sick, now trying to go back to the project
@@ -112,7 +111,6 @@ There is the entry for today:
 - Transformations should be applied in SRT order:
   Scale, Rotation, Translaion
 
-
 ## 2023-09-04, Mon
 
 - Today, I took a look around to Raylib and got an example
@@ -121,7 +119,6 @@ There is the entry for today:
 - Raylib is far ahead of Schwember, it maybe a point wherez
   I will be using more Raylib than developing Schwember
 - Bullet requires asyncify to work on emcc
-
 
 ## 2023-09-05, Tue
 
@@ -138,4 +135,11 @@ There is the entry for today:
   to this project
 - It will not be exact Raylib test copy, but instead I
   need to load collission shapes from model/mesh data
-  
+
+## 2023-09-10, Sun
+
+In the morning got working falling pyramyd stopping at floor level.
+
+- but actually it is a bit higher then the floor, needs to debug!
+- All members of physics_t structure need to be alligned
+  (Otherwise it crashes on WASM, but can also on other platforms)

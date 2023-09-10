@@ -19,7 +19,9 @@ typedef struct {
   btDiscreteDynamicsWorld*                dynamics_world;
 
   // Keeps track of collision shapes
-  btAlignedObjectArray<btCollisionShape*> collision_shapes;
+  btAlignedObjectArray<btCollisionShape*> collision_shapes
+	  __attribute__((aligned(16)));
+		// Perhaps I could just turn it to a pointer and use malloc
 
 } physics_t;
 
@@ -44,7 +46,7 @@ physics_t* physics_create() {
     self->collision_configuration
   );
 
-	self->dynamics_world->setGravity(btVector3(0, -10, 0));
+	self->dynamics_world->setGravity(btVector3(0, -1.625f, 0)); // Moon gravity
 
   return self;
 }
@@ -85,4 +87,10 @@ void physics_delete(physics_t* self) {
 	delete self->collision_configuration;
 
   delete self;
+}
+
+void physics_step_simulation(physics_t* self, float time_step) {
+  const float iterations_per_step = 10;
+  self->dynamics_world
+    ->stepSimulation(time_step, iterations_per_step);
 }
