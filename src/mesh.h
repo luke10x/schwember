@@ -139,3 +139,26 @@ glm::vec3 mesh_calculate_bounding_box(mesh_t* self) {
 
     return max_bounds - min_bounds;
 }
+
+/**
+ * Calculates the center shift of mesh vertices based on center of mass
+ */
+glm::vec3 mesh_calculate_center_shift(mesh_t* self) {
+    glm::vec3 center_of_mass = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < self->vertex_count; i++) {
+        vertex_t* vertex = self->vertices + i;
+        center_of_mass += glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z);
+    }
+
+    // Divide by the number of vertices to compute the center of mass
+    if (self->vertex_count > 0) {
+        center_of_mass /= static_cast<float>(self->vertex_count);
+    }
+
+    // Calculate the center shift as the difference between the center of mass
+    // and the center of the bounding box (assuming that the bounding box is centered at the origin)
+    glm::vec3 center_shift = center_of_mass - glm::vec3(0.0f, 0.0f, 0.0f);
+
+    return center_shift;
+}

@@ -112,35 +112,30 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->physics = physics_create();
   
   // Floor physics
-  
-  glm::vec3 bb = mesh_calculate_bounding_box(ctx->floor);
-  printf("BOUNDiNG: %f, %f, %f\n", bb.x, bb.y, bb.z);
 
-  btCollisionShape* floor_collision_shape = new btBoxShape(
-    btVector3(
-      btScalar(bb.x / 2.0),
-      btScalar(bb.y / 2.0),
-      btScalar(bb.z / 2.0)
-    )
-  );
+  // Define the plane's normal (the direction perpendicular to the plane)
+btVector3 planeNormal(0, 1, 0); // In this example, it's a horizontal plane with the normal pointing up (Y-axis)
 
-printf("after floor_collision_shape\n");
+// Define the plane's constant (distance from the origin along the normal)
+btScalar planeConstant = 0.0; // You can adjust this value to move the plane up or down along the normal
+
+// Create a btStaticPlaneShape
+btCollisionShape* floor_collision_shape = new btStaticPlaneShape(planeNormal, planeConstant);
+
+
+
 
   ctx->physics->collision_shapes.push_back(floor_collision_shape);
-printf("after floor_collision_shape pushed back\n");
 	
   btTransform floor_bt_transform;
   // Use the glm matrix's first column
   // which contains the rotation and scale components
-  floor_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->floor_transform[0]));
-printf("after floor_bt_transform set\n");
+  floor_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->floor_transform));
 	
   btScalar floor_mass(0.0);
 	btVector3 floor_local_inertia(0, 0, 0);
-printf("after mass and inertia created\n");
 
 	btDefaultMotionState* floor_motion_state = new btDefaultMotionState(floor_bt_transform);
-printf("after floor_motion_state created\n");
 
 	btRigidBody::btRigidBodyConstructionInfo floor_rb_info(
     floor_mass,
@@ -149,21 +144,21 @@ printf("after floor_motion_state created\n");
     floor_local_inertia
   );
 	btRigidBody* floor_body = new btRigidBody(floor_rb_info);
-printf("after floor_body created\n");
 
 	ctx->physics->dynamics_world->addRigidBody(floor_body);
-printf("after floor_body added to dynamics_world\n");
 
   // Pyramid physics
   glm::vec3 pbb = mesh_calculate_bounding_box(ctx->pyramid);
   printf("Pyramid BOUNDiNG: %f, %f, %f\n", pbb.x, pbb.y, pbb.z);
 
+  glm::vec3 pbbc =mesh_calculate_center_shift(ctx->pyramid);
+    printf("Pyramid Center shift: %f, %f, %f\n", pbbc.x, pbbc.y, pbbc.z);
 
   btCollisionShape* pyramid_collision_shape = new btBoxShape(
     btVector3(
-      btScalar(pbb.x / 1.0),
-      btScalar(pbb.y / 1.0),
-      btScalar(pbb.z / 1.0)
+      btScalar(pbb.x / 2.0f - (pbbc.x * 2)),
+      btScalar(pbb.y / 2.0f - (pbbc.y * 2)),
+      btScalar(pbb.z / 2.0f - (pbbc.z * 2))
     )
   );
 
@@ -172,7 +167,7 @@ printf("after floor_body added to dynamics_world\n");
   btTransform pyramid_bt_transform;
   // Use the glm matrix's first column
   // which contains the rotation and scale components
-  pyramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform[0]));
+  pyramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
 	
   btScalar pyramid_mass(1.0);
 	btVector3 pyramid_local_inertia(0, 0, 0);
@@ -185,13 +180,13 @@ printf("after floor_body added to dynamics_world\n");
   btDefaultMotionState* pyramid_motion_state = new btDefaultMotionState(
     pyramid_bt_transform
   );
+
 	btRigidBody::btRigidBodyConstructionInfo pyramid_rb_info(
     pyramid_mass,
     pyramid_motion_state,
     pyramid_collision_shape,
     pyramid_local_inertia
   );
-
 
 	ctx->pyramid_body__ = new btRigidBody(pyramid_rb_info);
 
@@ -201,7 +196,7 @@ printf("after floor_body added to dynamics_world\n");
 
 inline static void ctx_render(ctx_t* ctx) {
 
-  int fps = 60; // TODO use real value
+  int fps = 100; // TODO use real value
   float time_step = 1.0f / fps;
   physics_step_simulation(ctx->physics, time_step);
 
@@ -216,6 +211,7 @@ inline static void ctx_render(ctx_t* ctx) {
   // );
 
   trans.getOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
+  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
 
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
