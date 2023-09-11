@@ -150,7 +150,12 @@ In the morning got working falling pyramyd stopping at floor level.
 - It will be installed as git module
 - I want to install other projects as git modules therefore
   here trying to lay some good foundation
-- ImGui is hard to work with but got it working following
+- ImGui is hard to work with but got it working! following
   [This blog](https://technotes.blog/2023/01/24/getting-started-with-imgui-a-beginners-tutorial/)
 - imgui/examples/example_glfw_opengl3/Makefile is a usefule example
 - imgui officially requires C++11
+
+## 2023-09-11, Mon
+
+- I need to do some cleanup
+- and I need to make state resetable without rerunning
