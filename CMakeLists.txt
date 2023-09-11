@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
+
+# Set the C++ standard (if needed)
+set(CMAKE_CXX_STANDARD 11)
+
 project(schwember)
 
 execute_process(
@@ -15,13 +19,25 @@ endif()
 # Add the path to the src directory
 include_directories(src)
 
-# Find the GLEW library
+# Find system-installed libraries
 find_library(GLEW_LIBRARY GLEW)
 find_library(GLFW_LIBRARY glfw)
-
 find_package(Bullet REQUIRED)
 
-# message(FATAL_ERROR "Bullet Physics ${BULLET_LIBRARY}")
+# Set where the ImGui files are stored
+set(IMGUI_DIR "external/imgui")
+    
+# -------------- IMGUI static library creation
+set(IMGUI_SOURCES
+  ${IMGUI_DIR}/imgui.cpp
+  ${IMGUI_DIR}/imgui_demo.cpp
+  ${IMGUI_DIR}/imgui_draw.cpp
+  ${IMGUI_DIR}/imgui_tables.cpp
+  ${IMGUI_DIR}/imgui_widgets.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+  ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+# ----------------------------------------------------------------------
 
 # Set the path to the directory containing GLM headers
 set(GLM_INCLUDE_DIR "/opt/homebrew/include")
@@ -47,16 +63,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(stb_image)
 
 # Add the source file to the project
-add_executable(schwember src/main.cpp)
+add_executable(schwember src/main.cpp ${IMGUI_SOURCES})
 
 
 # Include headers
 include_directories(${BULLET_INCLUDE_DIRS})
 
+
 target_include_directories(schwember PRIVATE
   ${GLM_INCLUDE_DIR}
   ${cgltf_SOURCE_DIR}
   ${stb_image_SOURCE_DIR}
+  external/imgui
+  external/imgui/backends
   ${GLEW_INCLUDE_DIRS}
   ${GLFW_INCLUDE_DIRS}
 )
@@ -68,6 +87,3 @@ target_link_libraries(schwember PRIVATE
   ${BULLET_LIBRARIES}
   "-framework OpenGL"
 )
-
-# Set the C++ standard (if needed)
-set(CMAKE_CXX_STANDARD 11)

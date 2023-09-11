@@ -143,3 +143,14 @@ In the morning got working falling pyramyd stopping at floor level.
 - but actually it is a bit higher then the floor, needs to debug!
 - All members of physics_t structure need to be alligned
   (Otherwise it crashes on WASM, but can also on other platforms)
+- Finally, it is best to schift the pyramid down while rendering,
+  and not in Bullet, makes it work smoothly.
+- There will be a lot of refactoring
+- ImGui is a project with no tool driven installation provided
+- It will be installed as git module
+- I want to install other projects as git modules therefore
+  here trying to lay some good foundation
+- ImGui is hard to work with but got it working following
+  [This blog](https://technotes.blog/2023/01/24/getting-started-with-imgui-a-beginners-tutorial/)
+- imgui/examples/example_glfw_opengl3/Makefile is a usefule example
+- imgui officially requires C++11

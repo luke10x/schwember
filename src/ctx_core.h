@@ -18,6 +18,11 @@
 #include "mesh.h"
 #include "mesh_samples.h"
 
+
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+
 /*
  * Constructor, it is called before main loop starts
  * It initializes the video, and creates the window too.
@@ -33,6 +38,18 @@ ctx_t* ctx_create() {
   ctx->should_continue = 1;
   ctx->window = ctx_init_window(320, 240);
 
+    // Initialize ImGui
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImGui::StyleColorsDark();
+  ImGui_ImplGlfw_InitForOpenGL(ctx->window, true);
+
+  #ifdef __EMSCRIPTEN__
+  ImGui_ImplOpenGL3_Init("#version 300 es");
+  #else
+  ImGui_ImplOpenGL3_Init("#version 330");
+  #endif
   int width, height; // Actuall values can be doubled on Apple
   ctx_resize_framebuffer_to_window(ctx, &width, &height);
 
@@ -134,6 +151,11 @@ void ctx_delete(ctx_t* ctx) {
   printf("Destroying context...\n");
 	glfwDestroyWindow(ctx->window);
 	glfwTerminate();
+
+  // Cleanup
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
 
   free(ctx);
 }

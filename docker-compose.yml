@@ -10,6 +10,7 @@ services:
     volumes:
       - ./wasm:/mnt/wasm:rw
       - ./assets:/mnt/assets:ro
+      - ./external:/mnt/external:ro
       - ./src:/mnt/src:ro
     entrypoint: "bash -c"
     command:

@@ -4,11 +4,20 @@ CPPFLAGS += -I/opt/glm
 CPPFLAGS += -I/opt/cgltf
 CPPFLAGS += -I/opt/stb
 CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
-# CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
-# CPPFLAGS += -I/emsdk/upstream/emscripten/cache/sysroot/include/bullet
-
+CPPFLAGS += -I/mnt/external/imgui
+CPPFLAGS += -I/mnt/external/imgui/backends
 LDFLAGS += -L/emsdk/upstream/emscripten/cache/sysroot/lib
 LDLIBS += -lLinearMath -lBulletDynamics -lBulletCollision
+
+IMGUI_DIR=/mnt/external/imgui
+IMGUI_SOURCES += $(IMGUI_DIR)/imgui.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/imgui_demo.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/imgui_draw.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/imgui_tables.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/imgui_widgets.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp
+IMGUI_SOURCES += $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+
 
 # LDLIBS += -lLinearlMath -lBulletDynamics -lBulletCollision
 EMSCRIPTENFLAGS := -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 
@@ -25,7 +34,7 @@ EMSCRIPTENFLAGS += $(shell ls ../assets/png | sed -e \
 
 build:
 	mkdir -p ./build
-	em++ ../src/main.cpp -o ./build/index.html \
+	em++ ../src/main.cpp $(IMGUI_SOURCES) -o ./build/index.html \
 		$(CPPFLAGS) $(LDFLAGS) $(LDLIBS) $(EMSCRIPTENFLAGS)
 
 clean:

@@ -3,6 +3,10 @@
 #include "gl.h"
 #include <GLFW/glfw3.h>
 
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+
 #include "ctx_core.h"
 #include "ctx_init.h"
 
@@ -271,6 +275,7 @@ btDefaultMotionState* pyramid_motion_state = new btDefaultMotionState(
  */
 inline static void ctx_render(ctx_t* ctx) {
 
+  
   int fps = 100; // TODO use real value
   float time_step = 1.0f / fps;
   physics_step_simulation(ctx->physics, time_step);
@@ -328,4 +333,24 @@ inline static void ctx_render(ctx_t* ctx) {
 
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
+
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+                // Your ImGui code here
+        ImGui::Begin("Hello, world!");
+        ImGui::Text("This is a simple ImGui application.");
+        ImGui::End();
+
+        ImGui::Render();
+        
+
+
+        int display_w, display_h;
+        glfwGetFramebufferSize(ctx->window, &display_w, &display_h);
+        // glViewport(0, 0, display_w, display_h);
+        // glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
