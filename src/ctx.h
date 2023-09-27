@@ -36,7 +36,7 @@ typedef struct {
   mesh_t*   pyramid;
   glm::mat4 pyramid_transform;
   btRigidBody* pyramid_body__;
-  
+
   mesh_t*   myramid;
   glm::mat4 myramid_transform;
   btRigidBody* myramid_body__;
@@ -58,6 +58,9 @@ typedef struct {
 
   model_t* subject;
   glm::mat4 subject_transform;
+
+  model_t* suzanne;
+  glm::mat4 suzanne_transform;
 
   camera_t* camera;
 } ctx_t;
@@ -117,6 +120,10 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->subject = model_create();
   model_load_from_file(ctx->subject, "assets/gltf/noob.glb");
   ctx->subject_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, 1));
+
+  ctx->suzanne = model_create();
+  model_load_from_file(ctx->suzanne, "assets/gltf/suzanne.glb");
+  ctx->suzanne_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 4, 1));
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -275,6 +282,9 @@ inline static void ctx_render(ctx_t* ctx) {
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->subject_transform);
   model_draw(ctx->subject, ctx->default_shader, ctx->camera);
+  
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->suzanne_transform);
+  model_draw(ctx->suzanne, ctx->default_shader, ctx->camera);
 
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);

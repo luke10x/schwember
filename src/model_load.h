@@ -91,42 +91,41 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
       cgltf_accessor* position_accessor = primitive->attributes[0].data;
       size_t num_vertices = position_accessor->count;
       vertex_t* vertices = (vertex_t*) malloc(num_vertices * sizeof(vertex_t));
-      
+
       cgltf_material* material = primitive->material;
       const char* materialName = material ? material->name : "  No Material";
-      // printf("   Material Name: %s\n", materialName);
-
-      cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
-      cgltf_image* image = texture->image;
-
-      const char* image_name = image->name;
-      const char* image_uri = image->uri;
-      cgltf_image* cgltfImage = image;
 
       texture_t* texture_of_primitive = NULL;
+      if (material != NULL) {
+        cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
 
-      if (image->buffer_view->buffer->data != NULL) {
-        unsigned char *data = (unsigned char*) malloc(cgltfImage->buffer_view->size);
-        int offset = (int)cgltfImage->buffer_view->offset;
-        int stride = (int)cgltfImage->buffer_view->stride? (int)cgltfImage->buffer_view->stride : 1;
+        cgltf_image* image = texture->image;
+        const char* image_name = image->name;
+        const char* image_uri = image->uri;
+        cgltf_image* cgltfImage = image;
 
-        // Copy buffer data to memory for loading
-        for (unsigned int i = 0; i < cgltfImage->buffer_view->size; i++)
-        {
-            data[i] = ((unsigned char *)cgltfImage->buffer_view->buffer->data)[offset];
-            offset += stride;
+        if (image->buffer_view->buffer->data != NULL) {
+          unsigned char *data = (unsigned char*) malloc(cgltfImage->buffer_view->size);
+          int offset = (int)cgltfImage->buffer_view->offset;
+          int stride = (int)cgltfImage->buffer_view->stride? (int)cgltfImage->buffer_view->stride : 1;
+
+          // Copy buffer data to memory for loading
+          for (unsigned int i = 0; i < cgltfImage->buffer_view->size; i++) {
+              data[i] = ((unsigned char *) cgltfImage->buffer_view->buffer->data)[offset];
+              offset += stride;
+          }
+          int size = (int) cgltfImage->buffer_view->size;
+
+          int width, height, bpp;
+          stbi_set_flip_vertically_on_load(0);
+          unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
+
+          texture_of_primitive = texture_create_of_image_data(
+            stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
+          printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
+
+          free (data);
         }
-        int size = (int)cgltfImage->buffer_view->size;
-
-        int width, height, bpp;
-        stbi_set_flip_vertically_on_load(0);
-        unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
-
-        texture_of_primitive = texture_create_of_image_data(
-          stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
-        printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
-
-        free (data);
       }
 
       // For each primitive attribute:
@@ -193,8 +192,14 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
           indices[i] = index;
       }
 
-      mesh_t* model_mesh = mesh_create("named", vertices, num_vertices,
-        indices, index_count, &texture_of_primitive, 1);
+      int texture_count = (texture_of_primitive != NULL) ? 1 : 0;
+
+      mesh_t* model_mesh = mesh_create(
+        "named",
+        vertices, num_vertices,
+        indices, index_count,
+        &texture_of_primitive, texture_count
+      );
       
       model->meshes[model->num_meshes] = model_mesh;
       model->num_meshes++;

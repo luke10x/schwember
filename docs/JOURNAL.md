@@ -159,3 +159,24 @@ In the morning got working falling pyramyd stopping at floor level.
 
 - I need to do some cleanup
 - and I need to make state resetable without rerunning
+- Before I gone to ECS, I feel hesitant,
+  What if it will overcomplicate at this stage?
+- Also after I adde external submodules section,
+  I am thinking whether or not I should make every library this way.
+- [MiniAudio](https://miniaud.io/) when I need sound...
+
+## 2023-09-14, Thu
+
+I need to prioritize and plan a little bit,
+but I think I need to stop coding and focus on learning.
+I need to read the theory behind the GLTF,
+including material rendering and animations.
+
+The resource for it will be
+[glTF-Tutorials](https://github.khronos.org/glTF-Tutorials/)
+
+
+## 2023-09-22, Fri
+
+
+## 2023-09-26, Tue
