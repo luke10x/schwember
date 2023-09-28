@@ -175,8 +175,19 @@ including material rendering and animations.
 The resource for it will be
 [glTF-Tutorials](https://github.khronos.org/glTF-Tutorials/)
 
-
-## 2023-09-22, Fri
-
-
 ## 2023-09-26, Tue
+
+- Renders models without texture too
+- Added plain Suzanne the monkey model
+- It renders using last used texture
+- Next I will work to make it render with a color from VBO
+- Also, it is very annoying that I cannot build offline
+- Because of CMake fetch allways fetching repos online
+- To solve it migrate to git modules instead
+
+## 2023-09-27, Wed
+
+Added another bool uniform to indicate if it should use texture.
+Now it displays .color value from VBO, but it does not
+seem to have anything set there while loading models.
+It prints all possible random colors.

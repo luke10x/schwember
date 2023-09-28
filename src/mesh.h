@@ -33,21 +33,6 @@ mesh_t* mesh_create(
   GLsizei index_count,
   texture_t** textures,
   GLsizei texture_count
-);
-
-void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera);
-
-// Implementation
-#include "mesh.h"
-
-mesh_t* mesh_create(
-  const char* name,
-  vertex_t* vertices,
-  GLsizei vertex_count,
-  GLuint* indices,
-  GLsizei index_count,
-  texture_t** textures,
-  GLsizei texture_count
 ) {
   if (textures == NULL) {
     printf("texture not set while trying to create mesh for \"%s\"\n", name);
@@ -100,13 +85,18 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
   shader_activate(shader);
 
+  GLint use_sampler_location = glGetUniformLocation(shader->ID, "useSampler");
+
   if (mesh->texture_count > 0) {
+    glUniform1i(use_sampler_location, true);
     texture_unit(&(mesh->textures[0]), shader, "sampler", 0);
     texture_bind(&(mesh->textures[0]));
+  } else {
+    glUniform1i(use_sampler_location, false);
   }
 
-	// Take care of the camera Matrix
-	glUniform3f(
+  // Take care of the camera Matrix
+  glUniform3f(
     glGetUniformLocation(shader->ID, "camPos"),
     camera->view_matrix[3][0],
     camera->view_matrix[3][1],
@@ -117,7 +107,7 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
   
   vao_bind(mesh->vao);
 
-	glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
+  glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
   
 }
 

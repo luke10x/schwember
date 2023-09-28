@@ -13,6 +13,7 @@ in vec3 Normal;
 uniform sampler2D sampler;
 uniform vec4 lightColor;
 uniform vec3 lightPos;
+uniform bool useSampler;
 
 // for specular
 uniform vec3 camPos;
@@ -35,7 +36,12 @@ void main() {
 	float specular = specAmount * specularLight;
 
 	// outputs final color
-	vec4 color = texture(sampler, texCoord);
+    vec4 surface_color;
+    if (useSampler) {
+	    surface_color = texture(sampler, texCoord);
+    } else {
+        surface_color = vec4(color, 1.0f);
+    }
 
-	fragColor = color * vec4(vec3(lightColor * (diffuse + ambient + specular)), 1.0f);
+	fragColor = surface_color * vec4(vec3(lightColor * (diffuse + ambient + specular)), 1.0f);
 }
