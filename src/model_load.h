@@ -96,36 +96,64 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
       const char* materialName = material ? material->name : "  No Material";
 
       texture_t* texture_of_primitive = NULL;
+      
+      cgltf_float base_color[3];
+      base_color[0] = 0.0f;
+      base_color[1] = 1.0f; // green
+      base_color[0] = 0.0f;
+
       if (material != NULL) {
+
+        // Check if the material has a base color factor.
+        if (material->has_pbr_metallic_roughness) {
+            cgltf_pbr_metallic_roughness* pbr = &material->pbr_metallic_roughness;
+            
+            // Access the albedo (base color) factor, which contains the RGB color.
+            base_color[0] = pbr->base_color_factor[0];
+            base_color[1] = pbr->base_color_factor[1];
+            base_color[2] = pbr->base_color_factor[2];
+            
+            printf("ALBEDO %f, %f, %f \n", base_color[0], base_color[1], base_color[2]);
+        }
+        
         cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
 
-        cgltf_image* image = texture->image;
-        const char* image_name = image->name;
-        const char* image_uri = image->uri;
-        cgltf_image* cgltfImage = image;
+        if (texture != NULL) {
+          cgltf_image* image = texture->image;
+          const char* image_name = image->name;
+          const char* image_uri = image->uri;
+          cgltf_image* cgltfImage = image;
 
-        if (image->buffer_view->buffer->data != NULL) {
-          unsigned char *data = (unsigned char*) malloc(cgltfImage->buffer_view->size);
-          int offset = (int)cgltfImage->buffer_view->offset;
-          int stride = (int)cgltfImage->buffer_view->stride? (int)cgltfImage->buffer_view->stride : 1;
+          if (image->buffer_view->buffer->data != NULL) {
+            unsigned char *data = (unsigned char*) malloc(cgltfImage->buffer_view->size);
+            int offset = (int)cgltfImage->buffer_view->offset;
+            int stride = (int)cgltfImage->buffer_view->stride? (int)cgltfImage->buffer_view->stride : 1;
 
-          // Copy buffer data to memory for loading
-          for (unsigned int i = 0; i < cgltfImage->buffer_view->size; i++) {
-              data[i] = ((unsigned char *) cgltfImage->buffer_view->buffer->data)[offset];
-              offset += stride;
+            // Copy buffer data to memory for loading
+            for (unsigned int i = 0; i < cgltfImage->buffer_view->size; i++) {
+                data[i] = ((unsigned char *) cgltfImage->buffer_view->buffer->data)[offset];
+                offset += stride;
+            }
+            int size = (int) cgltfImage->buffer_view->size;
+
+            int width, height, bpp;
+            stbi_set_flip_vertically_on_load(0);
+            unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
+
+            texture_of_primitive = texture_create_of_image_data(
+              stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
+            printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
+
+            free (data);
           }
-          int size = (int) cgltfImage->buffer_view->size;
-
-          int width, height, bpp;
-          stbi_set_flip_vertically_on_load(0);
-          unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
-
-          texture_of_primitive = texture_create_of_image_data(
-            stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
-          printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
-
-          free (data);
         }
+      }
+
+      for (int i = 0; i < num_vertices; i++) {
+        vertex_t* current_vertex = (vertex_t*) (&vertices[i]);
+        current_vertex->color.x = base_color[0];
+        current_vertex->color.y = base_color[1];
+        current_vertex->color.z = base_color[2];
       }
 
       // For each primitive attribute:
@@ -150,6 +178,7 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             current_vertex->position.z = buffer[i + 2];
           }
         }
+
         if (attribute->type == cgltf_attribute_type_normal) {
           for(int i = 0; i < float_count; i += 3) {
             vertex_t* current_vertex = (vertex_t*) (&vertices[i / 3]);
@@ -158,9 +187,7 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             current_vertex->normal.z = buffer[i + 2];
           }
         }
-        if (attribute->type == cgltf_attribute_type_color) {
-          printf("C");
-        }
+
         if (attribute->type == cgltf_attribute_type_texcoord) {
           for(int i = 0; i < float_count; i += 2) {
             vertex_t* current_vertex = (vertex_t*) (&vertices[i / 2]);
@@ -168,7 +195,7 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             current_vertex->texUV.y = buffer[i + 1];
           }
         }
-        
+
         free(buffer);
       }
 

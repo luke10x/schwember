@@ -191,3 +191,12 @@ Added another bool uniform to indicate if it should use texture.
 Now it displays .color value from VBO, but it does not
 seem to have anything set there while loading models.
 It prints all possible random colors.
+
+## 2023-09-28, Thu
+
+Attribute of type cgltf_attribute_type_normal is not essential.
+Material has its metalic_roughness albedo color, I use that instead.
+
+- Now uses material base color if texture is not provided
+- if material is not provided then uses green
+- Added sphere and mixamo enabled stickman, which has animation

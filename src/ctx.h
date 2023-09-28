@@ -62,6 +62,12 @@ typedef struct {
   model_t* suzanne;
   glm::mat4 suzanne_transform;
 
+  model_t* stickman;
+  glm::mat4 stickman_transform;
+
+  model_t* sphere;
+  glm::mat4 sphere_transform;
+
   camera_t* camera;
 } ctx_t;
 
@@ -124,6 +130,14 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->suzanne = model_create();
   model_load_from_file(ctx->suzanne, "assets/gltf/suzanne.glb");
   ctx->suzanne_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 4, 1));
+
+  ctx->stickman = model_create();
+  model_load_from_file(ctx->stickman, "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb");
+  ctx->stickman_transform = glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
+
+  ctx->sphere = model_create();
+  model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
+  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 3, -20));
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -285,6 +299,12 @@ inline static void ctx_render(ctx_t* ctx) {
   
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->suzanne_transform);
   model_draw(ctx->suzanne, ctx->default_shader, ctx->camera);
+
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->stickman_transform);
+  model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
+
+  shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->sphere_transform);
+  model_draw(ctx->sphere, ctx->default_shader, ctx->camera);
 
   // transparent must render last
   mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
