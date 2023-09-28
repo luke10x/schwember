@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "buffers.h"
+#include "gl.h"
 #include "camera.h"
 #include "texture.h"
 
@@ -21,9 +21,8 @@ typedef struct {
   texture_t* textures;
   GLsizei texture_count;
 
-  vao_t* vao;
+  GLuint vao_id;
 } mesh_t;
-
 
 mesh_t* mesh_create(
   const char* name,
@@ -34,10 +33,6 @@ mesh_t* mesh_create(
   texture_t** textures,
   GLsizei texture_count
 ) {
-  if (textures == NULL) {
-    printf("texture not set while trying to create mesh for \"%s\"\n", name);
-  }
-
   mesh_t* mesh = (mesh_t*) malloc(sizeof(mesh_t));
 
   mesh->vertices = (vertex_t*) malloc(vertex_count * sizeof(vertex_t));
@@ -59,24 +54,45 @@ mesh_t* mesh_create(
   }
   mesh->texture_count = texture_count;
 
-  mesh->vao = vao_create();
+  // Create VAO
+  glGenVertexArrays(1, &(mesh->vao_id));
+  glBindVertexArray(mesh->vao_id);
 
-  vao_bind(mesh->vao);
+  // Create VBO with vertices
+  GLuint vbo_id;
+  glGenBuffers(1, &vbo_id);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+  size_t vbo_size = mesh->vertex_count * sizeof(vertex_t);
+  glBufferData(GL_ARRAY_BUFFER, vbo_size, vertices, GL_STATIC_DRAW);
 
-  vbo_t* vbo = vbo_create(mesh->vertices, mesh->vertex_count * sizeof(vertex_t));
-  ebo_t* ebo = ebo_create(mesh->indices,  mesh->index_count  * sizeof(GLuint));
+  // Create EBO with indexes
+  GLuint ebo_id;
+  glGenBuffers(1, &ebo_id);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_id);
+  size_t ebo_size = mesh->index_count * sizeof(GLuint);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, ebo_size, mesh->indices, GL_STATIC_DRAW);  
+
+  glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 
 	// Links VBO attributes such as coordinates and colors to VAO
-	vao_link_attrib(mesh->vao, vbo, 0, 3, GL_FLOAT, sizeof(vertex_t), (void*)0);                   // position
-	vao_link_attrib(mesh->vao, vbo, 1, 3, GL_FLOAT, sizeof(vertex_t), (void*)(3 * sizeof(float))); // color
-	vao_link_attrib(mesh->vao, vbo, 2, 2, GL_FLOAT, sizeof(vertex_t), (void*)(6 * sizeof(float))); // tex_UV
-	vao_link_attrib(mesh->vao, vbo, 3, 1, GL_FLOAT, sizeof(vertex_t), (void*)(8 * sizeof(float))); // tex_id
-	vao_link_attrib(mesh->vao, vbo, 4, 3, GL_FLOAT, sizeof(vertex_t), (void*)(9 * sizeof(float))); // normal
-	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);                   // position
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(3 * sizeof(float))); // color
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(6 * sizeof(float))); // tex_UV
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(8 * sizeof(float))); // tex_id
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(9 * sizeof(float))); // normal
+
+  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
+  glEnableVertexAttribArray(2);
+  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(4);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
   // Unbind all to prevent accidentally modifying them
-  vao_unbind(mesh->vao);
-  vbo_unbind(vbo);
-  ebo_unbind(ebo);
+  glBindVertexArray(0);                     // VAO
+  glBindBuffer(GL_ARRAY_BUFFER, 0);         // VBO
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // EBO
 
   return mesh;
 }
@@ -105,10 +121,8 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
   camera_matrix(camera, shader, "worldToView");
   
-  vao_bind(mesh->vao);
-
-  glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*)(0 * sizeof(unsigned int)));
-  
+  glBindVertexArray(mesh->vao_id);
+  glDrawElements(GL_TRIANGLES, mesh->index_count, GL_UNSIGNED_INT, (void*) (0 * sizeof(unsigned int)));
 }
 
 /**
