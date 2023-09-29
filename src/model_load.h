@@ -225,7 +225,7 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
         "named",
         vertices, num_vertices,
         indices, index_count,
-        &texture_of_primitive, texture_count
+        texture_of_primitive
       );
       
       model->meshes[model->num_meshes] = model_mesh;

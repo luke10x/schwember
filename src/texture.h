@@ -130,7 +130,6 @@ texture_t* texture_create(
       exit(1);
   }
 
-
   glTexParameteri(self->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(self->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(self->type, GL_TEXTURE_BASE_LEVEL, 0);

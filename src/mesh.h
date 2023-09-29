@@ -4,7 +4,6 @@
 
 #include <glm/glm.hpp>
 
-#include "gl.h"
 #include "camera.h"
 #include "texture.h"
 
@@ -18,8 +17,7 @@ typedef struct {
   GLuint* indices;
   GLsizei index_count;
 
-  texture_t* textures;
-  GLsizei texture_count;
+  texture_t* albedo_texture;
 
   GLuint vao_id;
 } mesh_t;
@@ -30,8 +28,7 @@ mesh_t* mesh_create(
   GLsizei vertex_count,
   GLuint* indices,
   GLsizei index_count,
-  texture_t** textures,
-  GLsizei texture_count
+  texture_t* albedo_texture
 ) {
   mesh_t* mesh = (mesh_t*) malloc(sizeof(mesh_t));
 
@@ -43,16 +40,12 @@ mesh_t* mesh_create(
   memcpy(mesh->indices, indices, index_count * sizeof(GLuint));
   mesh->index_count = index_count;
 
-  // Probably it makes more sense that it is allready packed to textures blob
-  // Texture Array Pointer (texture_t**) should not be used,
-  // Texture Object Array (texture*) should be used instead.
-  // texture* can be looped using indexing syntax with the address-of operator
-  mesh->textures = (texture_t*)malloc(4 * sizeof(texture_t));
-  for (int i = 0; i < texture_count; i++) {
-    texture_t* addr = &(mesh->textures[i]);
-    memcpy(addr,  textures[i], sizeof(texture_t));
+  mesh->albedo_texture = NULL;
+  if (albedo_texture != NULL) {
+    mesh->albedo_texture = (texture_t*) malloc(sizeof(texture_t));
+    texture_t* dest = mesh->albedo_texture;
+    memcpy(dest, albedo_texture, sizeof(texture_t));
   }
-  mesh->texture_count = texture_count;
 
   // Create VAO
   glGenVertexArrays(1, &(mesh->vao_id));
@@ -103,10 +96,10 @@ void mesh_draw(mesh_t* mesh, shader_t* shader, camera_t* camera) {
 
   GLint use_sampler_location = glGetUniformLocation(shader->ID, "useSampler");
 
-  if (mesh->texture_count > 0) {
+  if (mesh->albedo_texture != NULL) {
     glUniform1i(use_sampler_location, true);
-    texture_unit(&(mesh->textures[0]), shader, "sampler", 0);
-    texture_bind(&(mesh->textures[0]));
+    texture_unit(mesh->albedo_texture, shader, "sampler", 0);
+    texture_bind(mesh->albedo_texture);
   } else {
     glUniform1i(use_sampler_location, false);
   }

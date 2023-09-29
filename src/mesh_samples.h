@@ -36,7 +36,7 @@ mesh_t* mesh_sample_create_lamp() {
     "light",
     lightVertices, sizeof(lightVertices) / sizeof(vertex_t),
     lightIndices,  sizeof(lightIndices) / sizeof(GLuint),
-    NULL, 0
+    NULL
   );
 }
 mesh_t* mesh_sample_create_pyramid() {
@@ -74,19 +74,12 @@ mesh_t* mesh_sample_create_pyramid() {
     "assets/png/01-16-stone.png",
      GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
   );
-  texture_t* texture_wall2 = texture_create(
-    "assets/png/02-16-stone.png",
-     GL_TEXTURE_2D, GL_TEXTURE1, GL_RGBA, GL_UNSIGNED_BYTE
-  );
-  texture_t** pyramid_textures = (texture_t**)malloc(sizeof(texture_t) * 4);
-  pyramid_textures[0] = texture_wall1;
-  pyramid_textures[1] = texture_wall2;
 
   return mesh_create(
     "pyramid_1",
     vertices, sizeof(vertices) / sizeof(vertex_t),
     indices,  sizeof(indices) / sizeof(GLuint),
-    pyramid_textures, 2
+    texture_wall1
   );
 }
 
@@ -110,13 +103,11 @@ mesh_t* mesh_sample_create_floor() {
     "assets/png/19-13-floor.png",
      GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
   );
-  texture_t** textures = (texture_t**)malloc(sizeof(texture_t) * 4);
-  textures[0] = texture_floor;
 
   return mesh_create(
     "floor",
     vertices, sizeof(vertices) / sizeof(vertex_t),
     indices,  sizeof(indices) / sizeof(GLuint),
-    textures, 1
+    texture_floor
   );
 }
