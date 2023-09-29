@@ -19,6 +19,7 @@
 #include "model.h"
 #include "model_load.h"
 #include "physics.h"
+#include "renderable.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -271,7 +272,7 @@ inline static void ctx_render(ctx_t* ctx) {
   );
   ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
-  mesh_draw(ctx->pyramid, ctx->default_shader, ctx->camera);
+  renderable_draw(ctx->pyramid->renderable, ctx->default_shader, ctx->camera);
 
   // Myramid render
 	btTransform m_trans;
@@ -279,11 +280,11 @@ inline static void ctx_render(ctx_t* ctx) {
   m_trans.getOpenGLMatrix(glm::value_ptr(ctx->myramid_transform));
   ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->myramid_transform);
-  mesh_draw(ctx->myramid, ctx->default_shader, ctx->camera);
+  renderable_draw(ctx->myramid->renderable, ctx->default_shader, ctx->camera);
 
   // Floor render
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->floor_transform);
-  mesh_draw(ctx->floor, ctx->default_shader, ctx->camera);
+  renderable_draw(ctx->floor->renderable, ctx->default_shader, ctx->camera);
 
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", glm::mat4(1.0));
 
@@ -307,7 +308,7 @@ inline static void ctx_render(ctx_t* ctx) {
   model_draw(ctx->sphere, ctx->default_shader, ctx->camera);
 
   // transparent must render last
-  mesh_draw(ctx->lamp, ctx->light_shader, ctx->camera);
+  renderable_draw(ctx->lamp->renderable, ctx->light_shader, ctx->camera);
 
   // ImGui render
   ImGui_ImplOpenGL3_NewFrame();

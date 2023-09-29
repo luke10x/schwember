@@ -29,6 +29,6 @@ model_t* model_create() {
 void model_draw(model_t* self, shader_t* shader, camera_t* camera) {
   for (int i = 0; i < self->num_meshes; i++) {
     mesh_t* each_mesh = self->meshes[i];
-    mesh_draw(each_mesh, shader, camera);
+    renderable_draw(each_mesh->renderable, shader, camera);
   }
 }
