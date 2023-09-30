@@ -141,7 +141,7 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             unsigned char* stbi = stbi_load_from_memory(data, size,  &width, &height, &bpp, 0);
 
             texture_of_primitive = texture_create(
-              stbi, GL_TEXTURE_2D, GL_TEXTURE0, width, height, bpp);
+              stbi, GL_TEXTURE0, width, height, bpp);
             printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
 
             free (data);

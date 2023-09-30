@@ -72,7 +72,7 @@ mesh_t* mesh_sample_create_pyramid() {
 
   texture_t* texture_wall1 = texture_load_from_file(
     "assets/png/01-16-stone.png",
-     GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
+     GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
   );
 
   return mesh_create(
@@ -101,7 +101,7 @@ mesh_t* mesh_sample_create_floor() {
   
   texture_t* texture_floor = texture_load_from_file(
     "assets/png/19-13-floor.png",
-     GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
+     GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE
   );
 
   return mesh_create(

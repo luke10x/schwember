@@ -20,12 +20,14 @@ typedef struct {
 // Implementation //
 texture_t* texture_create(
   unsigned char* image_data,
-  GLenum tex_type,
   GLenum slot,
   int width,
   int height,
   int bpp
 ) {
+
+  // TODO, do we need this at all? If we only work with 2D textures
+  GLenum tex_type = GL_TEXTURE_2D;
 
   texture_t* self = (texture_t*)malloc(sizeof(texture_t));
   self->type = tex_type;
@@ -58,7 +60,6 @@ texture_t* texture_create(
       exit(1);
   }
 
-
   glTexParameteri(self->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(self->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameterf(self->type, GL_TEXTURE_BASE_LEVEL, 0);
@@ -77,7 +78,6 @@ texture_t* texture_create(
 
 texture_t* texture_load_from_file(
   const char* file_name,
-  GLenum tex_type, // texture target 
   GLenum slot,
   GLenum format,
   GLenum pixel_type
@@ -94,9 +94,7 @@ texture_t* texture_load_from_file(
   }
 
   // Then create the texture using loaded data
-  return texture_create(
-    image_data, tex_type, slot, width, height, bpp
-  );
+  return texture_create(image_data, slot, width, height, bpp);
 }
 
 // should not be in this "class"
