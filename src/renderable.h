@@ -80,8 +80,14 @@ void renderable_draw(renderable_t* self, shader_t* shader, camera_t* camera) {
 
   if (self->albedo_texture != NULL) {
     glUniform1i(use_sampler_location, true);
-    texture_unit(self->albedo_texture, shader, "sampler", 0);
-    texture_bind(self->albedo_texture);
+    
+    // Texture unit
+    GLuint location = glGetUniformLocation(shader->ID, "sampler");
+    glUniform1i(location, 0);
+    
+    // Texture bind
+    glActiveTexture(self->albedo_texture->unit);
+    glBindTexture(self->albedo_texture->type, self->albedo_texture->ID);
   } else {
     glUniform1i(use_sampler_location, false);
   }

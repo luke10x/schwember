@@ -17,13 +17,8 @@ typedef struct {
 
 #include "shader.h"
 
-void texture_unit(texture_t* self, shader_t* shader, const char* uniform, GLuint unit);
-void texture_bind(texture_t* self);
-void texture_unbind(texture_t* self);
-void texture_delete(texture_t* self);
-
 // Implementation //
-texture_t* texture_create_of_image_data(
+texture_t* texture_create(
   unsigned char* image_data,
   GLenum tex_type,
   GLenum slot,
@@ -80,13 +75,14 @@ texture_t* texture_create_of_image_data(
   return self;
 }
 
-texture_t* texture_create(
+texture_t* texture_load_from_file(
   const char* file_name,
   GLenum tex_type, // texture target 
   GLenum slot,
   GLenum format,
   GLenum pixel_type
 ) {
+  // First load data from file
   stbi_set_flip_vertically_on_load(1);
 
   int width, height, bpp;
@@ -97,55 +93,11 @@ texture_t* texture_create(
       exit(1);
   }
 
-  // printf("Width %d, height %d, bpp %d\n", width, height, bpp);
-
-  texture_t* self = (texture_t*)malloc(sizeof(texture_t));
-  self->type = tex_type;
-
-  // TODO delegate bellow to a private func, 
-
-  glGenTextures(1, &(self->ID));
-
-  // CHECK IF NEEDED
-  glActiveTexture(slot);
-
-  // Check again how this is done
-  self->unit = slot;
-
-  glBindTexture(self->type, self->ID);
-
-  // TODO support other BPP values
-  switch(bpp) {
-    case 1:
-      glTexImage2D(self->type, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-            break;
-    case 3:
-      glTexImage2D(self->type, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-            break;
-    case 4:
-      glTexImage2D(self->type, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-      break;
-    default:
-      fprintf(stderr, "Unsupported texture BPP value");
-      exit(1);
-  }
-
-  glTexParameteri(self->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(self->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(self->type, GL_TEXTURE_BASE_LEVEL, 0);
-  glTexParameteri(self->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(self->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-  glGenerateMipmap(self->type);
-    
-  // Unbind to make suree something else does not interfere
-  glBindTexture(self->type, 0);
-
-  stbi_image_free(image_data);
-
-  return self;
+  // Then create the texture using loaded data
+  return texture_create(
+    image_data, tex_type, slot, width, height, bpp
+  );
 }
-
 
 // should not be in this "class"
 void texture_unit(texture_t* self, shader_t* shader, const char* uniform, GLuint unit) {
