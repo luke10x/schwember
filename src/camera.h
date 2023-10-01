@@ -1,6 +1,10 @@
 #pragma once
 
 #include "shader.h"
+#include "gl.h"
+#include "camera.h"
+
+#include <math.h>
 
 #include "glm/ext.hpp"
 #include <glm/gtx/vector_angle.hpp>
@@ -30,25 +34,6 @@ void camera_update_matrix(
   float near_plane,
   float far_plane
 );
-
-void camera_matrix(
-  camera_t* self,
-  shader_t* shader,
-  const char* uniform
-);
-
-void camera_inputs(camera_t* self, GLFWwindow* window);
-
-
-// implementatation
-
-
-#include <math.h>
-
-#include "gl.h"
-
-#include "camera.h"
-#include "shader.h"
 
 void camera_look_at(camera_t* self, glm::vec3 target) {
 	self->view_matrix = glm::lookAt(
@@ -102,15 +87,6 @@ void moveMatrixToLocation(glm::mat4& matrix, const glm::vec3& location) {
 
     // Update the translation component of the matrix
     matrix = glm::translate(matrix, translationVector);
-}
-// TODO move to shader
-void camera_matrix(
-  camera_t* self,
-  shader_t* shader,
-  const char* uniform
-) {
-  GLuint location = glGetUniformLocation(shader->ID, uniform);
-  glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(self->camera_matrix));
 }
 
 void camera_inputs(camera_t* self, GLFWwindow* window) {

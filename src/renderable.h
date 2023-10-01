@@ -100,8 +100,10 @@ void renderable_draw(renderable_t* self, shader_t* shader, camera_t* camera) {
     camera->view_matrix[3][2]
   );
 
-  camera_matrix(camera, shader, "worldToView");
-  
+  // Camera matrix
+  GLuint location = glGetUniformLocation(shader->ID, "worldToView");
+  glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(camera->camera_matrix));
+
   glBindVertexArray(self->vao_id);
   glDrawElements(
     GL_TRIANGLES,
