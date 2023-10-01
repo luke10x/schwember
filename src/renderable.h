@@ -87,7 +87,7 @@ void renderable_draw(renderable_t* self, shader_t* shader, camera_t* camera) {
     
     // Texture bind
     glActiveTexture(self->albedo_texture->unit);
-    glBindTexture(self->albedo_texture->type, self->albedo_texture->ID);
+    glBindTexture(GL_TEXTURE_2D, self->albedo_texture->ID);
   } else {
     glUniform1i(use_sampler_location, false);
   }
