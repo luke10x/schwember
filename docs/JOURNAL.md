@@ -200,3 +200,8 @@ Material has its metalic_roughness albedo color, I use that instead.
 - Now uses material base color if texture is not provided
 - if material is not provided then uses green
 - Added sphere and mixamo enabled stickman, which has animation
+
+## 2023-10-02, Mon
+
+Organizing creation of plane collider into separate unit
+for last couple of days.

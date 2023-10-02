@@ -20,7 +20,7 @@
 #include "model_load.h"
 #include "physics.h"
 #include "renderable.h"
-#include "body.h"
+#include "collider.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -105,7 +105,6 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 2));
   ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
 
-
   // Just in the middle
   ctx->floor = mesh_sample_create_floor();
   ctx->floor_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.01, 0)); // one cm up
@@ -149,9 +148,8 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // We use physics
   ctx->physics = physics_create();
   
-  body_t* plane_body = body_create_plane(ctx->floor_transform);
-  physics_add_body(ctx->physics, plane_body);
-  // TODO move to physics_t "class"
+  // Create physics body for floor
+  collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
 
 
   // Pyramid physics
