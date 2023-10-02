@@ -20,6 +20,7 @@
 #include "model_load.h"
 #include "physics.h"
 #include "renderable.h"
+#include "body.h"
 
 /*
 ** Context is the initialization data, and data that
@@ -148,30 +149,10 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // We use physics
   ctx->physics = physics_create();
   
-  // Floor physics
-  btVector3 planeNormal(0, 1, 0);
-  btScalar planeConstant = 0.0;
-  // Create a btStaticPlaneShape
-  btCollisionShape* floor_collision_shape = new btStaticPlaneShape(
-    planeNormal,
-    planeConstant
-  ); 
-  ctx->physics->collision_shapes.push_back(floor_collision_shape);
-  btTransform floor_bt_transform;
-  // Use the glm matrix's first column
-  // which contains the rotation and scale components
-  floor_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->floor_transform));
-  btScalar floor_mass(0.0);
-	btVector3 floor_local_inertia(0, 0, 0);
-	btDefaultMotionState* floor_motion_state = new btDefaultMotionState(floor_bt_transform);
-	btRigidBody::btRigidBodyConstructionInfo floor_rb_info(
-    floor_mass,
-    floor_motion_state,
-    floor_collision_shape,
-    floor_local_inertia
-  );
-	btRigidBody* floor_body = new btRigidBody(floor_rb_info);
-	ctx->physics->dynamics_world->addRigidBody(floor_body);
+  body_t* plane_body = body_create_plane(ctx->floor_transform);
+  physics_add_body(ctx->physics, plane_body);
+  // TODO move to physics_t "class"
+
 
   // Pyramid physics
   glm::vec3 pbb = mesh_calculate_bounding_box(ctx->pyramid);
@@ -191,6 +172,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   );
   ctx->physics->collision_shapes.push_back(pyramid_collision_shape);
   btTransform pyramid_bt_transform;
+
   // Use the glm matrix's first column
   // which contains the rotation and scale components
   pyramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
@@ -259,11 +241,6 @@ inline static void ctx_render(ctx_t* ctx) {
   // Pyramid render
 	btTransform trans;
   ctx->pyramid_body__->getMotionState()->getWorldTransform(trans);
-  // printf("TARNS: %f, %f, %f \n",
-  //   float(trans.getOrigin().getX()),
-  //   float(trans.getOrigin().getY()),
-  //   float(trans.getOrigin().getZ())
-  // );
   trans.getOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
   // Compensation for collision shape center offet
   ctx->pyramid_transform = glm::translate(

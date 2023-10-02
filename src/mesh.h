@@ -7,8 +7,6 @@
 #include "camera.h"
 #include "renderable.h"
 
-#pragma once
-
 typedef struct {
   char* name;
   vertex_t* vertices;

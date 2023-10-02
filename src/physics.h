@@ -1,7 +1,7 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
-
+#include "body.h"
 
 typedef struct {
   btDefaultCollisionConfiguration*        collision_configuration;
@@ -87,6 +87,13 @@ void physics_delete(physics_t* self) {
 	delete self->collision_configuration;
 
   delete self;
+}
+
+void physics_add_body(physics_t* self, body_t* body) {
+  self->collision_shapes
+		.push_back(body->collision_shape);
+	self->dynamics_world
+		->addRigidBody(body->rigid_body);
 }
 
 void physics_step_simulation(physics_t* self, float time_step) {
