@@ -35,14 +35,13 @@ typedef struct {
 
   physics_t* physics;
 
-  mesh_t*   pyramid;
-  glm::mat4 pyramid_transform;
-  btRigidBody* pyramid_body__;
+  mesh_t*     pyramid;
+  glm::mat4   pyramid_transform;
+  collider_t* pyramid_collider;
 
-  mesh_t*   myramid;
-  glm::mat4 myramid_transform;
-  btRigidBody* myramid_body__;
-  glm::vec3 pbbc__;
+  mesh_t*     myramid;
+  glm::mat4   myramid_transform;
+  collider_t* myramid_collider;
 
   mesh_t* floor;
   glm::mat4 floor_transform;
@@ -74,6 +73,10 @@ typedef struct {
 } ctx_t;
 
 void ctx_load(ctx_t* ctx, int width, int height) {
+
+  // We use physics
+  ctx->physics = physics_create();
+
   // Setup shaders
   ctx->default_shader = shader_create("src/shaders/default.vert", "src/shaders/default.frag");
   ctx->light_shader   = shader_create("src/shaders/light.vert", "src/shaders/light.frag");
@@ -98,16 +101,28 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
   ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 2));
-  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  // ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  ctx->pyramid_collider = collider_create_box_from_mesh(
+    ctx->pyramid_transform,
+    ctx->pyramid,
+    ctx->physics
+  );
 
   // Myramid
   ctx->myramid = mesh_sample_create_pyramid();
   ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 2));
   ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  ctx->myramid_collider = collider_create_box_from_mesh(
+    ctx->myramid_transform,
+    ctx->myramid,
+    ctx->physics
+  );
 
-  // Just in the middle
+  // Floor is in the middle
   ctx->floor = mesh_sample_create_floor();
   ctx->floor_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.01, 0)); // one cm up
+  // Create physics body for floor
+  collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
 
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
@@ -145,87 +160,6 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
   );
 
-  // We use physics
-  ctx->physics = physics_create();
-  
-  // Create physics body for floor
-  collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
-
-
-  // Pyramid physics
-  glm::vec3 pbb = mesh_calculate_bounding_box(ctx->pyramid);
-  printf("Pyramid BOUNDiNG: %f, %f, %f\n", pbb.x, pbb.y, pbb.z);
-  ctx->pbbc__ = mesh_calculate_center_shift(ctx->pyramid);
-    printf("Pyramid Bounding Center shift: %f, %f, %f\n",
-    ctx->pbbc__.x,
-    ctx->pbbc__.y,
-    ctx->pbbc__.z
-  );
-  btCollisionShape* pyramid_collision_shape = new btBoxShape(
-    btVector3(
-      btScalar(pbb.x),
-      btScalar(pbb.y),
-      btScalar(pbb.z)
-    )
-  );
-  ctx->physics->collision_shapes.push_back(pyramid_collision_shape);
-  btTransform pyramid_bt_transform;
-
-  // Use the glm matrix's first column
-  // which contains the rotation and scale components
-  pyramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
-  btScalar pyramid_mass(1.0);
-	btVector3 pyramid_local_inertia(0, 0, 0);
-  // Dynamic is this Pyramid
-	pyramid_collision_shape->calculateLocalInertia(
-    pyramid_mass, pyramid_local_inertia
-  );
-  btDefaultMotionState* pyramid_motion_state = new btDefaultMotionState(
-    pyramid_bt_transform 
-  );
-	btRigidBody::btRigidBodyConstructionInfo pyramid_rb_info(
-    pyramid_mass,
-    pyramid_motion_state,
-    pyramid_collision_shape,
-    pyramid_local_inertia
-  );
-	ctx->pyramid_body__ = new btRigidBody(pyramid_rb_info);
-	ctx->physics->dynamics_world->addRigidBody(ctx->pyramid_body__);
-
-  // Myramid physics
-  glm::vec3 mbb = mesh_calculate_bounding_box(ctx->pyramid);
-  printf("Myramid BOUNDiNG: %f, %f, %f\n", mbb.x, mbb.y, mbb.z);
-  glm::vec3 mbbc =mesh_calculate_center_shift(ctx->pyramid);
-  printf("Myramid Center shift: %f, %f, %f\n", mbbc.x, mbbc.y, mbbc.z);
-  btCollisionShape* myramid_collision_shape = new btBoxShape(
-    btVector3(
-      btScalar(mbb.x),
-      btScalar(mbb.y),
-      btScalar(mbb.z)
-    )
-  );
-  ctx->physics->collision_shapes.push_back(myramid_collision_shape);
-  btTransform myramid_bt_transform;
-  myramid_bt_transform.setFromOpenGLMatrix(glm::value_ptr(
-    ctx->myramid_transform
-  ));
-  btScalar myramid_mass(1.0);
-	btVector3 myramid_local_inertia(0, 0, 0);
-  // Dynamic collision shapes need inertia
-	myramid_collision_shape->calculateLocalInertia(
-    myramid_mass, myramid_local_inertia
-  );
-  btDefaultMotionState* myramid_motion_state = new btDefaultMotionState(
-    myramid_bt_transform
-  );
-	btRigidBody::btRigidBodyConstructionInfo myramid_rb_info(
-    myramid_mass,
-    myramid_motion_state,
-    myramid_collision_shape,
-    myramid_local_inertia
-  );
-	ctx->myramid_body__ = new btRigidBody(myramid_rb_info);
-	ctx->physics->dynamics_world->addRigidBody(ctx->myramid_body__);
 }
 
 /**
@@ -237,22 +171,22 @@ inline static void ctx_render(ctx_t* ctx) {
   physics_step_simulation(ctx->physics, time_step);
 
   // Pyramid render
-	btTransform trans;
-  ctx->pyramid_body__->getMotionState()->getWorldTransform(trans);
-  trans.getOpenGLMatrix(glm::value_ptr(ctx->pyramid_transform));
-  // Compensation for collision shape center offet
-  ctx->pyramid_transform = glm::translate(
-    ctx->pyramid_transform,
-    glm::vec3(0.0f, -0.8f, 0.0f)
+  ctx->pyramid_transform = collider_update_transform(
+    ctx->pyramid_collider,
+    ctx->pyramid_transform
   );
-  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+
+///
+  // ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
   renderable_draw(ctx->pyramid->renderable, ctx->default_shader, ctx->camera);
 
   // Myramid render
-	btTransform m_trans;
-  ctx->myramid_body__->getMotionState()->getWorldTransform(m_trans);
-  m_trans.getOpenGLMatrix(glm::value_ptr(ctx->myramid_transform));
+  ctx->myramid_transform = collider_update_transform(
+    ctx->myramid_collider,
+    ctx->myramid_transform
+  );
+
   ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->myramid_transform);
   renderable_draw(ctx->myramid->renderable, ctx->default_shader, ctx->camera);

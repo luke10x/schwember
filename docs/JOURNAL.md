@@ -205,3 +205,11 @@ Material has its metalic_roughness albedo color, I use that instead.
 
 Organizing creation of plane collider into separate unit
 for last couple of days.
+
+## 2023-10-03, Tue
+
+The btTransform::setFromOpenGLMatrix method in Bullet Physics
+is designed to convert a 4x4 OpenGL-style matrix into a btTransform.
+However, it doesn't inherently support scaling,
+as Bullet Physics primarily deals
+with translation and rotation components.

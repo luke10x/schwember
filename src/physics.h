@@ -45,7 +45,7 @@ physics_t* physics_create() {
     self->collision_configuration
   );
 
-	self->dynamics_world->setGravity(btVector3(0, -1.625f, 0)); // Moon gravity
+	self->dynamics_world->setGravity(btVector3(0, -1.625f / 4.0f, 0)); // Moon gravity
   return self;
 }
 

@@ -50,7 +50,7 @@ mesh_t* mesh_create(
 /**
  * Calculates bounding box vector of mesh vertices
  */
-glm::vec3 mesh_calculate_bounding_box(mesh_t* self) {
+glm::vec3 mesh_calculate_bounding_box(mesh_t* self, glm::vec3 scale) {
     // Use first vertex as initial min and max value
     vertex_t* vertex = self->vertices + 0;
     glm::vec3 min_bounds = glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z);
@@ -63,13 +63,13 @@ glm::vec3 mesh_calculate_bounding_box(mesh_t* self) {
       max_bounds = glm::max(max_bounds, glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z));
     }
 
-    return max_bounds - min_bounds;
+    return (max_bounds - min_bounds) * scale * 0.5f ;
 }
 
 /**
  * Calculates the center shift of mesh vertices based on center of mass
  */
-glm::vec3 mesh_calculate_center_shift(mesh_t* self) {
+glm::vec3 mesh_calculate_center_shift(mesh_t* self, glm::vec3 scale) {
     glm::vec3 center_of_mass = glm::vec3(0.0f, 0.0f, 0.0f);
 
     for (int i = 0; i < self->vertex_count; i++) {
@@ -86,5 +86,5 @@ glm::vec3 mesh_calculate_center_shift(mesh_t* self) {
     // and the center of the bounding box (assuming that the bounding box is centered at the origin)
     glm::vec3 center_shift = center_of_mass - glm::vec3(0.0f, 0.0f, 0.0f);
 
-    return center_shift;
+    return center_shift; // * scale;
 }
