@@ -33,6 +33,13 @@ typedef struct {
   btRigidBody*      rigid_body;
   btCollisionShape* collision_shape;
 } collider_sphere_t;
+
+typedef struct {
+  collider_t        parent;
+  btRigidBody*      rigid_body;
+  btCollisionShape* collision_shape;
+} collider_mesh_t;
+
 ////////////////////////////////////////////////////////////////////////
 // Create plane collider                                              //
 ////////////////////////////////////////////////////////////////////////
@@ -72,6 +79,100 @@ collider_t* collider_create_plane(
 	btDefaultMotionState* motion_state = new btDefaultMotionState(
     bt_transform
   );
+
+  // Create rigid body
+  btRigidBody::btRigidBodyConstructionInfo floor_rb_info(
+    mass, motion_state, self->collision_shape, local_inertia
+  );
+  self->rigid_body = new btRigidBody(floor_rb_info);
+
+  // Add rigid body to physics engine
+  physics->dynamics_world
+    ->addRigidBody(self->rigid_body);
+
+  return (collider_t*) self;
+}
+////////////////////////////////////////////////////////////////////////
+// Create mesh collider                                              //
+////////////////////////////////////////////////////////////////////////
+collider_t* collider_create_mesh(
+  glm::mat4  initial_transform,
+  mesh_t* mesh,
+  physics_t* physics
+) {
+  collider_plane_t* self = (collider_plane_t*) malloc(
+    sizeof(collider_plane_t)
+  );
+
+  self->parent.type = COLLIDER_TYPE_MESH;
+  printf("\n\n\nMESH ----------> %d\n\n", mesh->index_count);
+  btTriangleMesh* triangleMesh = new btTriangleMesh();
+  for (uint32_t i = 0; i < mesh->index_count / 3; i++) {
+
+    int i0 = mesh->indices[i+0];
+    int i1 = mesh->indices[i+1];
+    int i2 = mesh->indices[i+2];
+
+    vertex_t* vertex_a = mesh->vertices + i0;
+    vertex_t* vertex_b = mesh->vertices + i1;
+    vertex_t* vertex_c = mesh->vertices + i2;
+    btVector3 a(
+      vertex_a->position.x, 
+      vertex_a->position.y, 
+      vertex_a->position.z
+    );
+    btVector3 b(
+      vertex_b->position.x, 
+      vertex_b->position.y, 
+      vertex_b->position.z
+    );
+    btVector3 c(
+      vertex_c->position.x, 
+      vertex_c->position.y, 
+      vertex_c->position.z
+    );
+
+    triangleMesh->addTriangle(a, b, c, true);
+    printf("T%d a(%f, %f, %f); b(%f, %f, %f); c(%f, %f, %f)\n", i,
+      vertex_a->position.x, 
+      vertex_a->position.y, 
+      vertex_a->position.z,
+      vertex_b->position.x, 
+      vertex_b->position.y, 
+      vertex_b->position.z,
+      vertex_c->position.x, 
+      vertex_c->position.y, 
+      vertex_c->position.z
+    );
+  }
+
+  // Create a btStaticPlaneShape
+  self->collision_shape = new btBvhTriangleMeshShape(triangleMesh, true, true);
+self->collision_shape->setMargin(0.01f);
+  // Add collision shape to physics engine
+  physics->collision_shapes
+    .push_back(self->collision_shape);
+
+  // Bullet uses its own format to hold transform
+  btTransform bt_transform;
+  bt_transform.setFromOpenGLMatrix(
+    glm::value_ptr(initial_transform)
+  );
+
+///
+  // Create motion state
+  btScalar mass(0.0); // must be not 0 with dynamics
+	btVector3 local_inertia(0, 0, 0);
+
+  // When has mass add inertia
+  // self->collision_shape->calculateLocalInertia(mass, local_inertia);
+
+/////
+btDefaultMotionState* motion_state = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0.0f, 0)));
+
+	// btDefaultMotionState* motion_state = new btDefaultMotionState(
+  //   bt_transform
+  // );
 
   // Create rigid body
   btRigidBody::btRigidBodyConstructionInfo floor_rb_info(
@@ -175,6 +276,7 @@ collider_t* collider_create_sphere(
 
   // Create collision shape by radius
   self->collision_shape = new btSphereShape(radius);
+self->collision_shape->setMargin(0.01f);
 
   // Use this as a storage for scaling
   // probably misusing Bullet here, but this local scaling,
@@ -215,7 +317,6 @@ collider_t* collider_create_sphere(
 
   return (collider_t*) self;
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // update transform based on physics changes                          //
@@ -275,4 +376,32 @@ glm::mat4  collider_update_transform(
 
     return target_transform;
   }
+
+  else if (self->type == COLLIDER_TYPE_MESH) {
+
+    collider_mesh_t* impl = (collider_mesh_t*) self;
+    
+    btTransform trans;
+    impl->rigid_body
+      ->getMotionState()
+      ->getWorldTransform(trans);
+
+    // fills in changes to target_transform
+    trans.getOpenGLMatrix(glm::value_ptr(target_transform));
+
+    // Take local scaling back from collision shape.
+    // And apply it on transform.
+    // It does not seem that this local scaling is used by Bullet,
+    // which feels strange. An I am probably misusing it.
+    // local scaling is set in create_collider_X() functions
+    // of this unit.
+    // TODO: Learn if this is the right way of doing it
+    btVector3 bt_scale = impl->collision_shape->getLocalScaling();
+    target_transform[0] *= bt_scale.getX();
+    target_transform[1] *= bt_scale.getY();
+    target_transform[2] *= bt_scale.getZ();
+
+    return target_transform;
+  }
+  
 }

@@ -50,7 +50,9 @@ typedef struct {
 
   model_t* test_model;
 
-  model_t* map_model;
+  model_t*  map_model;
+  glm::mat4 map_transform;
+
 
   model_t* skybox;
 
@@ -121,8 +123,8 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 
   // Floor is in the middle
   ctx->floor = mesh_sample_create_floor();
-  ctx->floor_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.01, 0)); // one cm up
-  collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
+  ctx->floor_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.01f, 0)); // one cm up
+  // collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
 
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
   shader_set_uniform_mat4(ctx->sky_shader, "modelToWorld", skybox_transform);
@@ -136,9 +138,18 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->test_model = model_create();
   model_load_from_file(ctx->test_model, "assets/gltf/texture-test.glb");
   
+  // Map
   ctx->map_model = model_create();
   model_load_from_file(ctx->map_model, "assets/gltf/noob-level-map.glb");
-  
+  ctx->map_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+
+  for (int i = 0; i < ctx->map_model->num_meshes; i++) {
+    mesh_t* mesh = ctx->map_model->meshes[i];
+    collider_t* map_collider = collider_create_mesh(
+      ctx->map_transform, mesh, ctx->physics
+    );
+  }
+
   ctx->subject = model_create();
   model_load_from_file(ctx->subject, "assets/gltf/noob.glb");
   ctx->subject_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, 1));
@@ -154,7 +165,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Sphere
   ctx->sphere = model_create();
   model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
-  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 13, -20));
+  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 13, 20-20));
   ctx->sphere_collider = collider_create_sphere(
     ctx->sphere_transform,
     1.0f,
@@ -217,14 +228,16 @@ inline static void ctx_render(ctx_t* ctx) {
   model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
   // Render sphere
-    btVector3 force(-0.3f, 0.1f, 0.0f);
+  btVector3 force(-0.4f, 0.2f, 0.4f);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
-    // ->applyPushImpulse(force);
+    // ->applyImpulse(force, force);
+    // ->applyForce(force, btVector3(0.0f, 0.0f, 0.0f))
     ->applyCentralForce(force);
   ctx->sphere_transform = collider_update_transform(
     ctx->sphere_collider,
     ctx->sphere_transform
   );
+  
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->sphere_transform);
   model_draw(ctx->sphere, ctx->default_shader, ctx->camera);
 

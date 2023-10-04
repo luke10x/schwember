@@ -72,7 +72,6 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
   // Iterate through meshes and print their names
   for (size_t i = 0; i < data->meshes_count; ++i) {
     cgltf_mesh* mesh = &data->meshes[i];
-    printf("  %zu: %s\n", i, mesh->name ? mesh->name : "Unnamed");
 
     // Finds node for current mesh
     cgltf_node* current_node = NULL;
@@ -81,7 +80,6 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
       cgltf_mesh* node_mesh = node->mesh;
       if(node_mesh == mesh) {
         current_node = node;
-        printf("    Found node: %s\n", current_node->name);
       }
     }
 
@@ -112,8 +110,6 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             base_color[0] = pbr->base_color_factor[0];
             base_color[1] = pbr->base_color_factor[1];
             base_color[2] = pbr->base_color_factor[2];
-            
-            printf("ALBEDO %f, %f, %f \n", base_color[0], base_color[1], base_color[2]);
         }
         
         cgltf_texture* texture = material->pbr_metallic_roughness.base_color_texture.texture;
@@ -142,8 +138,6 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
 
             texture_of_primitive = texture_create(
               stbi, GL_TEXTURE0, width, height, bpp);
-            printf("    Material Name: %s -- %s --  %d = %dx%dx%d\n", materialName, image_name, size, width, height, bpp);
-
             free (data);
           }
         }
@@ -257,13 +251,11 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
     }
   }
 
-
   // Iterate through animations and print their names
-  // Iterate through animations and print their names
-  printf("Animations:\n");
+  // printf("Animations:\n");
   for (size_t i = 0; i < data->animations_count; ++i) {
     cgltf_animation* animation = &data->animations[i];
-    printf("  %zu: %s\n", i, animation->name ? animation->name : "Unnamed");
+    // printf("  %zu: %s\n", i, animation->name ? animation->name : "Unnamed");
   }
 
   // Free the loaded data when done
