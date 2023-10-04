@@ -221,3 +221,5 @@ I tend to believe it.
 - Perhaps I should use a field in collider_*_t unit
 - Perhaps Bullet actually has a capability to persist scale
 - I currently need to center mesh vertices (this is bad)
+
+Then after quick sphere collider and force applied

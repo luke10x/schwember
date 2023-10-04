@@ -6,9 +6,10 @@
 #include "physics.h"
 #include "mesh.h"
 
-#define COLLIDER_TYPE_PLANE 1
-#define COLLIDER_TYPE_BOX   2
-#define COLLIDER_TYPE_MESH  3
+#define COLLIDER_TYPE_PLANE  1
+#define COLLIDER_TYPE_BOX    2
+#define COLLIDER_TYPE_MESH   3
+#define COLLIDER_TYPE_SPHERE 4
 
 typedef struct {
   uint8_t type;
@@ -27,6 +28,11 @@ typedef struct {
   glm::vec3         center_shift;
 } collider_box_t;
 
+typedef struct {
+  collider_t        parent;
+  btRigidBody*      rigid_body;
+  btCollisionShape* collision_shape;
+} collider_sphere_t;
 ////////////////////////////////////////////////////////////////////////
 // Create plane collider                                              //
 ////////////////////////////////////////////////////////////////////////
@@ -148,6 +154,68 @@ collider_t* collider_create_box_from_mesh(
 
   return (collider_t*) self;
 }
+////////////////////////////////////////////////////////////////////////
+// Create sphere collider                                             //
+////////////////////////////////////////////////////////////////////////
+collider_t* collider_create_sphere(
+  glm::mat4  initial_transform,
+  float      radius,
+  physics_t* physics
+) {
+  collider_box_t* self = (collider_box_t*) malloc(
+    sizeof(collider_box_t)
+  );
+  self->parent.type = COLLIDER_TYPE_SPHERE;
+
+  // Extract scale from initial_transform
+  glm::vec3 scale;
+  scale.x = glm::length(initial_transform[0]) ;
+  scale.y = glm::length(initial_transform[1]) ;
+  scale.z = glm::length(initial_transform[2]) ;
+
+  // Create collision shape by radius
+  self->collision_shape = new btSphereShape(radius);
+
+  // Use this as a storage for scaling
+  // probably misusing Bullet here, but this local scaling,
+  // is used in collider_update_transform()
+  self->collision_shape
+    ->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+
+  // Add collision shape to physics engine
+  physics->collision_shapes
+    .push_back(self->collision_shape);
+
+  // Bullet uses its own format to hold transform
+  btTransform bt_transform;
+  bt_transform.setFromOpenGLMatrix(
+    glm::value_ptr(initial_transform)
+  );
+
+  // Create motion state
+  btScalar mass(1.0f); // must be not 0 with dynamics
+	btVector3 local_inertia(0.0f, 0.0f, 0.0f);
+
+  // When has mass add inertia
+  self->collision_shape->calculateLocalInertia(mass, local_inertia);
+
+  btDefaultMotionState* motion_state = new btDefaultMotionState(
+    bt_transform
+  );
+
+  // Create rigid body
+  btRigidBody::btRigidBodyConstructionInfo rb_info(
+    mass, motion_state, self->collision_shape, local_inertia
+  );
+  self->rigid_body = new btRigidBody(rb_info);
+
+  // Add rigid body to physics engine
+  physics->dynamics_world
+    ->addRigidBody(self->rigid_body);
+
+  return (collider_t*) self;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // update transform based on physics changes                          //
@@ -158,6 +226,32 @@ glm::mat4  collider_update_transform(
 ) {
   if (self->type == COLLIDER_TYPE_BOX) {
     collider_box_t* impl = (collider_box_t*) self;
+    
+    btTransform trans;
+    impl->rigid_body
+      ->getMotionState()
+      ->getWorldTransform(trans);
+
+    // fills in changes to target_transform
+    trans.getOpenGLMatrix(glm::value_ptr(target_transform));
+
+    // Take local scaling back from collision shape.
+    // And apply it on transform.
+    // It does not seem that this local scaling is used by Bullet,
+    // which feels strange. An I am probably misusing it.
+    // local scaling is set in create_collider_X() functions
+    // of this unit.
+    // TODO: Learn if this is the right way of doing it
+    btVector3 bt_scale = impl->collision_shape->getLocalScaling();
+    target_transform[0] *= bt_scale.getX();
+    target_transform[1] *= bt_scale.getY();
+    target_transform[2] *= bt_scale.getZ();
+
+    return target_transform;
+  }
+  else if (self->type == COLLIDER_TYPE_SPHERE) {
+
+    collider_sphere_t* impl = (collider_sphere_t*) self;
     
     btTransform trans;
     impl->rigid_body

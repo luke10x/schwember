@@ -66,8 +66,9 @@ typedef struct {
   model_t* stickman;
   glm::mat4 stickman_transform;
 
-  model_t* sphere;
-  glm::mat4 sphere_transform;
+  model_t*    sphere;
+  glm::mat4   sphere_transform;
+  collider_t* sphere_collider;
 
   camera_t* camera;
 } ctx_t;
@@ -150,9 +151,17 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   model_load_from_file(ctx->stickman, "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb");
   ctx->stickman_transform = glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
 
+  // Sphere
   ctx->sphere = model_create();
   model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
-  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 3, -20));
+  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 13, -20));
+  ctx->sphere_collider = collider_create_sphere(
+    ctx->sphere_transform,
+    1.0f,
+    ctx->physics
+  );
+
+
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -161,9 +170,9 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 
 }
 
-/**
- * Render frame
- */
+////////////////////////////////////////////////////////////////////////
+// Render frame                                                       //
+////////////////////////////////////////////////////////////////////////
 inline static void ctx_render(ctx_t* ctx) {
   int fps = 100; // TODO use real (or desired) value
   float time_step = 1.0f / fps;
@@ -182,7 +191,6 @@ inline static void ctx_render(ctx_t* ctx) {
     ctx->myramid_collider,
     ctx->myramid_transform
   );
-
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->myramid_transform);
   renderable_draw(ctx->myramid->renderable, ctx->default_shader, ctx->camera);
 
@@ -208,6 +216,15 @@ inline static void ctx_render(ctx_t* ctx) {
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->stickman_transform);
   model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
+  // Render sphere
+    btVector3 force(-0.3f, 0.1f, 0.0f);
+  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
+    // ->applyPushImpulse(force);
+    ->applyCentralForce(force);
+  ctx->sphere_transform = collider_update_transform(
+    ctx->sphere_collider,
+    ctx->sphere_transform
+  );
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->sphere_transform);
   model_draw(ctx->sphere, ctx->default_shader, ctx->camera);
 
