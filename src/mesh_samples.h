@@ -75,13 +75,11 @@ mesh_t* mesh_sample_create_pyramid() {
     { .position = {0.5f,  -0.4f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 5.0f, 0.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}, // Facing side
     { .position = {-0.5f, -0.4f,  0.5f}, .color = { 0.83f, 0.70f, 0.44f }, .texUV = { 0.0f, 0.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}, // Facing side
     { .position = {0.0f,  +0.4f,  0.0f}, .color = { 0.92f, 0.86f, 0.76f }, .texUV = { 2.5f, 5.0f }, .tex_id = 1.0, .normal = {  0.0f, 0.5f,  0.8f }}  // Facing side
-
-
   };
   
   GLuint indices[] =
   {
-    0, 1, 11, // Bottom side
+    0, 1, 2, // Bottom side
     0, 2, 3, // Bottom side
     4, 6, 5, // Left side
     7, 9, 8, // Non-facing side

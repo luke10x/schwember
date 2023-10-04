@@ -93,7 +93,7 @@ collider_t* collider_create_box_from_mesh(
   );
   self->parent.type = COLLIDER_TYPE_BOX;
 
-  // Scale center shift by how much init matrix is scaled
+  // Extract scale from initial_transform
   glm::vec3 scale;
   scale.x = glm::length(initial_transform[0]) ;
   scale.y = glm::length(initial_transform[1]) ;
@@ -102,22 +102,18 @@ collider_t* collider_create_box_from_mesh(
   // Calculate box parameters from mesh
   glm::vec3 bounding_box = mesh_calculate_bounding_box(mesh, scale);
 
-  self->collision_shape = new btBoxShape(
-    btVector3(
-      btScalar(bounding_box.x),
-      btScalar(bounding_box.y),
-      btScalar(bounding_box.z)
-    )
-  );
+  // Create collision shape from bounding box
+  self->collision_shape = new btBoxShape(btVector3(
+    bounding_box.x,
+    bounding_box.y,
+    bounding_box.z
+  ));
 
-
-  // self->collision_shape->setLocalScaling(
-  //   btVector3(
-  //     btScalar(1.0f/scale.x),
-  //     btScalar(1.0f/scale.y),
-  //     btScalar(1.0f/scale.z)
-  //   )
-  // );
+  // Use this as a storage for scaling
+  // probably misusing Bullet here, but this local scaling,
+  // is used in collider_update_transform()
+  self->collision_shape
+    ->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
   // Add collision shape to physics engine
   physics->collision_shapes
@@ -130,7 +126,7 @@ collider_t* collider_create_box_from_mesh(
   );
 
   // Create motion state
-  btScalar mass(1.0); // must be not 0 with dynamics
+  btScalar mass(100.0); // must be not 0 with dynamics
 	btVector3 local_inertia(0, 0, 0);
 
   // When has mass add inertia
@@ -170,6 +166,18 @@ glm::mat4  collider_update_transform(
 
     // fills in changes to target_transform
     trans.getOpenGLMatrix(glm::value_ptr(target_transform));
+
+    // Take local scaling back from collision shape.
+    // And apply it on transform.
+    // It does not seem that this local scaling is used by Bullet,
+    // which feels strange. An I am probably misusing it.
+    // local scaling is set in create_collider_X() functions
+    // of this unit.
+    // TODO: Learn if this is the right way of doing it
+    btVector3 bt_scale = impl->collision_shape->getLocalScaling();
+    target_transform[0] *= bt_scale.getX();
+    target_transform[1] *= bt_scale.getY();
+    target_transform[2] *= bt_scale.getZ();
 
     return target_transform;
   }

@@ -101,7 +101,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
   ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 2));
-  // ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   ctx->pyramid_collider = collider_create_box_from_mesh(
     ctx->pyramid_transform,
     ctx->pyramid,
@@ -121,7 +121,6 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Floor is in the middle
   ctx->floor = mesh_sample_create_floor();
   ctx->floor_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.01, 0)); // one cm up
-  // Create physics body for floor
   collider_t* floor_collider = collider_create_plane(ctx->floor_transform, ctx->physics);
 
   glm::mat4 skybox_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, -0.5, 0.0f));
@@ -175,9 +174,6 @@ inline static void ctx_render(ctx_t* ctx) {
     ctx->pyramid_collider,
     ctx->pyramid_transform
   );
-
-///
-  // ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->pyramid_transform);
   renderable_draw(ctx->pyramid->renderable, ctx->default_shader, ctx->camera);
 
@@ -187,7 +183,6 @@ inline static void ctx_render(ctx_t* ctx) {
     ctx->myramid_transform
   );
 
-  ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->myramid_transform);
   renderable_draw(ctx->myramid->renderable, ctx->default_shader, ctx->camera);
 
@@ -223,7 +218,8 @@ inline static void ctx_render(ctx_t* ctx) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
-          // Your ImGui code here
+  
+  // Your ImGui code here
   ImGui::Begin("Hello, world!");
   ImGui::Text("This is a simple ImGui application.");
   ImGui::End();

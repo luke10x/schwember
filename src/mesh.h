@@ -63,7 +63,7 @@ glm::vec3 mesh_calculate_bounding_box(mesh_t* self, glm::vec3 scale) {
       max_bounds = glm::max(max_bounds, glm::vec3(vertex->position.x, vertex->position.y, vertex->position.z));
     }
 
-    return (max_bounds - min_bounds) * scale * 0.5f ;
+    return (max_bounds - min_bounds) * 0.5f ;
 }
 
 /**

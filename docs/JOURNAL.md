@@ -208,8 +208,16 @@ for last couple of days.
 
 ## 2023-10-03, Tue
 
-The btTransform::setFromOpenGLMatrix method in Bullet Physics
-is designed to convert a 4x4 OpenGL-style matrix into a btTransform.
-However, it doesn't inherently support scaling,
-as Bullet Physics primarily deals
-with translation and rotation components.
+GPT said:
+> The btTransform::setFromOpenGLMatrix method in Bullet Physics
+> is designed to convert a 4x4 OpenGL-style matrix into a btTransform.
+> However, it doesn't inherently support scaling,
+> as Bullet Physics primarily deals
+> with translation and rotation components.
+
+I tend to believe it.
+
+- Misused collision shape's local scale
+- Perhaps I should use a field in collider_*_t unit
+- Perhaps Bullet actually has a capability to persist scale
+- I currently need to center mesh vertices (this is bad)
