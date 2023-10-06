@@ -129,7 +129,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
   ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 2));
-  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(1.5f, 1.5f, 1.5f));
   ctx->pyramid_collider = collider_create_box_from_mesh(
     ctx->pyramid_transform,
     ctx->pyramid,
@@ -139,7 +139,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Myramid
   ctx->myramid = mesh_sample_create_pyramid();
   ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 2));
-  ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+  ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(3.0f, 3.0f, 3.0f));
   ctx->myramid_collider = collider_create_box_from_mesh(
     ctx->myramid_transform,
     ctx->myramid,
@@ -208,14 +208,6 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
   );
-
-  
-  // Add custom collision callback
-  ctx->physics->dynamics_world
-    ->contactTest(
-      ((collider_sphere_t*) ctx->sphere_collider)->rigid_body,
-      my_ccb
-    );
 }
 
 ////////////////////////////////////////////////////////////////////////

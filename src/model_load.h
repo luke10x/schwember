@@ -4,7 +4,6 @@
 
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
-// #include "cgltf/cgltf.h"
 
 #include "mesh.h"
 #include "model.h"

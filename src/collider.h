@@ -92,6 +92,7 @@ collider_t* collider_create_plane(
 
   return (collider_t*) self;
 }
+
 ////////////////////////////////////////////////////////////////////////
 // Create mesh collider                                               //
 ////////////////////////////////////////////////////////////////////////
@@ -175,14 +176,9 @@ collider_t* collider_create_box_from_mesh(
   );
   self->parent.type = COLLIDER_TYPE_BOX;
 
-  // Extract scale from initial_transform
-  glm::vec3 scale;
-  scale.x = glm::length(initial_transform[0]) ;
-  scale.y = glm::length(initial_transform[1]) ;
-  scale.z = glm::length(initial_transform[2]) ;
-
   // Calculate box parameters from mesh
-  glm::vec3 bounding_box = mesh_calculate_bounding_box(mesh, scale);
+  // (0.5 is because Bullet wants it this way)
+  glm::vec3 bounding_box = mesh_calculate_bounding_box(mesh) * 0.5f;
 
   // Create collision shape from bounding box
   self->collision_shape = new btBoxShape(btVector3(
@@ -191,9 +187,13 @@ collider_t* collider_create_box_from_mesh(
     bounding_box.z
   ));
 
-  // Use this as a storage for scaling
-  // probably misusing Bullet here, but this local scaling,
-  // is used in collider_update_transform()
+  // Extract scale from initial_transform
+  glm::vec3 scale;
+  scale.x = glm::length(initial_transform[0]);
+  scale.y = glm::length(initial_transform[1]);
+  scale.z = glm::length(initial_transform[2]);
+
+  // Scales collision shape
   self->collision_shape
     ->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
@@ -229,6 +229,7 @@ collider_t* collider_create_box_from_mesh(
 
   return (collider_t*) self;
 }
+
 ////////////////////////////////////////////////////////////////////////
 // Create sphere collider                                             //
 ////////////////////////////////////////////////////////////////////////
@@ -312,7 +313,7 @@ glm::mat4  collider_update_transform(
     // Take local scaling back from collision shape.
     // And apply it on transform.
     // It does not seem that this local scaling is used by Bullet,
-    // which feels strange. An I am probably misusing it.
+    // which feels strange.
     // local scaling is set in create_collider_X() functions
     // of this unit.
     // TODO: Learn if this is the right way of doing it
@@ -322,9 +323,8 @@ glm::mat4  collider_update_transform(
     target_transform[2] *= bt_scale.getZ();
 
     return target_transform;
-  }
-  else if (self->type == COLLIDER_TYPE_SPHERE) {
 
+  } else if (self->type == COLLIDER_TYPE_SPHERE) {
     collider_sphere_t* impl = (collider_sphere_t*) self;
     
     btTransform trans;
@@ -351,7 +351,6 @@ glm::mat4  collider_update_transform(
   }
 
   else if (self->type == COLLIDER_TYPE_MESH) {
-
     collider_mesh_t* impl = (collider_mesh_t*) self;
     
     btTransform trans;
@@ -376,5 +375,4 @@ glm::mat4  collider_update_transform(
 
     return target_transform;
   }
-  
 }

@@ -247,3 +247,12 @@ bellow is not true:
 
 - On WASM it is too slow if it prints on every detected collision;
 - IO is likely the bottleneck, but Bullet surelly adds to it;
+
+I finally settle down with the idea of the local scale of the 
+collision shape. In seems it does apply effect on collision shape,
+and on top of it I want to use it for rescalling trans matrix before rendering.
+
+- Bullet physics however wants box vector to be just half
+  of the box dimensions
+- But I may need to add center adjustment for non-centered meshes
+- But I can leave this for later
