@@ -128,7 +128,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 
   // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
-  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 2));
+  ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 4));
   ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(1.5f, 1.5f, 1.5f));
   ctx->pyramid_collider = collider_create_box_from_mesh(
     ctx->pyramid_transform,
@@ -138,7 +138,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 
   // Myramid
   ctx->myramid = mesh_sample_create_pyramid();
-  ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 2));
+  ctx->myramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-3.1, 7, 4));
   ctx->myramid_transform = glm::scale(ctx->myramid_transform, glm::vec3(3.0f, 3.0f, 3.0f));
   ctx->myramid_collider = collider_create_box_from_mesh(
     ctx->myramid_transform,
@@ -190,19 +190,18 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Sphere
   ctx->sphere = model_create();
   model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
-  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 13, 20-20));
+  ctx->sphere_transform = glm::translate(glm::mat4(1.5f), glm::vec3(0, 13, 20-20));
+  ctx->sphere_transform = glm::scale(ctx->sphere_transform, glm::vec3(0.5f, 0.5f, 0.5f));
+
   ctx->sphere_collider = collider_create_sphere(
     ctx->sphere_transform,
     1.0f,
     ctx->physics
   );
 
-  // Not too sure if
+  btVector3 force(-1.5f, 1.0f, -0.2f);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
-    ->setCcdMotionThreshold(0.1f);
-  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
-    ->setCcdSweptSphereRadius(0.2f);
-
+    ->applyCentralImpulse(force);
 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
@@ -263,11 +262,11 @@ inline static void ctx_render(ctx_t* ctx) {
   model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
   // Render sphere
-  btVector3 force(0.6f, 0.2f, 0.4f);
-  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
-    // ->applyImpulse(force, force);
-    ->applyTorque(force);
-    // ->applyCentralForce(force);
+  // btVector3 force(0.6f, 0.2f, 0.4f);
+  // ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
+  //   // ->applyImpulse(force, force);
+  //   ->applyTorque(force);
+  //   // ->applyCentralForce(force);
   ctx->sphere_transform = collider_update_transform(
     ctx->sphere_collider,
     ctx->sphere_transform
