@@ -256,3 +256,7 @@ and on top of it I want to use it for rescalling trans matrix before rendering.
   of the box dimensions
 - But I may need to add center adjustment for non-centered meshes
 - But I can leave this for later
+
+To make from bouncing to swicth to rolling it loses speed
+-  tied setting damping, rolling friction, CCD motion threshold, and CCD swept sphere radius
+- but no significant results, but restitution works

@@ -173,6 +173,11 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     collider_t* map_collider = collider_create_mesh(
       ctx->map_transform, mesh, ctx->physics
     );
+    ((collider_sphere_t*) map_collider)->rigid_body
+      ->setRestitution(0.2);
+
+    //    ((collider_sphere_t*) map_collider)->rigid_body
+    // ->setDamping(0.0001f,0.0001f );
   }
 
   ctx->subject = model_create();
@@ -192,17 +197,18 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
   ctx->sphere_transform = glm::translate(glm::mat4(1.5f), glm::vec3(0, 13, 20-20));
   ctx->sphere_transform = glm::scale(ctx->sphere_transform, glm::vec3(0.5f, 0.5f, 0.5f));
-
   ctx->sphere_collider = collider_create_sphere(
     ctx->sphere_transform,
     1.0f,
     ctx->physics
   );
-
   btVector3 force(-1.5f, 1.0f, -0.2f);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
     ->applyCentralImpulse(force);
+  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
+    ->setRestitution(0.8);
 
+  // Camera 
   ctx->camera = camera_create(width, height,
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
