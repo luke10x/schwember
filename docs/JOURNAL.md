@@ -223,3 +223,27 @@ I tend to believe it.
 - I currently need to center mesh vertices (this is bad)
 
 Then after quick sphere collider and force applied
+
+## 2023-10-04, Wed
+
+I could add custom collider,
+but it only owrks with some faces not all.
+
+## 2023-10-05, Thu
+
+Trying to make small triangles on btBvhTriangleMeshShape
+did not give any results.
+My suspicion is it forms wrong triangles out of the vertices.
+
+
+bellow is not true:
+> The suspicion was correct
+
+- Three vertices at the time loop had a bug;
+- After fixing this bug btBvhTriangleMeshShape collides well;
+- I am not sure if I even need custom collision handlers
+
+## 2023-10-06, Fri
+
+- On WASM it is too slow if it prints on every detected collision;
+- IO is likely the bottleneck, but Bullet surelly adds to it;

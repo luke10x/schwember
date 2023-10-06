@@ -75,6 +75,31 @@ typedef struct {
   camera_t* camera;
 } ctx_t;
 
+class MyCcb : public btCollisionWorld::ContactResultCallback {
+private:
+  int counter = 0;
+public:
+  virtual btScalar addSingleResult(
+    btManifoldPoint& cp,
+    const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
+    const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1
+  ) {
+    counter++;
+    if (counter % 100 == 0) {
+      btScalar distance = cp.getDistance();
+      
+      float x = cp.m_positionWorldOnA.getX();
+      float y = cp.m_positionWorldOnA.getY();
+      float z = cp.m_positionWorldOnA.getZ();
+    
+      printf("🙈 🙈 🙈 100 detected! (%.2f, %.2f, %.2f) dist=%.2f\n", x, y, z, distance);
+    }
+
+    return btScalar(1);
+  }
+};
+MyCcb my_ccb;
+
 void ctx_load(ctx_t* ctx, int width, int height) {
 
   // We use physics
@@ -172,6 +197,11 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     ctx->physics
   );
 
+  // Not too sure if
+  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
+    ->setCcdMotionThreshold(0.1f);
+  ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
+    ->setCcdSweptSphereRadius(0.2f);
 
 
   ctx->camera = camera_create(width, height,
@@ -179,6 +209,13 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
   );
 
+  
+  // Add custom collision callback
+  ctx->physics->dynamics_world
+    ->contactTest(
+      ((collider_sphere_t*) ctx->sphere_collider)->rigid_body,
+      my_ccb
+    );
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -188,6 +225,12 @@ inline static void ctx_render(ctx_t* ctx) {
   int fps = 100; // TODO use real (or desired) value
   float time_step = 1.0f / fps;
   physics_step_simulation(ctx->physics, time_step);
+
+  ctx->physics->dynamics_world
+    ->contactTest(
+      ((collider_sphere_t*) ctx->sphere_collider)->rigid_body,
+      my_ccb
+  );
 
   // Pyramid render
   ctx->pyramid_transform = collider_update_transform(
@@ -228,11 +271,11 @@ inline static void ctx_render(ctx_t* ctx) {
   model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
   // Render sphere
-  btVector3 force(-0.4f, 0.2f, 0.4f);
+  btVector3 force(0.6f, 0.2f, 0.4f);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
     // ->applyImpulse(force, force);
-    // ->applyForce(force, btVector3(0.0f, 0.0f, 0.0f))
-    ->applyCentralForce(force);
+    ->applyTorque(force);
+    // ->applyCentralForce(force);
   ctx->sphere_transform = collider_update_transform(
     ctx->sphere_collider,
     ctx->sphere_transform
