@@ -258,5 +258,15 @@ and on top of it I want to use it for rescalling trans matrix before rendering.
 - But I can leave this for later
 
 To make from bouncing to swicth to rolling it loses speed
--  tied setting damping, rolling friction, CCD motion threshold, and CCD swept sphere radius
+- tied setting damping, rolling friction, CCD motion threshold, and CCD swept sphere radius
 - but no significant results, but restitution works
+
+## 2023-10-07, Sat
+
+PC is introduced. It will consist of several building blocks.
+Renderable is there to replace mesh eventually.
+Printing PC position as a matrix in Dear IMGUI.
+
+- I want to start working on PC movement
+- For that I need to refactor input/controlls code
+- Also thing about event based state of the application

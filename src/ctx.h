@@ -3,10 +3,6 @@
 #include "gl.h"
 #include <GLFW/glfw3.h>
 
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_glfw.h"
-
 #include "ctx_core.h"
 #include "ctx_init.h"
 
@@ -21,8 +17,10 @@
 #include "physics.h"
 #include "renderable.h"
 #include "collider.h"
+#include "pc.h"
+#include "ui.h"
 
-/*
+/****************************************************
 ** Context is the initialization data, and data that
 ** has to persist between frames
 */
@@ -73,6 +71,10 @@ typedef struct {
   collider_t* sphere_collider;
 
   camera_t* camera;
+
+  pc_t* pc;
+
+  ui_t* ui;
 } ctx_t;
 
 class MyCcb : public btCollisionWorld::ContactResultCallback {
@@ -92,7 +94,7 @@ public:
       float y = cp.m_positionWorldOnA.getY();
       float z = cp.m_positionWorldOnA.getZ();
     
-      printf("🙈 🙈 🙈 100 detected! (%.2f, %.2f, %.2f) dist=%.2f\n", x, y, z, distance);
+      // printf("🙈 🙈 🙈 100 detected! (%.2f, %.2f, %.2f) dist=%.2f\n", x, y, z, distance);
     }
 
     return btScalar(1);
@@ -100,15 +102,27 @@ public:
 };
 MyCcb my_ccb;
 
+////////////////////////////////////////////////////////////////////////
+// Load context. Initialize everything. Executed at start             //
+////////////////////////////////////////////////////////////////////////
 void ctx_load(ctx_t* ctx, int width, int height) {
 
   // We use physics
   ctx->physics = physics_create();
 
   // Setup shaders
-  ctx->default_shader = shader_create("src/shaders/default.vert", "src/shaders/default.frag");
-  ctx->light_shader   = shader_create("src/shaders/light.vert", "src/shaders/light.frag");
-  ctx->sky_shader     = shader_create("src/shaders/default.vert", "src/shaders/sky.frag");
+  ctx->default_shader = shader_create(
+    "src/shaders/default.vert",
+    "src/shaders/default.frag"
+  );
+  ctx->light_shader = shader_create(
+    "src/shaders/light.vert",
+    "src/shaders/light.frag"
+  );
+  ctx->sky_shader = shader_create(
+    "src/shaders/default.vert",
+    "src/shaders/sky.frag"
+  );
 
   // light source
   glm::vec4 light_color = glm::vec4(1.0f, 0.9f, 0.7f, 0.5f);
@@ -129,7 +143,10 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   // Pyramid
   ctx->pyramid = mesh_sample_create_pyramid();
   ctx->pyramid_transform = glm::translate(glm::mat4(1.0f), glm::vec3(-2, 4, 4));
-  ctx->pyramid_transform = glm::scale(ctx->pyramid_transform, glm::vec3(1.5f, 1.5f, 1.5f));
+  ctx->pyramid_transform = glm::scale(
+    ctx->pyramid_transform,
+    glm::vec3(1.5f, 1.5f, 1.5f)
+  );
   ctx->pyramid_collider = collider_create_box_from_mesh(
     ctx->pyramid_transform,
     ctx->pyramid,
@@ -192,17 +209,26 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   model_load_from_file(ctx->stickman, "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb");
   ctx->stickman_transform = glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
 
+  // The main controllable player entity
+  ctx->pc = pc_create(ctx->default_shader);
+
+
+  ctx->stickman = model_create();
+  model_load_from_file(ctx->stickman, "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb");
+  ctx->stickman_transform = glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
+
+
   // Sphere
   ctx->sphere = model_create();
   model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
-  ctx->sphere_transform = glm::translate(glm::mat4(1.5f), glm::vec3(0, 13, 20-20));
+  ctx->sphere_transform = glm::translate(glm::mat4(1.0f), glm::vec3(0, 8, 20-20));
   ctx->sphere_transform = glm::scale(ctx->sphere_transform, glm::vec3(0.5f, 0.5f, 0.5f));
   ctx->sphere_collider = collider_create_sphere(
     ctx->sphere_transform,
     1.0f,
     ctx->physics
   );
-  btVector3 force(-1.5f, 1.0f, -0.2f);
+  btVector3 force(-2.5f, 0.2f, -0.4f);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
     ->applyCentralImpulse(force);
   ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
@@ -267,12 +293,6 @@ inline static void ctx_render(ctx_t* ctx) {
   shader_set_uniform_mat4(ctx->default_shader, "modelToWorld", ctx->stickman_transform);
   model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
-  // Render sphere
-  // btVector3 force(0.6f, 0.2f, 0.4f);
-  // ((collider_sphere_t*) ctx->sphere_collider)->rigid_body
-  //   // ->applyImpulse(force, force);
-  //   ->applyTorque(force);
-  //   // ->applyCentralForce(force);
   ctx->sphere_transform = collider_update_transform(
     ctx->sphere_collider,
     ctx->sphere_transform
@@ -284,16 +304,8 @@ inline static void ctx_render(ctx_t* ctx) {
   // transparent must render last
   renderable_draw(ctx->lamp->renderable, ctx->light_shader, ctx->camera);
 
-  // ImGui render
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-  
-  // Your ImGui code here
-  ImGui::Begin("Hello, world!");
-  ImGui::Text("This is a simple ImGui application.");
-  ImGui::End();
+  // main character render
+  pc_draw(ctx->pc, ctx->camera);
 
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  ui_draw(ctx->ui, ctx->pc);
 }
