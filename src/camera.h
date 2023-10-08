@@ -89,6 +89,9 @@ void moveMatrixToLocation(glm::mat4& matrix, const glm::vec3& location) {
     matrix = glm::translate(matrix, translationVector);
 }
 
+// *********************************************************************
+// TODO void camera_handle_input(input_evt* 
+// *********************************************************************
 void camera_inputs(camera_t* self, GLFWwindow* window) {
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     glm::vec3 forward_direction = -glm::normalize(glm::vec3(

@@ -20,10 +20,10 @@
 #include "pc.h"
 #include "ui.h"
 
-/****************************************************
-** Context is the initialization data, and data that
-** has to persist between frames
-*/
+// *********************************************************************
+// Context is the initialization data, and data that
+// has to persist between frames
+// *********************************************************************
 typedef struct {
   int should_continue;
   GLFWwindow* window;
@@ -77,6 +77,11 @@ typedef struct {
   ui_t* ui;
 } ctx_t;
 
+// *********************************************************************
+// Collider Contact CallBack
+// TODO: this should not be here
+// It belongs to physics system
+// *********************************************************************
 class MyCcb : public btCollisionWorld::ContactResultCallback {
 private:
   int counter = 0;
@@ -102,9 +107,12 @@ public:
 };
 MyCcb my_ccb;
 
-////////////////////////////////////////////////////////////////////////
-// Load context. Initialize everything. Executed at start             //
-////////////////////////////////////////////////////////////////////////
+// *********************************************************************
+// Load context
+// ============
+// - Initialize everything
+// - Executed at start
+// *********************************************************************
 void ctx_load(ctx_t* ctx, int width, int height) {
 
   // We use physics
@@ -239,11 +247,15 @@ void ctx_load(ctx_t* ctx, int width, int height) {
     glm::vec3(-glm::sqrt(3), 1.8f, -3),  // South-East side: 05:00
     glm::vec3(ctx->pyramid_transform[3]) // Look at the pyramid
   );
+
+  ctx->ui = ui_create();
 }
 
-////////////////////////////////////////////////////////////////////////
-// Render frame                                                       //
-////////////////////////////////////////////////////////////////////////
+// *********************************************************************
+// Render frame
+// ============
+// Executes on every frame
+// *********************************************************************
 inline static void ctx_render(ctx_t* ctx) {
   int fps = 100; // TODO use real (or desired) value
   float time_step = 1.0f / fps;
