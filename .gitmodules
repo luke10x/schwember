@@ -2,3 +2,9 @@
 	path = external/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = master
+[submodule "external/cgltf"]
+	path = external/cgltf
+	url = https://github.com/jkuhlmann/cgltf.git
+[submodule "external/stb"]
+	path = external/stb
+	url = https://github.com/nothings/stb.git

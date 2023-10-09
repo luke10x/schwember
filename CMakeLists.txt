@@ -27,7 +27,7 @@ find_package(Bullet REQUIRED)
 # Set where the ImGui files are stored
 set(IMGUI_DIR "external/imgui")
     
-# -------------- IMGUI static library creation
+# -------------- IMGUI static library creation ------------------------
 set(IMGUI_SOURCES
   ${IMGUI_DIR}/imgui.cpp
   ${IMGUI_DIR}/imgui_demo.cpp
@@ -42,29 +42,9 @@ set(IMGUI_SOURCES
 # Set the path to the directory containing GLM headers
 set(GLM_INCLUDE_DIR "/opt/homebrew/include")
 
-# Use FetchContent to automatically download cgltf
-include(FetchContent)
-FetchContent_Declare(
-  cgltf
-  GIT_REPOSITORY https://github.com/jkuhlmann/cgltf.git
-  GIT_TAG v1.13  # Adjust the version as needed
-)
-
-# Fetch cgltf at configure time
-FetchContent_MakeAvailable(cgltf)
-
-# Use FetchContent to fetch stb_image
-include(FetchContent)
-FetchContent_Declare(
-    stb_image
-    GIT_REPOSITORY https://github.com/nothings/stb.git
-    GIT_TAG master
-)
-FetchContent_MakeAvailable(stb_image)
 
 # Add the source file to the project
 add_executable(schwember src/main.cpp ${IMGUI_SOURCES})
-
 
 # Include headers
 include_directories(${BULLET_INCLUDE_DIRS})
@@ -72,10 +52,10 @@ include_directories(${BULLET_INCLUDE_DIRS})
 
 target_include_directories(schwember PRIVATE
   ${GLM_INCLUDE_DIR}
-  ${cgltf_SOURCE_DIR}
-  ${stb_image_SOURCE_DIR}
+  external/stb
   external/imgui
   external/imgui/backends
+  external/cgltf
   ${GLEW_INCLUDE_DIRS}
   ${GLFW_INCLUDE_DIRS}
 )
