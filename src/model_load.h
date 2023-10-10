@@ -257,9 +257,6 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
     // printf("  %zu: %s\n", i, animation->name ? animation->name : "Unnamed");
   }
 
-  // Free the loaded data when done
-  std::cout << "Success " << result << std::endl;
-
   cgltf_free(data);
 
   return NULL;

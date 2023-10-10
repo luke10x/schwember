@@ -130,14 +130,16 @@ void ctx_perform_one_cycle(ctx_t* ctx) {
 }
 
 inline static void ctx_handle_input(ctx_t* ctx) {
-  if (glfwGetKey(ctx->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    glfwSetWindowShouldClose(ctx->window, GLFW_TRUE);
-  }
-  if (glfwWindowShouldClose(ctx->window)) {
-    ctx->should_continue = 0;
-  }
+    if (glfwGetKey(ctx->window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(ctx->window, GLFW_TRUE);
+    }
+    if (glfwWindowShouldClose(ctx->window)) {
+        ctx->should_continue = 0;
+    }
 
-  camera_inputs(ctx->camera, ctx->window);
+    uint8_t evt = control_get_event(ctx->control);
+
+    camera_handle_event(ctx->camera, evt);
 }
 
 inline static void ctx_advance_state(ctx_t* ctx) {

@@ -7,29 +7,21 @@
 #include "imgui_impl_glfw.h"
 
 #include "pc.h"
+#include "control.h"
 
 const ImVec4 UI_BUTTON_ACTIVE_COLOR = ImVec4(0.7f, 0.2f, 0.2f, 1.0f);
-
-// *********************************************************************
-// Constant for selected mode
-// --------------------------
-//
-// Different all controls should be handled differently in those modes
-// *********************************************************************
-
-#define UI_MODE_CAMERA 1
-#define UI_MODE_PC     2
 
 // *********************************************************************
 // Structure for (IMG)UI data
 // *********************************************************************
 
 typedef struct {
-    uint8_t mode;
+    control_t* control;
 } ui_t;
 
 // *********************************************************************
 // Private functions defined at the bottom of this file               
+// ----------------------------------------------------
 // (But listed here)
 // *********************************************************************
 
@@ -41,11 +33,11 @@ void ImGuiMatrix(const char* label, const glm::mat4& matrix);
 // For now it just instantiates empty the structure
 // *********************************************************************
 
-ui_t* ui_create()
+ui_t* ui_create(control_t* control)
 {
   ui_t* self = (ui_t*) malloc(sizeof(ui_t)); 
 
-  self->mode = UI_MODE_CAMERA;
+  self->control = control;
   return self;
 }
 
@@ -63,10 +55,10 @@ void ui_draw(ui_t* self, pc_t* pc)
   
     ImGui::Text("Control: ");
   
-    // self->mode will be mutated therefore define variables
+    // self->control.mode will be mutated therefore define variables
     // to remember it's original value
-    bool is_mode_camera = self->mode == UI_MODE_CAMERA;
-    bool is_mode_pc     = self->mode == UI_MODE_PC;
+    bool is_mode_camera = self->control->mode == CONTROL_MODE_CAMERA;
+    bool is_mode_pc     = self->control->mode == CONTROL_MODE_PC;
   
     // Camera mode button
     if (is_mode_camera) {
@@ -74,7 +66,7 @@ void ui_draw(ui_t* self, pc_t* pc)
     }
     ImGui::SameLine();
     if (ImGui::Button("camera")) {
-        self->mode = UI_MODE_CAMERA;
+        self->control->mode = CONTROL_MODE_CAMERA;
     }
     if (is_mode_camera) {
         ImGui::PopStyleColor();
@@ -86,7 +78,7 @@ void ui_draw(ui_t* self, pc_t* pc)
     }
     ImGui::SameLine();
     if (ImGui::Button("PC")) {
-        self->mode = UI_MODE_PC;
+        self->control->mode = CONTROL_MODE_PC;
     }
     if (is_mode_pc) {
         ImGui::PopStyleColor();

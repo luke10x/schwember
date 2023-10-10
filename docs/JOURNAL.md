@@ -271,4 +271,11 @@ Printing PC position as a matrix in Dear IMGUI.
 - For that I need to refactor input/controlls code
 - Also thing about event based state of the application
 
-## 2023-10-08, Sun
+## 2023-10-09, Mon
+
+Idea: use formatting rules of VSCode
+
+- Introduce control unit, that issues events
+- Camera handles issued events
+- Control does not issue camera events when it is in PC mode
+
