@@ -88,3 +88,89 @@ glm::vec3 mesh_calculate_center_shift(mesh_t* self, glm::vec3 scale) {
 
     return center_shift; // * scale;
 }
+
+
+// *********************************************************************
+// This mesh is just an adapter
+// ---
+// TODO there is a method for renderable like that
+// But this method should prevail,
+// renderable_shape_rectangular_prism_create should be removed
+// because vertex array is not packed in renderable
+// but it is packed in mesh and it is useful
+// *********************************************************************
+
+mesh_t* mesh_shape_rectangular_prism_create(glm::vec3 dimensions) {
+
+    // Define the vertices of the rectangular prism.
+    vertex_t vertices[] = {
+      // Front face
+      { .position = { -dimensions.x, -dimensions.y, dimensions.z } },
+      { .position = {  dimensions.x, -dimensions.y, dimensions.z } },
+      { .position = {  dimensions.x,  dimensions.y, dimensions.z } },
+      { .position = { -dimensions.x,  dimensions.y, dimensions.z } },
+
+      // Back face
+      { .position = {  dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { -dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { -dimensions.x,  dimensions.y, -dimensions.z } },
+      { .position = {  dimensions.x,  dimensions.y, -dimensions.z } },
+
+      // Top face
+      { .position = {-dimensions.x, dimensions.y,  dimensions.z } },
+      { .position = { dimensions.x, dimensions.y,  dimensions.z } },
+      { .position = { dimensions.x, dimensions.y, -dimensions.z } },
+      { .position = {-dimensions.x, dimensions.y, -dimensions.z } },
+
+      // Bottom face
+      { .position = {-dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { dimensions.x, -dimensions.y,  dimensions.z } },
+      { .position = {-dimensions.x, -dimensions.y,  dimensions.z } },
+
+      // Left face
+      { .position = { -dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { -dimensions.x, -dimensions.y,  dimensions.z } },
+      { .position = { -dimensions.x,  dimensions.y,  dimensions.z } },
+      { .position = { -dimensions.x,  dimensions.y, -dimensions.z } },
+
+      // Right face
+      { .position = { dimensions.x, -dimensions.y,  dimensions.z } },
+      { .position = { dimensions.x, -dimensions.y, -dimensions.z } },
+      { .position = { dimensions.x,  dimensions.y, -dimensions.z } },
+      { .position = { dimensions.x,  dimensions.y,  dimensions.z } }
+    };
+
+    GLuint indices[] = {
+        // Front face (two triangles)
+        0, 1, 2,
+        2, 3, 0,
+
+        // Back face (two triangles)
+        4, 5, 6,
+        6, 7, 4,
+
+        // Top face (two triangles)
+        8, 9, 10,
+        10, 11, 8,
+
+        // Bottom face (two triangles)
+        12, 13, 14,
+        14, 15, 12,
+
+        // Left face (two triangles)
+        16, 17, 18,
+        18, 19, 16,
+
+        // Right face (two triangles)
+        20, 21, 22,
+        22, 23, 20
+    };
+
+    return mesh_create(
+      "name of mesh",
+      (vertex_t*) &vertices, (GLsizei) 24,
+      (GLuint*) &indices, (GLsizei) 36,
+      (texture_t*) NULL
+    );
+}

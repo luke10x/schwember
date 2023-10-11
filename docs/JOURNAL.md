@@ -279,3 +279,26 @@ Idea: use formatting rules of VSCode
 - Camera handles issued events
 - Control does not issue camera events when it is in PC mode
 
+## 2023-10-11, Wed
+
+I found on a forum somebody wrote like this:
+> The collision object was using motionstates,
+> so when the box came to a stationary state,
+> it's activation state was changed to ISLAND_SLEEPING.
+> In order to get the box moving again, I had to run
+> `setActivationState(1)`
+
+This was exactly my issue, and same solution.
+Finally...
+
+- Maybe I should use elipsis collision shape;
+- Maybe it is possible to make my ellipsis
+  to rotate accross Y axis only;
+- Maybe it is possible to get vertices of collision shape,
+  so that meshes or renderables could be created.
+
+Reasons to move to VSCode formatting rules:
+
+- VSCode uses 4 spaces, and it is more readable
+  and Vim works better with 4 spaces;
+- VSCode is important and means a lot to me

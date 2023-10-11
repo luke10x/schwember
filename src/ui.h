@@ -25,7 +25,8 @@ typedef struct {
 // (But listed here)
 // *********************************************************************
 
-void ImGuiMatrix(const char* label, const glm::mat4& matrix);
+void ImGuiMatrix(const glm::mat4& matrix);
+void ImGuiMatrix3(const glm::mat4& matrix);
 
 // *********************************************************************
 // Create UI
@@ -51,7 +52,7 @@ void ui_draw(ui_t* self, pc_t* pc)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     
-    ImGui::Begin("Debug panel");
+    ImGui::Begin("Main setup");
   
     ImGui::Text("Control: ");
   
@@ -83,8 +84,20 @@ void ui_draw(ui_t* self, pc_t* pc)
     if (is_mode_pc) {
         ImGui::PopStyleColor();
     }
+    ImGui::End();
   
-    ImGuiMatrix("pc->transform", pc->transform);
+    ImGui::Begin("Piece:");
+    ImGuiMatrix(pc->transform);
+    ImGui::Text("Mass: %+08.3f", ((collider_box_t*) pc->collider)->rigid_body->getMass());
+
+//         bool collision = (btCollisionWorld*) (pc->collider->physics->dynamics_world)->contactTest(
+//             ((collider_box_t*) pc->collider)->rigid_body
+//         );
+//     ImGui::Text(
+//         "Collision status: %s",
+//  ? "true" : "No"
+//     );
+    
     ImGui::End();
   
     // Finally flush all here
@@ -96,12 +109,23 @@ void ui_draw(ui_t* self, pc_t* pc)
 // Private: draws matrix
 // *********************************************************************
 
-void ImGuiMatrix(const char* label, const glm::mat4& matrix)
+void ImGuiMatrix(const glm::mat4& matrix)
 {
-    ImGui::Text("%s", label);
     for (int row = 0; row < 4; ++row) {
         for (int col = 0; col < 4; ++col) {
+            ImGui::Text("%+08.3f", matrix[col][row]);
+            ImGui::SameLine();
+        }
+        ImGui::NewLine();
+    }
+}
+void ImGuiMatrix3(const glm::mat3& matrix)
+{
+    for (int row = 0; row < 3; ++row) {
+        for (int col = 0; col < 3; ++col) {
             ImGui::Text("%f", matrix[col][row]);
+            // ImGui::Text("%+08.3f", matrix[col][row]);
+
             ImGui::SameLine();
         }
         ImGui::NewLine();

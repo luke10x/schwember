@@ -36,7 +36,9 @@ ctx_t* ctx_create() {
 
   ctx_t* ctx = (ctx_t*) malloc(sizeof(ctx_t));
   ctx->should_continue = 1;
-  ctx->window = ctx_init_window(320, 240);
+
+  // ctx->window = ctx_init_window(320, 240);
+  ctx->window = ctx_init_window(844, 390);
 
     // Initialize ImGui
   IMGUI_CHECKVERSION();
@@ -140,6 +142,7 @@ inline static void ctx_handle_input(ctx_t* ctx) {
     uint8_t evt = control_get_event(ctx->control);
 
     camera_handle_event(ctx->camera, evt);
+    pc_handle_event(ctx->pc, evt);
 }
 
 inline static void ctx_advance_state(ctx_t* ctx) {

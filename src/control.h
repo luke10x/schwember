@@ -18,6 +18,10 @@
 #define CONTROL_CAMERA_ROLL_RIGHT  10
 #define CONTROL_CAMERA_YAW_LEFT    11
 #define CONTROL_CAMERA_YAW_RIGHT   12
+#define CONTROL_PC_FORWARD 21
+#define CONTROL_PC_BACK    22
+#define CONTROL_PC_LEFT    23
+#define CONTROL_PC_RIGHT   24
 
 // *********************************************************************
 // Control struct
@@ -25,7 +29,7 @@
 
 typedef struct control_t {
     GLFWwindow* window;
-    uint8_t mode;
+    uint8_t     mode;
 } control_t;
 
 // *********************************************************************
@@ -84,6 +88,21 @@ uint8_t control_get_event(control_t* self)
         }
         if (glfwGetKey(self->window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
             return CONTROL_CAMERA_ROLL_RIGHT;
+        }
+    }
+
+    if (self->mode == CONTROL_MODE_PC) {
+        if (glfwGetKey(self->window, GLFW_KEY_W) == GLFW_PRESS) {
+            return CONTROL_PC_FORWARD;
+        }
+        if (glfwGetKey(self->window, GLFW_KEY_S) == GLFW_PRESS) {
+            return CONTROL_PC_BACK;
+        }
+        if (glfwGetKey(self->window, GLFW_KEY_A) == GLFW_PRESS) {
+            return CONTROL_PC_LEFT;
+        }
+        if (glfwGetKey(self->window, GLFW_KEY_D) == GLFW_PRESS) {
+            return CONTROL_PC_RIGHT;
         }
     }
 

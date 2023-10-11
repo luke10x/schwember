@@ -227,7 +227,7 @@ void ctx_load(ctx_t* ctx, int width, int height) {
   ctx->stickman_transform = glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
 
   // The main controllable player entity
-  ctx->pc = pc_create(ctx->default_shader);
+  ctx->pc = pc_create(ctx->default_shader, ctx->physics);
 
 
   ctx->stickman = model_create();
@@ -269,6 +269,8 @@ void ctx_load(ctx_t* ctx, int width, int height) {
 inline static void ctx_render(ctx_t* ctx) {
   int fps = 100; // TODO use real (or desired) value
   float time_step = 1.0f / fps;
+
+
   physics_step_simulation(ctx->physics, time_step);
 
   ctx->physics->dynamics_world
@@ -327,6 +329,15 @@ inline static void ctx_render(ctx_t* ctx) {
   renderable_draw(ctx->lamp->renderable, ctx->light_shader, ctx->camera);
 
   // main character render
+
+    // ctx->pc->bumper_transform = collider_update_transform(
+    //     ctx->pc->bumper_collider,
+    //     ctx->pc->bumper_transform
+    // );
+    ctx->pc->transform = collider_update_transform(
+        ctx->pc->collider,
+        ctx->pc->transform
+    );
   pc_draw(ctx->pc, ctx->camera);
 
   ui_draw(ctx->ui, ctx->pc);

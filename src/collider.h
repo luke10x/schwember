@@ -13,6 +13,7 @@
 
 typedef struct {
   uint8_t type;
+  physics_t* physics;
 } collider_t;
 
 typedef struct {
@@ -52,6 +53,7 @@ collider_t* collider_create_plane(
   );
 
   self->parent.type = COLLIDER_TYPE_PLANE;
+  self->parent.physics = physics;
   
   // Plane params
   btVector3 planeNormal(0, 1, 0);
@@ -106,6 +108,8 @@ collider_t* collider_create_mesh(
   );
 
   self->parent.type = COLLIDER_TYPE_MESH;
+  self->parent.physics = physics;
+
   btTriangleMesh* triangleMesh = new btTriangleMesh();
   
   // loops 3 indices at a time
@@ -155,6 +159,7 @@ collider_t* collider_create_mesh(
   btRigidBody::btRigidBodyConstructionInfo rb_info(0, motion_state, self->collision_shape, btVector3(0, 0, 0));
   self->rigid_body = new btRigidBody(rb_info);
   self->rigid_body->setCollisionFlags(self->rigid_body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+  // self->rigid_body->setRestitution(2.0f);
 
   // Add rigid body to physics engine
   physics->dynamics_world
@@ -175,6 +180,7 @@ collider_t* collider_create_box_from_mesh(
     sizeof(collider_box_t)
   );
   self->parent.type = COLLIDER_TYPE_BOX;
+  self->parent.physics = physics;
 
   // Calculate box parameters from mesh
   // (0.5 is because Bullet wants it this way)
@@ -186,7 +192,7 @@ collider_t* collider_create_box_from_mesh(
     bounding_box.y,
     bounding_box.z
   ));
-
+  
   // Extract scale from initial_transform
   glm::vec3 scale;
   scale.x = glm::length(initial_transform[0]);
@@ -202,8 +208,8 @@ collider_t* collider_create_box_from_mesh(
     .push_back(self->collision_shape);
 
   // Calculate inertia
-  btScalar mass(10.0f);
-	btVector3 local_inertia(0, 0, 0);
+  btScalar mass(1.0f);
+	btVector3 local_inertia(0.0f, 0.0f, 0.0f);
   if (mass > 0.0f) {
     self->collision_shape->calculateLocalInertia(mass, local_inertia);
   }
@@ -242,6 +248,7 @@ collider_t* collider_create_sphere(
     sizeof(collider_box_t)
   );
   self->parent.type = COLLIDER_TYPE_SPHERE;
+  self->parent.physics = physics;
 
   // Extract scale from initial_transform
   glm::vec3 scale;
@@ -262,11 +269,6 @@ collider_t* collider_create_sphere(
   physics->collision_shapes
     .push_back(self->collision_shape);
 
-  // Bullet uses its own format to hold transform
-  btTransform bt_transform;
-  bt_transform.setFromOpenGLMatrix(
-    glm::value_ptr(initial_transform)
-  );
 
   // Create motion state
   btScalar mass(1.0f); // must be not 0 with dynamics
@@ -275,6 +277,11 @@ collider_t* collider_create_sphere(
   // When has mass add inertia
   self->collision_shape->calculateLocalInertia(mass, local_inertia);
 
+  // Bullet uses its own format to hold transform
+  btTransform bt_transform;
+  bt_transform.setFromOpenGLMatrix(
+    glm::value_ptr(initial_transform)
+  );
   btDefaultMotionState* motion_state = new btDefaultMotionState(
     bt_transform
   );
