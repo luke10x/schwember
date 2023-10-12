@@ -302,3 +302,7 @@ Reasons to move to VSCode formatting rules:
 - VSCode uses 4 spaces, and it is more readable
   and Vim works better with 4 spaces;
 - VSCode is important and means a lot to me
+
+To format file:
+
+    clang-format  src/mesh.h > src/mesh.h.temp && mv src/mesh.h{.temp,}
