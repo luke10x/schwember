@@ -6,6 +6,7 @@
 #define CONTROL_MODE_CAMERA       1
 #define CONTROL_MODE_PC           2
 
+// Floating camera controls
 #define CONTROL_CAMERA_FORWARD    1
 #define CONTROL_CAMERA_BACK       2
 #define CONTROL_CAMERA_LEFT       3
@@ -18,6 +19,8 @@
 #define CONTROL_CAMERA_ROLL_RIGHT 10
 #define CONTROL_CAMERA_YAW_LEFT   11
 #define CONTROL_CAMERA_YAW_RIGHT  12
+
+// Piece controls
 #define CONTROL_PC_FORWARD        21
 #define CONTROL_PC_BACK           22
 #define CONTROL_PC_LEFT           23

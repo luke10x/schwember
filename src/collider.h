@@ -281,6 +281,66 @@ collider_t* collider_create_sphere(
 }
 
 ////////////////////////////////////////////////////////////////////////
+// Create capsule collider                                             //
+////////////////////////////////////////////////////////////////////////
+collider_t* collider_create_capsule(
+    glm::mat4 initial_transform,
+    float radius,
+    float height,
+    physics_t* physics
+)
+{
+    collider_box_t* self =
+        (collider_box_t*) malloc(sizeof(collider_box_t));
+    self->parent.type    = COLLIDER_TYPE_SPHERE;
+    self->parent.physics = physics;
+
+    // Extract scale from initial_transform
+    glm::vec3 scale;
+    scale.x = glm::length(initial_transform[0]);
+    scale.y = glm::length(initial_transform[1]);
+    scale.z = glm::length(initial_transform[2]);
+
+    // Create collision shape by radius
+    self->collision_shape = new btCapsuleShape(radius, height);
+
+    // Use this as a storage for scaling
+    // probably misusing Bullet here, but this local scaling,
+    // is used in collider_update_transform()
+    self->collision_shape->setLocalScaling(
+        btVector3(scale.x, scale.y, scale.z)
+    );
+
+    // Add collision shape to physics engine
+    physics->collision_shapes.push_back(self->collision_shape);
+
+    // Create motion state
+    btScalar mass(1.0f);  // must be not 0 with dynamics
+    btVector3 local_inertia(0.0f, 0.0f, 0.0f);
+
+    // When has mass add inertia
+    self->collision_shape->calculateLocalInertia(mass, local_inertia);
+
+    // Bullet uses its own format to hold transform
+    btTransform bt_transform;
+    bt_transform.setFromOpenGLMatrix(glm::value_ptr(initial_transform));
+    btDefaultMotionState* motion_state =
+        new btDefaultMotionState(bt_transform);
+
+    // Create rigid body
+    btRigidBody::btRigidBodyConstructionInfo rb_info(
+        mass, motion_state, self->collision_shape, local_inertia
+    );
+    self->rigid_body = new btRigidBody(rb_info);
+
+    // Add rigid body to physics engine
+    physics->dynamics_world->addRigidBody(self->rigid_body);
+
+    return (collider_t*) self;
+}
+
+
+////////////////////////////////////////////////////////////////////////
 // update transform based on physics changes                          //
 ////////////////////////////////////////////////////////////////////////
 glm::mat4

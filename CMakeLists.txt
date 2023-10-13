@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 11)
 
 project(schwember)
 
+add_compile_options(-g)
+# target_compile_options(your_target_name PRIVATE -g)
+
+
 execute_process(
   COMMAND brew --prefix
   OUTPUT_VARIABLE BREW_PREFIX

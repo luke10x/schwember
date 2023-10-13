@@ -17,65 +17,59 @@ typedef struct pc_t {
     glm::mat4 transform;
     shader_t *shader;
     camera_t *camera;
-    renderable_t *visual;
+    renderable_t *renderable;
+
     collider_t *collider;
-    renderable_t *bumper_visual;
-    glm::mat4 bumper_transform;
-    collider_t *bumper_collider;
+    glm::mat4 collider_transform;
+    mesh_t *collider_mesh;  // TODO collider only needs renderable
+                            // Not mesh
     bool debug;
+    shader_t *debug_shader;
     physics_t *physics;
 } pc_t;
 
 /* *********************************************************************
  * PC constructor
  * ********************************************************************/
-pc_t *pc_create(shader_t *visual_shader, physics_t *physics)
+pc_t *pc_create(
+    shader_t *renderable_shader,
+    shader_t *debug_shader,
+    physics_t *physics
+)
 {
     pc_t *self = (pc_t *) malloc(sizeof(pc_t));
 
-    self->shader = visual_shader;
+    self->shader       = renderable_shader;
+    self->debug_shader = debug_shader;
 
     self->physics = physics;
 
-    self->transform =
-        glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 15.0f, 5.0f));
+    glm::vec3 position = glm::vec3(5.0f, 16.0f, 5.0f);
+    self->transform    = glm::translate(glm::mat4(1.0f), position);
+    self->collider_transform =
+        glm::translate(glm::mat4(1.0f), position);
 
-    self->transform =
-        glm::scale(self->transform, glm::vec3(0.005f, 0.005f, 0.005f));
-
-    model_t *visual_model = model_create();
+    // Create renderable
+    model_t *renderable_model = model_create();
     model_load_from_file(
-        visual_model, "assets/gltf/stickman_low_poly.glb"
+        renderable_model, "assets/gltf/stickman_low_poly.glb"
     );
-    mesh_t *visual_mesh = (mesh_t *) visual_model->meshes[0];
-    self->visual        = renderable_create(
-        visual_mesh->vertices, visual_mesh->vertex_count,
-        visual_mesh->indices, visual_mesh->index_count, NULL
+    mesh_t *renderable_mesh = (mesh_t *) renderable_model->meshes[0];
+    self->renderable        = renderable_create(
+        renderable_mesh->vertices, renderable_mesh->vertex_count,
+        renderable_mesh->indices, renderable_mesh->index_count, NULL
+    );
+    glm::vec3 box =
+        mesh_calculate_bounding_box(renderable_mesh) * (0.005f * 0.5f);
+
+    self->collider = collider_create_capsule(
+        self->collider_transform,  // transform
+        box.x,                     // radius
+        box.y,                     // height
+        self->physics              // physics
     );
 
-    self->collider = collider_create_box_from_mesh(
-        self->transform, visual_mesh, self->physics
-    );
-    mesh_t *bumper_mesh = mesh_shape_rectangular_prism_create(
-        glm::vec3(0.5f, 0.55f, 0.25f)
-    );
-    self->bumper_visual = renderable_create(
-        bumper_mesh->vertices, bumper_mesh->vertex_count,
-        bumper_mesh->indices, bumper_mesh->index_count, NULL
-    );
-
-    // Extract only the translation and rotation components into a new
-    // matrix
-    self->bumper_transform =
-        glm::mat4_cast(glm::quat_cast(self->transform));
-    self->bumper_transform = glm::translate(
-        self->bumper_transform, glm::vec3(0.0f, 0.25f, 0.0f)
-    );
-    // newMatrix[3] = originalMatrix[3];
-
-    self->bumper_collider = collider_create_box_from_mesh(
-        self->bumper_transform, bumper_mesh, self->physics
-    );
+    self->collider_mesh = mesh_sample_create_elipsis();
 
     return self;
 }
@@ -85,30 +79,34 @@ pc_t *pc_create(shader_t *visual_shader, physics_t *physics)
  * ********************************************************************/
 void pc_draw(pc_t *self, camera_t *camera)
 {
-    // This will be set be reset anyway for now
-    self->bumper_transform = collider_update_transform(
-        self->bumper_collider, self->bumper_transform
+    // Collider transform is updated byt the laws of physics
+    self->collider_transform = collider_update_transform(
+        self->collider, self->collider_transform
     );
-    self->transform =
-        collider_update_transform(self->collider, self->transform);
 
+    // Transform is then updated by collider transform
+    self->transform =
+        glm::translate(self->transform, glm::vec3(0.0f, 0.25f, 0.0f));
+
+    // Apply scaled factor on transform, because model is way too big
+    self->transform =
+        glm::scale(self->transform, glm::vec3(0.005f, 0.005f, 0.005f));
+
+    // Draw the figurine
     shader_activate(self->shader);
     shader_set_uniform_mat4(
         self->shader, "modelToWorld", self->transform
     );
-    renderable_draw(self->visual, self->shader, camera);
+    renderable_draw(self->renderable, self->shader, camera);
 
-    // Copy translation and rotation components
-    // into a bumper transform
-    self->bumper_transform =
-        glm::mat4_cast(glm::quat_cast(self->transform));
-    self->bumper_transform[3] = self->transform[3];
-
+    // Draw collider mesh renderable for debug
+    shader_activate(self->debug_shader);
     shader_set_uniform_mat4(
-        self->shader, "modelToWorld", self->bumper_transform
+        self->debug_shader, "modelToWorld", self->collider_transform
     );
-
-    renderable_draw(self->bumper_visual, self->shader, camera);
+    renderable_draw(
+        self->collider_mesh->renderable, self->debug_shader, camera
+    );
 }
 
 /* *********************************************************************
