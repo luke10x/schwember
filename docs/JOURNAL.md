@@ -303,6 +303,17 @@ Reasons to move to VSCode formatting rules:
   and Vim works better with 4 spaces;
 - VSCode is important and means a lot to me
 
-To format file:
+To format file: `clang-format  - src/mesh.h`
 
-    clang-format  src/mesh.h > src/mesh.h.temp && mv src/mesh.h{.temp,}
+## 2023-10-13, Fri
+
+- Bullet constraints are not useful to make capsule stand
+- But angularFactor is
+- also it is more practical to use linear velocity
+- and not applying any forces 
+
+Capsule can "climb" the stairs.
+
+Github page JamesTKhan/libgdx-bullet-tutorials has some useful
+
+Enabled lldb, as gdb does not work

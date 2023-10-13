@@ -41,9 +41,9 @@ typedef struct {
     btCollisionShape* collision_shape;
 } collider_mesh_t;
 
-////////////////////////////////////////////////////////////////////////
-// Create plane collider                                              //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * Plane collider construct
+ * ********************************************************************/
 collider_t*
 collider_create_plane(glm::mat4 initial_transform, physics_t* physics)
 {
@@ -86,9 +86,9 @@ collider_create_plane(glm::mat4 initial_transform, physics_t* physics)
     return (collider_t*) self;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Create mesh collider                                               //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * Static mesh collider construct
+ * ********************************************************************/
 collider_t* collider_create_mesh(
     glm::mat4 initial_transform,
     mesh_t* mesh,
@@ -157,9 +157,9 @@ collider_t* collider_create_mesh(
     return (collider_t*) self;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Create box collider                                                //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * Box collider construct (using mesh data)
+ * ********************************************************************/
 collider_t* collider_create_box_from_mesh(
     glm::mat4 initial_transform,
     mesh_t* mesh,
@@ -222,9 +222,9 @@ collider_t* collider_create_box_from_mesh(
     return (collider_t*) self;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Create sphere collider                                             //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * Sphere collider constructor
+ * ********************************************************************/
 collider_t* collider_create_sphere(
     glm::mat4 initial_transform,
     float radius,
@@ -280,9 +280,9 @@ collider_t* collider_create_sphere(
     return (collider_t*) self;
 }
 
-////////////////////////////////////////////////////////////////////////
-// Create capsule collider                                             //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * Capsule collider contructor
+ * ********************************************************************/
 collider_t* collider_create_capsule(
     glm::mat4 initial_transform,
     float radius,
@@ -339,10 +339,9 @@ collider_t* collider_create_capsule(
     return (collider_t*) self;
 }
 
-
-////////////////////////////////////////////////////////////////////////
-// update transform based on physics changes                          //
-////////////////////////////////////////////////////////////////////////
+/* *********************************************************************
+ * update transform based on physics changes
+ * ********************************************************************/
 glm::mat4
 collider_update_transform(collider_t* self, glm::mat4 target_transform)
 {

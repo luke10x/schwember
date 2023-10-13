@@ -147,7 +147,7 @@ mesh_t* mesh_sample_create_floor()
 /* *********************************************************************
  * Creates ellipsis mesh
  * ********************************************************************/
-mesh_t* mesh_sample_create_elipsis()
+mesh_t* mesh_sample_create_ellipsis(float radius, float height)
 {
     int numTheta = 20;  // Number of divisions around the ellipsoid
     int numPhi   = 80;  // Number of divisions from pole to pole
@@ -160,9 +160,9 @@ mesh_t* mesh_sample_create_elipsis()
             float theta = 2.0f * M_PI * i / (numTheta - 1);
             float phi   = M_PI * j / (numPhi - 1);
 
-            float x = cos(theta) * sin(phi);
-            float y = 2 * cos(phi);
-            float z = sin(theta) * sin(phi);
+            float x = radius * cos(theta) * sin(phi);
+            float y = height * cos(phi);
+            float z = radius * sin(theta) * sin(phi);
 
             vertex_t vertex = {
                 .position = {x, y, z},

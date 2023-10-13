@@ -18,6 +18,7 @@ typedef struct pc_t {
     shader_t *shader;
     camera_t *camera;
     renderable_t *renderable;
+    float model_scale;
 
     collider_t *collider;
     glm::mat4 collider_transform;
@@ -44,7 +45,9 @@ pc_t *pc_create(
 
     self->physics = physics;
 
-    glm::vec3 position = glm::vec3(5.0f, 16.0f, 5.0f);
+    self->model_scale = 0.0045;
+
+    glm::vec3 position = glm::vec3(-6.0f, 4.0f, 8.0f);
     self->transform    = glm::translate(glm::mat4(1.0f), position);
     self->collider_transform =
         glm::translate(glm::mat4(1.0f), position);
@@ -59,17 +62,35 @@ pc_t *pc_create(
         renderable_mesh->vertices, renderable_mesh->vertex_count,
         renderable_mesh->indices, renderable_mesh->index_count, NULL
     );
-    glm::vec3 box =
-        mesh_calculate_bounding_box(renderable_mesh) * (0.005f * 0.5f);
+    glm::vec3 box = mesh_calculate_bounding_box(renderable_mesh) *
+                    (self->model_scale * 0.5f);
 
+    float reach    = 2.0f;
     self->collider = collider_create_capsule(
         self->collider_transform,  // transform
-        box.x,                     // radius
+        box.z * reach,             // radius
         box.y,                     // height
         self->physics              // physics
     );
+    btRigidBody *rigid_body =
+        ((collider_sphere_t *) self->collider)->rigid_body;
 
-    self->collider_mesh = mesh_sample_create_elipsis();
+    // Make it bouncy
+    rigid_body->setRestitution(2.0f);
+
+    // Make it not spin when hits a wall
+    rigid_body->setRollingFriction(1.0f);
+
+    // Do not stop reacting to forces when reaches ground
+    rigid_body->setActivationState(DISABLE_DEACTIVATION);
+
+    // Make it always stand
+    rigid_body->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
+
+    rigid_body->setDamping(0.75f, 0.99f);
+
+    self->collider_mesh =
+        mesh_sample_create_ellipsis(box.z * reach, box.y);
 
     return self;
 }
@@ -90,7 +111,7 @@ void pc_draw(pc_t *self, camera_t *camera)
 
     // Apply scaled factor on transform, because model is way too big
     self->transform =
-        glm::scale(self->transform, glm::vec3(0.005f, 0.005f, 0.005f));
+        glm::scale(self->transform, glm::vec3(self->model_scale));
 
     // Draw the figurine
     shader_activate(self->shader);
@@ -116,24 +137,22 @@ void pc_draw(pc_t *self, camera_t *camera)
  * ********************************************************************/
 void pc_handle_event(pc_t *self, uint8_t event)
 {
+    btVector3 velocity;
+
     if (event == CONTROL_PC_FORWARD) {
-        btScalar friction        = 0.0f;
-        btScalar rollingFriction = 0.0f;
-        btScalar restitution     = 0.6f;
-        ((collider_box_t *) self->collider)
-            ->rigid_body->setFriction(friction);
-        ((collider_box_t *) self->collider)
-            ->rigid_body->setRestitution(restitution);
-        ((collider_box_t *) self->collider)
-            ->rigid_body->setRollingFriction(rollingFriction);
-
-        btVector3 forceToApply(0.5f, 0.0f, 0.0f);
-        btRigidBody *fallenBody =
-            ((collider_box_t *) self->collider)->rigid_body;
-        fallenBody->setActivationState(1);
-
-        fallenBody->applyForce(
-            forceToApply, fallenBody->getCenterOfMassPosition()
-        );
+        velocity = btVector3(0.0f, 0.0f, 1.0f);
+    } else if (event == CONTROL_PC_BACK) {
+        velocity = btVector3(0.0f, 0.0f, -1.0f);
+    } else if (event == CONTROL_PC_LEFT) {
+        velocity = btVector3(1.0f, 0.0f, 0.0f);
+    } else if (event == CONTROL_PC_RIGHT) {
+        velocity = btVector3(-1.0f, 0.0f, 0.0f);
+    } else {
+        // event is not actionable by PC
+        return;
     }
+
+    // If reached until this point means some movement has to happen
+    ((collider_box_t *) self->collider)
+        ->rigid_body->setLinearVelocity(velocity * 3.0f);
 }
