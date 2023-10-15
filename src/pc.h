@@ -27,6 +27,8 @@ typedef struct pc_t {
     bool debug;
     shader_t *debug_shader;
     physics_t *physics;
+
+    glm::vec3 model_offset;
 } pc_t;
 
 /* *********************************************************************
@@ -64,6 +66,13 @@ pc_t *pc_create(
     );
     glm::vec3 box = mesh_calculate_bounding_box(renderable_mesh) *
                     (self->model_scale * 0.5f);
+    
+    // Because center of the mesh is not in 0,0,0 point
+    // TODO calculate this correction from vertices
+    glm::vec3 center_correction = glm::vec3(0.0f, box.y * 0.5f, 0.0f);
+
+    // Store half of height, to allign center with the feet
+    self->model_offset = glm::vec3(0.0f, box.y * 0.5f, 0.0f) + center_correction;
 
     float reach    = 2.0f;
     self->collider = collider_create_capsule(
@@ -106,12 +115,17 @@ void pc_draw(pc_t *self, camera_t *camera)
     );
 
     // Transform is then updated by collider transform
-    self->transform =
-        glm::translate(self->transform, glm::vec3(0.0f, 0.25f, 0.0f));
-
+    // self->transform =
+    //     glm::translate(self->transform, glm::vec3(0.0f, 0.25f, 0.0f));
+    // Take back the offset
+    self->transform = glm::translate(
+        self->transform, -self->model_offset
+    );
     // Apply scaled factor on transform, because model is way too big
     self->transform =
         glm::scale(self->transform, glm::vec3(self->model_scale));
+
+
 
     // Draw the figurine
     shader_activate(self->shader);

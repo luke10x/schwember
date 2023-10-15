@@ -50,8 +50,26 @@ control_t* control_create(GLFWwindow* window, uint8_t mode)
 /* *********************************************************************
  * gets event (that occured)
  * ********************************************************************/
+bool tab_pressed = false;
+
 uint8_t control_get_event(control_t* self)
 {
+    // Toggle mode
+    if (glfwGetKey(self->window, GLFW_KEY_TAB) == GLFW_PRESS) {
+        tab_pressed = true;
+    } else {
+        if (tab_pressed) {
+            tab_pressed = false;
+            if (self->mode == CONTROL_MODE_CAMERA) {
+                self->mode = CONTROL_MODE_PC;
+                return NULL;
+            }
+            if (self->mode == CONTROL_MODE_PC) {
+                self->mode = CONTROL_MODE_CAMERA;
+                return NULL;
+            }
+        }
+    }
     if (self->mode == CONTROL_MODE_CAMERA) {
         if (glfwGetKey(self->window, GLFW_KEY_W) == GLFW_PRESS) {
             return CONTROL_CAMERA_FORWARD;
