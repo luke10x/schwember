@@ -87,8 +87,8 @@ pc_t *pc_create(
     // Make it bouncy
     rigid_body->setRestitution(2.0f);
 
-    // Make it not spin when hits a wall
-    rigid_body->setRollingFriction(1.0f);
+    // To not start spinning on wall collision
+    rigid_body->setFriction(0.0f);
 
     // Do not stop reacting to forces when reaches ground
     rigid_body->setActivationState(DISABLE_DEACTIVATION);
@@ -124,8 +124,6 @@ void pc_draw(pc_t *self, camera_t *camera)
     // Apply scaled factor on transform, because model is way too big
     self->transform =
         glm::scale(self->transform, glm::vec3(self->model_scale));
-
-
 
     // Draw the figurine
     shader_activate(self->shader);
@@ -168,5 +166,5 @@ void pc_handle_event(pc_t *self, uint8_t event)
 
     // If reached until this point means some movement has to happen
     ((collider_box_t *) self->collider)
-        ->rigid_body->setLinearVelocity(velocity * 3.0f);
+        ->rigid_body->setLinearVelocity(velocity * 5.0f);
 }
