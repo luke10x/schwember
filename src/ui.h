@@ -7,6 +7,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "pc.h"
+#include "ui_gltf_tree.h"
 
 const ImVec4 UI_BUTTON_ACTIVE_COLOR = ImVec4(0.7f, 0.2f, 0.2f, 1.0f);
 
@@ -15,10 +16,12 @@ const ImVec4 UI_BUTTON_ACTIVE_COLOR = ImVec4(0.7f, 0.2f, 0.2f, 1.0f);
  * ********************************************************************/
 typedef struct {
     control_t* control;
+    pc_t* pc;
+    ui_gltf_tree_t* pc_glb_tree;
 } ui_t;
 
 /* *********************************************************************
- * Private functions used in the next functio but defined after
+ * Private functions used in the next function but defined after
  * ********************************************************************/
 void ImGuiMatrix(const glm::mat4& matrix);
 void ImGuiMatrix3(const glm::mat4& matrix);
@@ -26,9 +29,12 @@ void ImGuiMatrix3(const glm::mat4& matrix);
 /* *********************************************************************
  * UI constructor
  * ********************************************************************/
-ui_t* ui_create(control_t* control)
+ui_t* ui_create(control_t* control, pc_t* pc)
 {
     ui_t* self = (ui_t*) malloc(sizeof(ui_t));
+
+    self->pc = pc;
+    self->pc_glb_tree = ui_gltf_tree_create(self->pc->glb->_data);
 
     self->control = control;
     return self;
@@ -83,6 +89,9 @@ void ui_draw(ui_t* self, pc_t* pc)
     );
 
     ImGui::End();
+
+
+    ui_gltf_tree_draw(self->pc_glb_tree);
 
     // Finally flush all here
     ImGui::Render();

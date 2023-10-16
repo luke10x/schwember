@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+
 #define CGLTF_IMPLEMENTATION
 #include <cgltf.h>
 

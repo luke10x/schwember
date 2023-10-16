@@ -9,6 +9,7 @@
 #include "physics.h"
 #include "renderable.h"
 #include "renderable_shapes.h"
+#include "glb.h"
 
 /* *********************************************************************
  * PC
@@ -29,6 +30,8 @@ typedef struct pc_t {
     physics_t *physics;
 
     glm::vec3 model_offset;
+
+    glb_t* glb;
 } pc_t;
 
 /* *********************************************************************
@@ -96,10 +99,13 @@ pc_t *pc_create(
     // Make it always stand
     rigid_body->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
 
-    rigid_body->setDamping(0.75f, 0.99f);
+    rigid_body->setDamping(0.99f, 0.99f);
 
     self->collider_mesh =
         mesh_sample_create_ellipsis(box.z * reach, box.y);
+
+    // self->glb = glb_create("assets/gltf/SimpleSkin.gltf");
+    self->glb = glb_create("assets/gltf/cubeman.glb");
 
     return self;
 }

@@ -285,7 +285,7 @@ void ctx_load(ctx_t* ctx, int width, int height)
     );
 
     ctx->control = control_create(ctx->window, CONTROL_MODE_CAMERA);
-    ctx->ui      = ui_create(ctx->control);
+    ctx->ui      = ui_create(ctx->control, ctx->pc);
 }
 
  /* ********************************************************************
