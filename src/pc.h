@@ -27,6 +27,8 @@ typedef struct pc_t {
                             // Not mesh
     bool debug;
     shader_t *debug_shader;
+    shader_t *weight_shader;
+    shader_t *active_shader;
     physics_t *physics;
 
     glm::vec3 model_offset;
@@ -40,17 +42,20 @@ typedef struct pc_t {
 pc_t *pc_create(
     shader_t *renderable_shader,
     shader_t *debug_shader,
+    shader_t *weight_shader,
     physics_t *physics
 )
 {
     pc_t *self = (pc_t *) malloc(sizeof(pc_t));
 
-    self->shader       = renderable_shader;
-    self->debug_shader = debug_shader;
+    self->shader        = renderable_shader;
+    self->debug_shader  = debug_shader;
+    self->weight_shader = weight_shader;
 
     self->physics = physics;
 
-    self->model_scale = 0.0045;
+    self->model_scale = 0.0045; // for stickma
+    self->model_scale = 0.75f;   // for cubeman
 
     glm::vec3 position = glm::vec3(-6.0f, 4.0f, 8.0f);
     self->transform    = glm::translate(glm::mat4(1.0f), position);
@@ -60,7 +65,7 @@ pc_t *pc_create(
     // Create renderable
     model_t *renderable_model = model_create();
     model_load_from_file(
-        renderable_model, "assets/gltf/stickman_low_poly.glb"
+        renderable_model, "assets/gltf/cubeman.glb"
     );
     mesh_t *renderable_mesh = (mesh_t *) renderable_model->meshes[0];
     self->renderable        = renderable_create(
@@ -72,12 +77,15 @@ pc_t *pc_create(
     
     // Because center of the mesh is not in 0,0,0 point
     // TODO calculate this correction from vertices
-    glm::vec3 center_correction = glm::vec3(0.0f, box.y * 0.5f, 0.0f);
+    glm::vec3 center_correction = glm::vec3(0.0f, box.y * 1.5f, 0.0f); // for cubeman
+    // glm::vec3 center_correction = glm::vec3(0.0f, box.y * 0.5f, 0.0f); // for stickman
 
     // Store half of height, to allign center with the feet
     self->model_offset = glm::vec3(0.0f, box.y * 0.5f, 0.0f) + center_correction;
 
-    float reach    = 2.0f;
+    // float reach    = 2.0f; // for stickma
+    float reach    = 2.0f; // for cubeman
+            
     self->collider = collider_create_capsule(
         self->collider_transform,  // transform
         box.z * reach,             // radius
