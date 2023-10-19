@@ -33,7 +33,7 @@ ui_t* ui_create(control_t* control, pc_t* pc)
 {
     ui_t* self = (ui_t*) malloc(sizeof(ui_t));
 
-    self->pc = pc;
+    self->pc          = pc;
     self->pc_glb_tree = ui_gltf_tree_create(self->pc->glb->_data);
 
     self->control = control;
@@ -89,7 +89,6 @@ void ui_draw(ui_t* self, pc_t* pc)
     );
 
     ImGui::End();
-
 
     ui_gltf_tree_draw(self->pc_glb_tree);
 

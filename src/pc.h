@@ -4,12 +4,12 @@
 #include <stdlib.h>
 
 #include "collider.h"
+#include "glb.h"
 #include "model.h"
 #include "model_load.h"
 #include "physics.h"
 #include "renderable.h"
 #include "renderable_shapes.h"
-#include "glb.h"
 
 /* *********************************************************************
  * PC
@@ -33,7 +33,7 @@ typedef struct pc_t {
 
     glm::vec3 model_offset;
 
-    glb_t* glb;
+    glb_t *glb;
 } pc_t;
 
 /* *********************************************************************
@@ -54,7 +54,7 @@ pc_t *pc_create(
 
     self->physics = physics;
 
-    self->model_scale = 0.0045; // for stickma
+    self->model_scale = 0.0045;  // for stickman
     self->model_scale = 0.75f;   // for cubeman
 
     glm::vec3 position = glm::vec3(-6.0f, 4.0f, 8.0f);
@@ -64,9 +64,7 @@ pc_t *pc_create(
 
     // Create renderable
     model_t *renderable_model = model_create();
-    model_load_from_file(
-        renderable_model, "assets/gltf/cubeman.glb"
-    );
+    model_load_from_file(renderable_model, "assets/gltf/cubeman.glb");
     mesh_t *renderable_mesh = (mesh_t *) renderable_model->meshes[0];
     self->renderable        = renderable_create(
         renderable_mesh->vertices, renderable_mesh->vertex_count,
@@ -74,18 +72,21 @@ pc_t *pc_create(
     );
     glm::vec3 box = mesh_calculate_bounding_box(renderable_mesh) *
                     (self->model_scale * 0.5f);
-    
+
     // Because center of the mesh is not in 0,0,0 point
     // TODO calculate this correction from vertices
-    glm::vec3 center_correction = glm::vec3(0.0f, box.y * 1.5f, 0.0f); // for cubeman
-    // glm::vec3 center_correction = glm::vec3(0.0f, box.y * 0.5f, 0.0f); // for stickman
+    glm::vec3 center_correction =
+        glm::vec3(0.0f, box.y * 1.5f, 0.0f);  // for cubeman
+    // glm::vec3 center_correction = glm::vec3(0.0f, box.y * 0.5f,
+    // 0.0f); // for stickman
 
     // Store half of height, to allign center with the feet
-    self->model_offset = glm::vec3(0.0f, box.y * 0.5f, 0.0f) + center_correction;
+    self->model_offset =
+        glm::vec3(0.0f, box.y * 0.5f, 0.0f) + center_correction;
 
     // float reach    = 2.0f; // for stickma
-    float reach    = 2.0f; // for cubeman
-            
+    float reach = 2.0f;  // for cubeman
+
     self->collider = collider_create_capsule(
         self->collider_transform,  // transform
         box.z * reach,             // radius
@@ -130,11 +131,11 @@ void pc_draw(pc_t *self, camera_t *camera)
 
     // Transform is then updated by collider transform
     // self->transform =
-    //     glm::translate(self->transform, glm::vec3(0.0f, 0.25f, 0.0f));
+    //     glm::translate(self->transform, glm::vec3(0.0f, 0.25f,
+    //     0.0f));
     // Take back the offset
-    self->transform = glm::translate(
-        self->transform, -self->model_offset
-    );
+    self->transform =
+        glm::translate(self->transform, -self->model_offset);
     // Apply scaled factor on transform, because model is way too big
     self->transform =
         glm::scale(self->transform, glm::vec3(self->model_scale));
