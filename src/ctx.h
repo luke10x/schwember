@@ -246,26 +246,27 @@ void ctx_load(ctx_t* ctx, int width, int height)
     ctx->suzanne_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(0, 4, 1));
 
-    ctx->stickman = model_create();
-    model_load_from_file(
-        ctx->stickman,
-        "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
-    );
-    ctx->stickman_transform =
-        glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
+    // ctx->stickman = model_create();
+    // model_load_from_file(
+    //     ctx->stickman,
+    //     "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
+    // );
+    // ctx->stickman_transform =
+    //     glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
+
+
+    // ctx->stickman = model_create();
+    // model_load_from_file(
+    //     ctx->stickman,
+    //     "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
+    // );
+    // ctx->stickman_transform =
+    //     glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
 
     // The main controllable player entity
     ctx->pc =pc_create(
         ctx->default_shader, ctx->light_shader, ctx->weight_shader, ctx->physics
     );
-
-    ctx->stickman = model_create();
-    model_load_from_file(
-        ctx->stickman,
-        "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
-    );
-    ctx->stickman_transform =
-        glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
 
     // Sphere
     ctx->sphere = model_create();
@@ -362,10 +363,10 @@ inline static void ctx_render(ctx_t* ctx)
     );
     model_draw(ctx->suzanne, ctx->default_shader, ctx->camera);
 
-    shader_set_uniform_mat4(
-        ctx->default_shader, "modelToWorld", ctx->stickman_transform
-    );
-    model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
+    // shader_set_uniform_mat4(
+    //     ctx->default_shader, "modelToWorld", ctx->stickman_transform
+    // );
+    // model_draw(ctx->stickman, ctx->default_shader, ctx->camera);
 
     ctx->sphere_transform = collider_update_transform(
         ctx->sphere_collider, ctx->sphere_transform

@@ -51,6 +51,21 @@ void __apply_node_transformations(vertex_t* current_vertex, cgltf_node* current_
   }
 }
 
+// Macro to simplify attributes loading code
+#define LOAD_ATTRIBUTE(accesor, numComp, dataType, dstPtr) \
+{ \
+    int n = 0; \
+    dataType *buffer = (dataType *)accesor->buffer_view->buffer->data + accesor->buffer_view->offset/sizeof(dataType) + accesor->offset/sizeof(dataType); \
+    for (unsigned int k = 0; k < accesor->count; k++) \
+    {\
+        for (int l = 0; l < numComp; l++) \
+        {\
+            dstPtr[numComp*k + l] = buffer[n + l];\
+        }\
+        n += (int)(accesor->stride/sizeof(dataType));\
+    }\
+}
+
 mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
   cgltf_options options;
   std::memset(&options, 0, sizeof(cgltf_options));
@@ -171,6 +186,91 @@ mesh_t* model_load_from_file(model_t* model, const char *gltf_file_name) {
             current_vertex->position.y = buffer[i + 1];
             current_vertex->position.z = buffer[i + 2];
           }
+        }
+
+        if (attribute->type == cgltf_attribute_type_joints) {
+                  
+            printf("Joint Indices in %s::\n",  mesh->name);
+
+            // Access the joint indices data
+            const cgltf_accessor* accessor = attribute->data;
+           
+            const cgltf_component_type component_type = accessor->component_type;
+            const int num_component_vals = cgltf_num_components(accessor->type);
+
+            if (
+              (
+                component_type == cgltf_component_type_r_16u ||
+                component_type == cgltf_component_type_r_8u
+              ) &&
+              num_component_vals == 4
+            ) {
+                printf("Joint Accessor found :\n"          
+                    "component_type = %d\n"
+                    "just type = %d\n" "\n",
+                    accessor->component_type,
+                    accessor->type
+                );
+                uint32_t i = 0;
+                while (i < accessor->count) {
+                    cgltf_uint joints[4];
+                    cgltf_bool res = cgltf_accessor_read_uint(accessor, i, joints, 4);
+                    if (res == 0) {
+                        fprintf(stderr, "cannot read joints data\n"); exit(1);
+                    } else {
+                      printf("Joints component_type[%d]xs indexes for a vertice #%d = {%d, %d, %d, %d}\n",
+                        component_type,
+                        i,
+                        joints[0],
+                        joints[1],
+                        joints[2],
+                        joints[3]
+                      );
+                    }
+                    //     verts[i].joints.components.joint_0 = @intCast(u16, joints[0]);
+                    i++;
+                }
+            } else {
+              fprintf(
+                  stderr, "Strange joint accessor type, but continue\n"
+                "component_type = %d\n"
+                "just type = %d\n" "\n",
+                accessor->component_type, accessor->type
+
+              );
+              exit(1); // actually we don't continue...
+            }
+
+        }
+
+        if (attribute->type == cgltf_attribute_type_weights) {
+            printf("Weights\n");
+            const cgltf_accessor* accessor = attribute->data;
+
+            const cgltf_component_type component_type = accessor->component_type;
+            const uint32_t num_component_vals = cgltf_num_components(accessor->type);
+
+            if (component_type == cgltf_component_type_r_32f and num_component_vals == 4) {
+
+
+                uint32_t i = 0;
+                while (i < accessor->count) {
+                    cgltf_float weights[4];
+                    cgltf_bool res = cgltf_accessor_read_float(accessor, i, weights, 4);
+                    if (res == 0) {
+                        fprintf(stderr, "cannot read joints data\n"); exit(1);
+                    }                                    
+
+                    printf("Weight for a vertice #%d = {%.4f, %.4f, %.4f, %.4f}\n",
+                        i,
+                        weights[0],
+                        weights[1],
+                        weights[2],
+                        weights[3]
+                    );
+                    i++;
+                }
+            }
         }
 
         if (attribute->type == cgltf_attribute_type_normal) {

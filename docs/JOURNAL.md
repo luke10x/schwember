@@ -317,3 +317,8 @@ Capsule can "climb" the stairs.
 Github page JamesTKhan/libgdx-bullet-tutorials has some useful
 
 Enabled lldb, as gdb does not work
+
+## 2023-10-18, Wed
+
+With some examples started to move along 
+https://github.com/fubark/cosmic/blob/15f85e4bf5c6618c237d6f11f540717f7df16eb6/graphics/src/graphics.zig#L2083
