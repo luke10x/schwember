@@ -266,8 +266,12 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                     joints[1], joints[2], joints[3]
                                 );
                             }
-                            //     verts[i].joints.components.joint_0 =
-                            //     @intCast(u16, joints[0]);
+                            vertex_t* current_vertex = &vertices[i];
+                            current_vertex->bones[0] = joints[0];
+                            current_vertex->bones[1] = joints[1];
+                            current_vertex->bones[2] = joints[2];
+                            current_vertex->bones[3] = joints[3];
+
                             i++;
                         }
                     } else {
@@ -315,6 +319,13 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                 i, weights[0], weights[1], weights[2],
                                 weights[3]
                             );
+
+                            vertex_t* current_vertex = &vertices[i];
+                            current_vertex->weights[0] = weights[0];
+                            current_vertex->weights[1] = weights[1];
+                            current_vertex->weights[2] = weights[2];
+                            current_vertex->weights[3] = weights[3];
+
                             i++;
                         }
                     }

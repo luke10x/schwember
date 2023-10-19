@@ -84,7 +84,7 @@ pc_t *pc_create(
     self->model_offset =
         glm::vec3(0.0f, box.y * 0.5f, 0.0f) + center_correction;
 
-    // float reach    = 2.0f; // for stickma
+    // float reach    = 2.0f; // for stickman
     float reach = 2.0f;  // for cubeman
 
     self->collider = collider_create_capsule(

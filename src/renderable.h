@@ -55,6 +55,8 @@ renderable_t* renderable_create(
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(6 * sizeof(float))); // tex_UV
 	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(8 * sizeof(float))); // tex_id
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(9 * sizeof(float))); // normal
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(12 * sizeof(float))); // 4 bones
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(16 * sizeof(float))); // 4 weights
 
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
