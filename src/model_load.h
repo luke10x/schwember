@@ -226,7 +226,7 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                 }
 
                 if (attribute->type == cgltf_attribute_type_joints) {
-                    printf("Joint Indices in %s::\n", mesh->name);
+                    // printf("Joint Indices in %s::\n", mesh->name);
 
                     // Access the joint indices data
                     const cgltf_accessor* accessor = attribute->data;
@@ -239,13 +239,13 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                     if ((component_type == cgltf_component_type_r_16u ||
                          component_type == cgltf_component_type_r_8u) &&
                         num_component_vals == 4) {
-                        printf(
-                            "Joint Accessor found :\n"
-                            "component_type = %d\n"
-                            "just type = %d\n"
-                            "\n",
-                            accessor->component_type, accessor->type
-                        );
+                        // printf(
+                        //     "Joint Accessor found :\n"
+                        //     "component_type = %d\n"
+                        //     "just type = %d\n"
+                        //     "\n",
+                        //     accessor->component_type, accessor->type
+                        // );
                         uint32_t i = 0;
                         while (i < accessor->count) {
                             cgltf_uint joints[4];
@@ -258,13 +258,13 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                 );
                                 exit(1);
                             } else {
-                                printf(
-                                    "Joints component_type[%d]xs "
-                                    "indexes for a vertice #%d = {%d, "
-                                    "%d, %d, %d}\n",
-                                    component_type, i, joints[0],
-                                    joints[1], joints[2], joints[3]
-                                );
+                                // printf(
+                                //     "Joints component_type[%d]xs "
+                                //     "indexes for a vertice #%d = {%d, "
+                                //     "%d, %d, %d}\n",
+                                //     component_type, i, joints[0],
+                                //     joints[1], joints[2], joints[3]
+                                // );
                             }
                             vertex_t* current_vertex = &vertices[i];
                             current_vertex->bones[0] = joints[0];
@@ -290,7 +290,7 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                 }
 
                 if (attribute->type == cgltf_attribute_type_weights) {
-                    printf("Weights\n");
+                    // printf("Weights\n");
                     const cgltf_accessor* accessor = attribute->data;
 
                     const cgltf_component_type component_type =
@@ -313,12 +313,12 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                 exit(1);
                             }
 
-                            printf(
-                                "Weight for a vertice #%d = {%.4f, "
-                                "%.4f, %.4f, %.4f}\n",
-                                i, weights[0], weights[1], weights[2],
-                                weights[3]
-                            );
+                            // printf(
+                            //     "Weight for a vertice #%d = {%.4f, "
+                            //     "%.4f, %.4f, %.4f}\n",
+                            //     i, weights[0], weights[1], weights[2],
+                            //     weights[3]
+                            // );
 
                             vertex_t* current_vertex = &vertices[i];
                             current_vertex->weights[0] = weights[0];

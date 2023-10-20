@@ -4,7 +4,7 @@ precision mediump float;
 out vec4 fragColor;
 
 in vec3 crntPos;
-in vec3 color;
+in vec3 aColor;
 in vec2 texCord;
 in float texId;
 in vec3 Normal;
@@ -15,6 +15,5 @@ uniform sampler2D sampler;
 uniform vec3 camPos;
 
 void main() {
-	color = vec4(color, 1.0f);
-	fragColor = color;
+	fragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }

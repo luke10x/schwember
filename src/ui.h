@@ -84,9 +84,30 @@ void ui_draw(ui_t* self, pc_t* pc)
     ImGui::Begin("Piece:");
     ImGuiMatrix(pc->transform);
     ImGui::Text(
-        "Mass: %+08.3f",
+        "Mass: %+08.3fkg",
         ((collider_box_t*) pc->collider)->rigid_body->getMass()
     );
+
+    static const char* items[2]     = {"Standard shader", "Weights shader"};
+    static const int event_codes[2] = {
+        CONTROL_PC_SET_STANDARD_SHADER, CONTROL_PC_SET_WEIGHTS_SHADER
+    };
+    static int selected_option = 0;
+
+    if (ImGui::BeginCombo("##combo", items[selected_option])) {
+        for (int i = 0; i < 2; i++) {
+            bool is_selected = (selected_option == i);
+            if (ImGui::Selectable(items[i], is_selected)) {
+                selected_option = i;
+                printf("Selected %d\n", event_codes[selected_option]);
+                pc_handle_event(self->pc, event_codes[selected_option]);
+            }
+            if (is_selected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
 
     ImGui::End();
 

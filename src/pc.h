@@ -16,7 +16,7 @@
  * ********************************************************************/
 typedef struct pc_t {
     glm::mat4 transform;
-    shader_t *shader;
+    shader_t *standard_shader;
     camera_t *camera;
     renderable_t *renderable;
     float model_scale;
@@ -28,7 +28,7 @@ typedef struct pc_t {
     bool debug;
     shader_t *debug_shader;
     shader_t *weight_shader;
-    shader_t *active_shader;
+    shader_t* shader;
     physics_t *physics;
 
     glm::vec3 model_offset;
@@ -48,9 +48,17 @@ pc_t *pc_create(
 {
     pc_t *self = (pc_t *) malloc(sizeof(pc_t));
 
-    self->shader        = renderable_shader;
+    // Renderable can have several shaders
+    self->standard_shader = renderable_shader;
+    self->weight_shader   = weight_shader;
+    // self->weight_shader   = renderable_shader;
+
+    self->shader          = self->standard_shader;
+            self->shader = self->weight_shader;
+    self->shader          = self->standard_shader;
+    self->shader          = self->standard_shader;
+
     self->debug_shader  = debug_shader;
-    self->weight_shader = weight_shader;
 
     self->physics = physics;
 
@@ -174,6 +182,16 @@ void pc_handle_event(pc_t *self, uint8_t event)
         velocity = btVector3(1.0f, 0.0f, 0.0f);
     } else if (event == CONTROL_PC_RIGHT) {
         velocity = btVector3(-1.0f, 0.0f, 0.0f);
+    } else if (event == CONTROL_PC_SET_STANDARD_SHADER) {
+        self->shader = self->standard_shader;
+        // shader_activate(self->shader);
+        printf("Shader set to Standard\n");
+
+    } else if (event == CONTROL_PC_SET_WEIGHTS_SHADER) {
+        self->shader = self->weight_shader;
+        // shader_activate(self->shader);
+        printf("Shader set to weithd\n");
+
     } else {
         // event is not actionable by PC
         return;

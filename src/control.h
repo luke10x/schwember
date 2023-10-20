@@ -26,6 +26,10 @@
 #define CONTROL_PC_LEFT           23
 #define CONTROL_PC_RIGHT          24
 
+// More piece controls
+#define CONTROL_PC_SET_STANDARD_SHADER 31
+#define CONTROL_PC_SET_WEIGHTS_SHADER  32
+
 /* *********************************************************************
  * Control
  * ********************************************************************/
