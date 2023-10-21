@@ -147,6 +147,8 @@ GLuint _buildProgram(
   return po;
 }
 
+void shader_set_uniform_bone_to_world_transforms(shader_t* self);
+
 shader_t* shader_create(const char* vertex_file, const char* fragment_file) {
   char* vertex_source   = _get_file_contents(vertex_file);
   char* fragment_source = _get_file_contents(fragment_file);
@@ -158,8 +160,9 @@ shader_t* shader_create(const char* vertex_file, const char* fragment_file) {
   GLuint fragmentShader = _loadShader(GL_FRAGMENT_SHADER, fragment_source);
 
   shader_t* self = (shader_t*) malloc(sizeof(shader_t));
-  self->ID = _buildProgram(vertexShader, fragmentShader, "vPosition");
+  self->ID = _buildProgram(vertexShader, fragmentShader, "v_position");
 
+  shader_set_uniform_bone_to_world_transforms(self);
   return self;
 }
 
@@ -194,6 +197,52 @@ void shader_set_uniform_vec3(shader_t* self, const char* uniform, glm::vec3 valu
     glGetUniformLocation(self->ID, uniform), // location
     value[0], value[1], value[2]             // value
   ); 
+}
+
+/* *********************************************************************
+ * sets u_boneToWorldTransforms uniform array
+ * ********************************************************************/
+void shader_set_uniform_bone_to_world_transforms(
+    shader_t* self
+    // glm::mat4* bone_to_world_transforms_buffer
+) {
+glm::mat4 bone_to_world_transforms_buffer__[32];
+
+// Fill the array with identity matrices
+for (int i = 0; i < 32; i++) {
+    bone_to_world_transforms_buffer__[i] = glm::mat4(1.0f); // Identity matrix
+}
+// // Create an identity matrix
+// glm::mat4 matrix = glm::mat4(1.0f);
+
+// // Translate the matrix up by 1 unit along the y-axis
+// matrix = glm::translate(matrix, glm::vec3(0.0f, 4.0f, 0.0f));
+bone_to_world_transforms_buffer__[10]=glm::translate(bone_to_world_transforms_buffer__[10] , glm::vec3(0.0f, 4.0f, 0.0f));
+
+
+    glUseProgram(self->ID);
+
+    for (int i = 0; i < 32; i++) {
+
+        // uniform name 
+        char uniformName[128];
+        snprintf(
+          uniformName, // output buffer
+          128,         // max chars to write
+          "u_boneToWorldTransforms[%d]", // format
+          i                              // params
+        );
+        
+        // Sent uniform 
+        float* uniform_value =
+            glm::value_ptr(bone_to_world_transforms_buffer__[i]);
+        glUniformMatrix4fv(
+            glGetUniformLocation(self->ID, uniformName), // Location
+            1,  // count (TODO, see if we can do bul using this)
+            GL_FALSE, // Transpose?
+            uniform_value // a pointer to 16 float values 
+        );
+    }
 }
 
 void shader_delete(const shader_t* self) {

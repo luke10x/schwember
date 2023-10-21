@@ -9,6 +9,7 @@ typedef struct {
 } vec3_t;
 
 typedef float vec4_t[4];
+typedef GLuint uvec4_t[4];
 
 typedef struct {
   float x;
