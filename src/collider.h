@@ -414,5 +414,8 @@ collider_update_transform(collider_t* self, glm::mat4 target_transform)
         target_transform[2] *= bt_scale.getZ();
 
         return target_transform;
+    } else {
+        fprintf(stderr, "unknown collider type %d\n", self->type);
+        exit(1);
     }
 }

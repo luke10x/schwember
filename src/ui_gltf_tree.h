@@ -90,7 +90,7 @@ void ui_gltf_tree_draw(ui_gltf_tree_t* self)
         }
         if (self->selected_node->weights_count > 0) {
             ImGui::Text(
-                "Weights count %d", self->selected_node->weights_count
+                "Weights count %zu", self->selected_node->weights_count
             );
         }
         if (self->selected_node->mesh != NULL) {
