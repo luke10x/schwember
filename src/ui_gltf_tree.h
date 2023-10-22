@@ -19,6 +19,9 @@ typedef struct ui_gltf_tree_t {
     int current;
 } ui_gltf_tree_t;
 
+/* *********************************************************************
+ * UI GLFT tree widget constructor
+ * ********************************************************************/
 ui_gltf_tree_t* ui_gltf_tree_create(
     cgltf_data* glb_data,
     pc_t* pc  // TODO use event que instead
@@ -30,24 +33,10 @@ ui_gltf_tree_t* ui_gltf_tree_create(
     self->pc = pc;
 
     // Detects root node, or exits
-    cgltf_node* root_node = NULL;
-    for (int i = 0; i < glb_data->nodes_count; i++) {
-        cgltf_node* node = glb_data->nodes + i;
-        if (node->parent == NULL) {
-            root_node = node;
-        }
-    }
-    if (root_node == NULL) {
-        /*
-        fprintf(
-            stderr, "Root node not found in the list of %d nodes\n",
-            glb_data->nodes_count
-        );
-        */
-        exit(1);
-    }
+    const cgltf_skin* first_skin = &glb_data->skins[0];
+    self->root_node = first_skin->joints[0];
 
-    self->root_node     = root_node;
+
     self->selected_node = NULL;
 
     return self;
@@ -112,7 +101,9 @@ void ui_gltf_tree_draw(ui_gltf_tree_t* self)
  * ********************************************************************/
 void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node)
 {
+    // Increase current index
     self->current++;
+
     bool isSelected = (node == self->selected_node);
 
     if (isSelected) {
@@ -143,18 +134,10 @@ void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node)
     } else if (ImGui::IsItemClicked(0)) {
         self->selected_node = node;
 
-        // pointer difference will be selected bone index
-        // I wonder why root node is the last though
-        // but I aceepti it is what it is
-        int idx = self->root_node - node;
-
-        if (idx < 0) {
-            fprintf(
-                stderr, "Somehox selected bone is outside nodes list"
-            );
-        }
-        self->pc->selected_joint_index = self->current;
+        // Compensate increasion of current index
+        self->pc->selected_joint_index = self->current - 1;
     }
+
 }
 
 void sprintf_node_title(

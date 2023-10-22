@@ -231,6 +231,7 @@ void shader_set_uniform_selected_joint_index(
         selected_joint_index  // value
     );
 }
+
 /* *********************************************************************
  * sets u_boneToWorldTransforms uniform array
  * ********************************************************************/
