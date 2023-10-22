@@ -16,6 +16,7 @@ typedef struct ui_gltf_tree_t {
     cgltf_node* root_node;
     pc_t* pc;
     cgltf_node* selected_node;
+    int current;
 } ui_gltf_tree_t;
 
 ui_gltf_tree_t* ui_gltf_tree_create(
@@ -56,10 +57,12 @@ ui_gltf_tree_t* ui_gltf_tree_create(
  * Private use for only (declare only, defined later)
  * ********************************************************************/
 void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node);
+
 void sprintf_node_title(
     char* result_buffer,
     size_t buffer_size,
-    cgltf_node* node
+    cgltf_node* node,
+    int count
 );
 
 /* *********************************************************************
@@ -73,6 +76,7 @@ void ui_gltf_tree_draw(ui_gltf_tree_t* self)
     ImGui::Separator();
 
     ImGui::Columns(2);
+    self->current = 0;
     recursive_node_tree(self, self->root_node);
 
     ImGui::NextColumn();
@@ -81,7 +85,8 @@ void ui_gltf_tree_draw(ui_gltf_tree_t* self)
     } else {
         char node_title[64];
         sprintf_node_title(
-            node_title, sizeof(node_title), self->selected_node
+            node_title, sizeof(node_title), self->selected_node,
+            self->current
         );
 
         ImGui::Text("Node %s:", node_title);
@@ -107,6 +112,7 @@ void ui_gltf_tree_draw(ui_gltf_tree_t* self)
  * ********************************************************************/
 void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node)
 {
+    self->current++;
     bool isSelected = (node == self->selected_node);
 
     if (isSelected) {
@@ -117,7 +123,9 @@ void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node)
 
     // Because node_title cannot be null, but in some files it is
     char node_title[64];
-    sprintf_node_title(node_title, sizeof(node_title), node);
+    sprintf_node_title(
+        node_title, sizeof(node_title), node, self->current
+    );
 
     bool is_expanded = ImGui::TreeNode(node_title);
     if (isSelected) {
@@ -145,22 +153,28 @@ void recursive_node_tree(ui_gltf_tree_t* self, cgltf_node* node)
                 stderr, "Somehox selected bone is outside nodes list"
             );
         }
-        self->pc->selected_joint_index = idx;
+        self->pc->selected_joint_index = self->current;
     }
 }
 
 void sprintf_node_title(
     char* result_buffer,
     size_t buffer_size,
-    cgltf_node* node
+    cgltf_node* node,
+    int count
 )
 {
     if (node->name) {
         // If node->name is not NULL, copy it to the output buffer
-        snprintf(result_buffer, buffer_size, "%s", node->name);
+        snprintf(
+            result_buffer, buffer_size, "%d) %s", count, node->name
+        );
     } else {
         // If node->name is NULL, create a string representation using
         // the node's address
-        snprintf(result_buffer, buffer_size, "Node %p", (void*) node);
+        snprintf(
+            result_buffer, buffer_size, "%d) Node %p", count,
+            (void*) node
+        );
     }
 }
