@@ -9,7 +9,7 @@ layout (location = 3) in float aTexId;
 layout (location = 4) in vec3  aNormal;
 
 out vec3  crntPos;
-out vec3  color;
+out vec3  o_color;
 out vec2  texCoord;
 out float texId;
 out vec3  Normal;
@@ -20,7 +20,7 @@ uniform mat4 modelToWorld;
 void main() {
   crntPos     = vec3(modelToWorld * vec4(aPos, 1.0f));
   gl_Position = worldToView       * vec4(crntPos, 1.0f);
-  color = aColor;
+  o_color = vec3(0.0f, 1.0f, 0.0f); //aColor;
   texCoord = aTex;
   texId = aTexId;
   Normal = aNormal;
