@@ -228,7 +228,7 @@ void shader_set_uniform_selected_joint_index(
     glUseProgram(self->ID);
     glUniform1ui(
         glGetUniformLocation(self->ID, "u_selectedJointIndex"),  // Loc
-        selected_joint_index                          // value
+        selected_joint_index  // value
     );
 }
 /* *********************************************************************

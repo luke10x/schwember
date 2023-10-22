@@ -28,7 +28,7 @@ typedef struct pc_t {
     bool debug;
     shader_t *debug_shader;
     shader_t *weight_shader;
-    shader_t* shader;
+    shader_t *shader;
     physics_t *physics;
 
     glm::vec3 model_offset;
@@ -58,12 +58,12 @@ pc_t *pc_create(
     self->weight_shader   = weight_shader;
     // self->weight_shader   = renderable_shader;
 
-    self->shader          = self->standard_shader;
-            self->shader = self->weight_shader;
-    self->shader          = self->standard_shader;
-    self->shader          = self->standard_shader;
+    self->shader = self->standard_shader;
+    self->shader = self->weight_shader;
+    self->shader = self->standard_shader;
+    self->shader = self->standard_shader;
 
-    self->debug_shader  = debug_shader;
+    self->debug_shader = debug_shader;
 
     self->physics = physics;
 
@@ -155,7 +155,7 @@ void pc_draw(pc_t *self, camera_t *camera)
 
     // Draw the figurine
     shader_activate(self->shader);
-    
+
     // This required only when shader is weights shader,
     // but for now it's ok to set it for all shaders...
     shader_set_uniform_selected_joint_index(
