@@ -257,15 +257,6 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                     stderr, "cannot read joints data\n"
                                 );
                                 exit(1);
-                            } else {
-                                // printf(
-                                //     "Joints component_type[%d]xs "
-                                //     "indexes for a vertice #%d = {%d,
-                                //     "
-                                //     "%d, %d, %d}\n",
-                                //     component_type, i, joints[0],
-                                //     joints[1], joints[2], joints[3]
-                                // );
                             }
                             vertex_t* current_vertex = &vertices[i];
                             current_vertex->bones[0] = joints[0];

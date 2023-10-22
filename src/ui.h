@@ -2,10 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "control.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
+#include "control.h"
 #include "pc.h"
 #include "ui_gltf_tree.h"
 
@@ -35,7 +36,10 @@ ui_t* ui_create(control_t* control, pc_t* pc)
     ui_t* self = (ui_t*) malloc(sizeof(ui_t));
 
     self->pc              = pc;
-    self->pc_glb_tree     = ui_gltf_tree_create(self->pc->glb->_data);
+    self->pc_glb_tree     = ui_gltf_tree_create(
+        self->pc->glb->_data,
+        self->pc
+    );
     self->animation_frame = 50;
 
     self->control = control;

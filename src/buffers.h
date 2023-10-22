@@ -22,6 +22,6 @@ typedef struct {
 	vec2_t texUV;
 	float  tex_id;
 	vec3_t normal;
+	uvec4_t weights;
 	vec4_t bones;
-	vec4_t weights;
 } vertex_t;

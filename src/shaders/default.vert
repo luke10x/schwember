@@ -26,7 +26,7 @@ void main() {
   vec3 world_position = vec3(0);
   vec3 world_normal   = vec3(0);
   vec3 world_tangent  = vec3(0);
-  
+/*  
   for (int i = 0; i < 4; i++)
   {
         int index = int(a_joints[i]);
@@ -37,9 +37,11 @@ void main() {
         world_position += (bone_to_world * vec4(a_position, 1)).xyz * weight;
         world_normal   += (bone_to_world * vec4(a_normal,   0)).xyz * weight;
   }
-
+*/
  // TODO use world_position
-  crntPos     = vec3(modelToWorld * vec4(world_position, 1.0f));
+ // For now at least in this shader just attribute position
+ // with no bone transformations
+  crntPos     = vec3(modelToWorld * vec4(a_position, 1.0f));
   gl_Position = worldToView       * vec4(crntPos, 1.0f);
   color = aColor;
   texCoord = aTex;

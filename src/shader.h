@@ -218,6 +218,20 @@ void shader_set_uniform_vec3(
 }
 
 /* *********************************************************************
+ * sets u_selectedJointIndex uniform param
+ * ********************************************************************/
+void shader_set_uniform_selected_joint_index(
+    shader_t* self,
+    GLuint selected_joint_index
+)
+{
+    glUseProgram(self->ID);
+    glUniform1ui(
+        glGetUniformLocation(self->ID, "u_selectedJointIndex"),  // Loc
+        selected_joint_index                          // value
+    );
+}
+/* *********************************************************************
  * sets u_boneToWorldTransforms uniform array
  * ********************************************************************/
 void shader_set_uniform_bone_to_world_transforms(

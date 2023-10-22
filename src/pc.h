@@ -33,6 +33,9 @@ typedef struct pc_t {
 
     glm::vec3 model_offset;
 
+    // Only used in debug from dear
+    int selected_joint_index;
+
     glb_t *glb;
 } pc_t;
 
@@ -47,6 +50,8 @@ pc_t *pc_create(
 )
 {
     pc_t *self = (pc_t *) malloc(sizeof(pc_t));
+
+    self->selected_joint_index = 0;
 
     // Renderable can have several shaders
     self->standard_shader = renderable_shader;
@@ -150,6 +155,13 @@ void pc_draw(pc_t *self, camera_t *camera)
 
     // Draw the figurine
     shader_activate(self->shader);
+    
+    // This required only when shader is weights shader,
+    // but for now it's ok to set it for all shaders...
+    shader_set_uniform_selected_joint_index(
+        self->shader, self->selected_joint_index
+    );
+
     shader_set_uniform_mat4(
         self->shader, "modelToWorld", self->transform
     );
