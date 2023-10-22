@@ -21,9 +21,8 @@ uniform mat4 modelToWorld;
 uniform uint u_selectedJointIndex;
 
 void main() {
-  // uint firstJoint = a_joints[1];
-  uint firstJoint = uint(3);
-
+  uint firstJoint = a_joints[0];
+  // uint firstJoint = uint(3);
 
   //int index = int(a_joints[i]);
   //float weight = a_weights[i];
