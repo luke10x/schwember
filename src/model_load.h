@@ -259,10 +259,10 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                 exit(1);
                             }
                             vertex_t* current_vertex = &vertices[i];
-                            current_vertex->bones[0] = joints[0];
-                            current_vertex->bones[1] = joints[1];
-                            current_vertex->bones[2] = joints[2];
-                            current_vertex->bones[3] = joints[3];
+                            current_vertex->bones[0] = float(joints[0]);
+                            current_vertex->bones[1] = float(joints[1]);
+                            current_vertex->bones[2] = float(joints[2]);
+                            current_vertex->bones[3] = float(joints[3]);
 
                             i++;
                         }

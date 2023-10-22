@@ -52,16 +52,19 @@ renderable_t* renderable_create(
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 
-    // Links VBO attributes such as coordinates and colors to VAO
-    // clang-format off
+    
+	// Links VBO attributes such as coordinates and colors to VAO
+	// clang-format off
+
+    // What is the second param ??? 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);                    // position
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 3 * sizeof(float))); // color
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 6 * sizeof(float))); // tex_UV
-	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 8 * sizeof(float))); // tex_id
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 9 * sizeof(float))); // normal
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 3  * sizeof(float))); // color
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 6  * sizeof(float))); // tex_UV
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 8  * sizeof(float))); // tex_id
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 9  * sizeof(float))); // normal
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(12 * sizeof(float))); // 4 weights
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(16 * sizeof(float))); // 4 bones
-    // clang-format on
+	// clang-format on
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);

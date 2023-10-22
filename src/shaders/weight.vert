@@ -8,7 +8,7 @@ layout (location = 2) in vec2  aTex;
 layout (location = 3) in float aTexId;
 layout (location = 4) in vec3  aNormal;
 layout (location = 5) in vec4  a_weights;
-layout (location = 6) in uvec4 a_joints;
+layout (location = 6) in vec4  a_joints;
 
 out vec3  crntPos;
 out vec3  v_color;
@@ -21,7 +21,7 @@ uniform mat4 modelToWorld;
 uniform uint u_selectedJointIndex;
 
 void main() {
-  uint firstJoint = a_joints[0];
+  uint firstJoint = uint(a_joints[0]);
   // uint firstJoint = uint(3);
 
   //int index = int(a_joints[i]);
