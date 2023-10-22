@@ -7,7 +7,7 @@ layout (location = 1) in vec3  aColor;
 layout (location = 2) in vec2  aTex;
 layout (location = 3) in float aTexId;
 layout (location = 4) in vec3  a_normal;
-layout (location = 5) in vec4 a_joints;
+layout (location = 5) in vec4  a_joints;
 layout (location = 6) in vec4  a_weights;
 
 out vec3  crntPos;
@@ -29,7 +29,8 @@ void main() {
   
   for (int i = 0; i < 4; i++)
   {
-        highp int index = int(a_joints[i]);
+        int index = int(a_joints[i]);
+
         float weight = a_weights[i];
         mat4 bone_to_world = u_boneToWorldTransforms[index];
 

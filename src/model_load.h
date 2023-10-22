@@ -260,7 +260,8 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                             } else {
                                 // printf(
                                 //     "Joints component_type[%d]xs "
-                                //     "indexes for a vertice #%d = {%d, "
+                                //     "indexes for a vertice #%d = {%d,
+                                //     "
                                 //     "%d, %d, %d}\n",
                                 //     component_type, i, joints[0],
                                 //     joints[1], joints[2], joints[3]
@@ -316,11 +317,11 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                             // printf(
                             //     "Weight for a vertice #%d = {%.4f, "
                             //     "%.4f, %.4f, %.4f}\n",
-                            //     i, weights[0], weights[1], weights[2],
-                            //     weights[3]
+                            //     i, weights[0], weights[1],
+                            //     weights[2], weights[3]
                             // );
 
-                            vertex_t* current_vertex = &vertices[i];
+                            vertex_t* current_vertex   = &vertices[i];
                             current_vertex->weights[0] = weights[0];
                             current_vertex->weights[1] = weights[1];
                             current_vertex->weights[2] = weights[2];
@@ -433,3 +434,246 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
 
     return NULL;
 }
+
+glm::mat4 InterpolateBetweenTransformations(
+    const glm::mat4& prev,
+    const glm::mat4& next,
+    float t
+)
+{
+    // Linear interpolation between two matrices
+    glm::mat4 result;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            result[i][j] = (1.0f - t) * prev[i][j] + t * next[i][j];
+        }
+    }
+    return result;
+}
+
+/******  Code with errors bellow this poing keep it commented out
+.......
+
+glm::mat4 GetTransformationFromKeyframe(cgltf_animation_sampler*
+sampler, int keyframeIndex) {
+    // Retrieve the index of the accessor containing transformation data
+    int accessorIndex = sampler->output->data[keyframeIndex];
+
+    // Access the transformation data from the glTF data
+    cgltf_accessor* accessor =
+&sampler->output->parent->data->accessors[accessorIndex]; cgltf_float*
+data = (cgltf_float*)accessor->buffer_view->buffer->data;
+
+    // Create a glm::mat4 from the data
+    glm::mat4 transformation;
+    for (int i = 0; i < 16; i++) {
+        transformation[i / 4][i % 4] = data[i];
+    }
+
+    return transformation;
+}
+
+
+glm::mat4 InterpolateTransformation(cgltf_animation_sampler* sampler,
+float time) {
+    // Find the keyframes that bracket the current time
+    int prevKeyframeIndex = -1;
+    int nextKeyframeIndex = -1;
+
+    for (cgltf_int i = 0; i < sampler->input->count; ++i) {
+        float keyframeTime = sampler->input->buffer_view->data[i];
+
+        if (keyframeTime == time) {
+            // You've hit an exact keyframe
+            prevKeyframeIndex = i;
+            nextKeyframeIndex = i;
+            break;
+        } else if (keyframeTime > time) {
+            // The next keyframe has not been reached yet
+            nextKeyframeIndex = i;
+            break;
+        }
+
+        prevKeyframeIndex = i;
+    }
+
+    if (prevKeyframeIndex == -1 || nextKeyframeIndex == -1) {
+        // Handle edge cases where time is outside the animation's range
+        return glm::mat4(1.0f); // Identity matrix
+    }
+
+    // Interpolate between the previous and next keyframes
+    float prevKeyframeTime = sampler->input->data[prevKeyframeIndex];
+    float nextKeyframeTime = sampler->input->data[nextKeyframeIndex];
+
+    float t = (time - prevKeyframeTime) / (nextKeyframeTime -
+prevKeyframeTime);
+
+    // Interpolate the transformation values for the given time 't'
+    glm::mat4 prevTransformation =
+GetTransformationFromKeyframe(sampler, prevKeyframeIndex); glm::mat4
+nextTransformation = GetTransformationFromKeyframe(sampler,
+nextKeyframeIndex);
+
+    glm::mat4 interpolatedTransformation =
+InterpolateBetweenTransformations(prevTransformation,
+nextTransformation, t);
+
+    return interpolatedTransformation;
+}
+
+
+ float CalculateTotalAnimationLength(cgltf_animation* animation) {
+    float totalAnimationLength = 0.0f;
+
+    for (cgltf_int i = 0; i < animation->channels_count; ++i) {
+        cgltf_animation_channel* channel = &animation->channels[i];
+        cgltf_animation_sampler* sampler = channel->sampler;
+        cgltf_accessor* inputAccessor = sampler->input;
+
+        float animationStart = inputAccessor->min[0];  // Minimum
+timestamp float animationEnd = inputAccessor->max[0];    // Maximum
+timestamp
+
+        // Calculate the duration of this channel's animation
+        float channelAnimationLength = animationEnd - animationStart;
+
+        // Update the total animation length if needed
+        if (channelAnimationLength > totalAnimationLength) {
+            totalAnimationLength = channelAnimationLength;
+        }
+    }
+
+    return totalAnimationLength;
+}
+
+void DisplayAnimationChannelDetails(cgltf_animation_channel* channel) {
+    cgltf_animation_sampler* sampler = channel->sampler;
+    cgltf_node* target_node = channel->target_node;
+    cgltf_animation_path_type target_path = channel->target_path;
+
+    printf("Channel Details:\n");
+    printf("Target Node Index: %d\n", target_node->name);
+    printf("Target Path: %d\n", target_path);
+
+    switch (target_path) {
+        case cgltf_animation_path_type_translation:
+            printf("Property: Translation\n");
+            // Access and display translation keyframes
+            // You'll need to implement this part based on the data
+structure. break; case cgltf_animation_path_type_rotation:
+            printf("Property: Rotation\n");
+            // Access and display rotation keyframes
+            // You'll need to implement this part based on the data
+structure. break; case cgltf_animation_path_type_scale:
+            printf("Property: Scale\n");
+            // Access and display scaling keyframes
+            // You'll need to implement this part based on the data
+structure. break; default: printf("Property: Unknown\n"); break;
+    }
+}
+
+void PrintAnimationChannelDetails(cgltf_animation_channel* channel) {
+    printf("Channel Details:\n");
+    printf("Target Node Index: %d\n", channel->target_node->name);
+    printf("Target Path: %d\n", channel->target_path);
+
+    printf("Sampler Details:\n");
+    printf("Interpolation Method: %s\n", channel->sampler->interpolation
+== cgltf_interpolation_type_linear ? "Linear" : "Unknown");
+
+    printf("Keyframes:\n");
+
+    // Access the time values (timestamps) from the input accessor
+    cgltf_accessor* inputAccessor = channel->sampler->input;
+    float* timestamps = (float*)inputAccessor->buffer_view->data;
+    for (cgltf_size i = 0; i < inputAccessor->count; i++) {
+        printf("Time: %f\n", timestamps[i]);
+    }
+
+    // Access the rotation data (quaternions) from the output accessor
+(assuming it's rotation data) cgltf_accessor* outputAccessor =
+channel->sampler->output; cgltf_float* quaternions =
+(cgltf_float*)outputAccessor->data; for (cgltf_size i = 0; i <
+outputAccessor->count; i += 4) {
+        // Assuming quaternion data (4 floats per quaternion)
+        printf("Quaternion: (%f, %f, %f, %f)\n", quaternions[i],
+quaternions[i + 1], quaternions[i + 2], quaternions[i + 3]);
+    }
+}
+
+// Function to apply a quaternion-based rotation to a 4x4 transformation
+matrix glm::mat4 ApplyRotationToMatrix(const glm::mat4& originalMatrix,
+const glm::quat& rotationQuaternion) {
+    // Convert the quaternion to a rotation matrix
+    glm::mat4 rotationMatrix = glm::mat4_cast(rotationQuaternion);
+
+    // Apply the rotation to the original transformation matrix
+    return originalMatrix * rotationMatrix;
+}
+
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
+// Function to perform spherical linear interpolation (slerp) between
+two quaternions glm::quat Slerp(const glm::quat& startQuat, const
+glm::quat& endQuat, float t) {
+    // Ensure the quaternions are normalized
+    glm::quat q1 = glm::normalize(startQuat);
+    glm::quat q2 = glm::normalize(endQuat);
+
+    // Calculate the cosine of the angle between the quaternions
+    float cosTheta = glm::dot(q1, q2);
+
+    // If the quaternions are very close, perform a linear interpolation
+    if (cosTheta > 0.9995f) {
+        return glm::lerp(q1, q2, t);
+    } else {
+        // Use spherical linear interpolation (slerp)
+        float angle = glm::acos(cosTheta);
+        return (glm::sin((1 - t) * angle) * q1 + glm::sin(t * angle) *
+q2) / glm::sin(angle);
+    }
+}
+
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+// Function to extract rotation, scaling, and translation components
+from a 4x4 transformation matrix void ExtractTransformComponents(const
+glm::mat4& transformationMatrix, glm::vec3& translation, glm::quat&
+rotation, glm::vec3& scaling) {
+    // Extract translation (from the last column of the matrix)
+    translation = glm::vec3(transformationMatrix[3]);
+
+    // Extract scaling (using the length of the matrix columns)
+    scaling.x = glm::length(glm::vec3(transformationMatrix[0]));
+    scaling.y = glm::length(glm::vec3(transformationMatrix[1]));
+    scaling.z = glm::length(glm::vec3(transformationMatrix[2]));
+
+    // Extract rotation (by creating a rotation matrix and converting it
+to a quaternion) glm::mat4 rotationMatrix = transformationMatrix;
+    rotationMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Clear the
+translation component rotation = glm::quat_cast(rotationMatrix);
+}
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+// Function to build a 4x4 transformation matrix from translation,
+rotation, and scaling components glm::mat4
+BuildTransformationMatrix(const glm::vec3& translation, const glm::quat&
+rotation, const glm::vec3& scaling) { glm::mat4 translationMatrix =
+glm::translate(glm::mat4(1.0f), translation); glm::mat4 rotationMatrix =
+glm::mat4_cast(rotation); glm::mat4 scalingMatrix =
+glm::scale(glm::mat4(1.0f), scaling);
+
+    // Combine the transformation components
+    glm::mat4 transformationMatrix = translationMatrix * rotationMatrix
+* scalingMatrix;
+
+    return transformationMatrix;
+}
+
+THE END *********/

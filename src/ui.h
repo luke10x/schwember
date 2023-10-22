@@ -18,6 +18,7 @@ typedef struct {
     control_t* control;
     pc_t* pc;
     ui_gltf_tree_t* pc_glb_tree;
+    int animation_frame;
 } ui_t;
 
 /* *********************************************************************
@@ -33,8 +34,9 @@ ui_t* ui_create(control_t* control, pc_t* pc)
 {
     ui_t* self = (ui_t*) malloc(sizeof(ui_t));
 
-    self->pc          = pc;
-    self->pc_glb_tree = ui_gltf_tree_create(self->pc->glb->_data);
+    self->pc              = pc;
+    self->pc_glb_tree     = ui_gltf_tree_create(self->pc->glb->_data);
+    self->animation_frame = 50;
 
     self->control = control;
     return self;
@@ -88,7 +90,7 @@ void ui_draw(ui_t* self, pc_t* pc)
         ((collider_box_t*) pc->collider)->rigid_body->getMass()
     );
 
-    static const char* items[2]     = {"Standard shader", "Weights shader"};
+    static const char* items[2] = {"Standard shader", "Weights shader"};
     static const int event_codes[2] = {
         CONTROL_PC_SET_STANDARD_SHADER, CONTROL_PC_SET_WEIGHTS_SHADER
     };
@@ -109,6 +111,13 @@ void ui_draw(ui_t* self, pc_t* pc)
         ImGui::EndCombo();
     }
 
+    // Inside your ImGui window or ImGui frame:
+    if (ImGui::SliderInt(
+            "Slider Label", &(self->animation_frame), 0, 100
+        )) {
+        // This block is executed when the slider value changes
+        // You can handle the updated value here
+    }
     ImGui::End();
 
     ui_gltf_tree_draw(self->pc_glb_tree);
