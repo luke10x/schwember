@@ -322,3 +322,21 @@ Enabled lldb, as gdb does not work
 
 With some examples started to move along 
 https://github.com/fubark/cosmic/blob/15f85e4bf5c6618c237d6f11f540717f7df16eb6/graphics/src/graphics.zig#L2083
+
+## 2023-10-29, Sun
+
+Asset now has "nose", so I confirm that
+I cannot see odd indexing of the nodes anymore.
+
+But there is a weird artefact, where the model position seems
+to be out of space at the moment shader is selected
+(and later slowly it returns back)
+
+It will be some memory access bug, as I can only reproducedd it
+after cahnging seemingly unrelated code.
+
+There was another issue causing quite a bit of problem
+with accessing some of struct properties as if it was not a pointer
+but inlined struct, which was not the case.
+
+Printing sampler details

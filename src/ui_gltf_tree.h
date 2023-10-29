@@ -22,7 +22,7 @@ typedef struct ui_gltf_tree_t {
 void ListBonesAndIDs(const cgltf_data* data)
 {
     for (cgltf_int i = 0; i < data->skins_count; ++i) {
-        const cgltf_skin* skin = &data->skins[i];
+        const cgltf_skin* skin = data->skins + i;
 
         // Iterate through the joints of the skin
         for (cgltf_int j = 0; j < skin->joints_count; ++j) {
@@ -36,6 +36,8 @@ void ListBonesAndIDs(const cgltf_data* data)
                     node->name ? node->name : "Unnamed", j
                 );
             }
+            /*
+            // this block does some more diagnostics with children order
             for (int k = 0; k < node->children_count; k++) {
                 const cgltf_node* child = node->children[k];
 
@@ -43,8 +45,44 @@ void ListBonesAndIDs(const cgltf_data* data)
                 sprintf(child_name, "%s", child->name);
                 printf("    %d child: %s\n", j, child_name);
             }
+            */
         }
     }
+    
+    for (int i = 0; i < data->animations_count; i++) {
+        cgltf_animation* animation = data->animations + i;
+        printf("Animation: %s\n", animation->name);
+        for (int j = 0; j < animation->channels_count; j++) {
+            cgltf_animation_channel* channel = animation->channels + j;
+            cgltf_animation_sampler* sampler = channel->sampler;
+            cgltf_accessor* time_accessor    = sampler->input;
+            cgltf_accessor* output_accessor  = sampler->output;
+            char* output_name = output_accessor->name;
+
+            float* buffer =
+                    (float*) malloc(sizeof(float) * time_accessor->count);
+            int float_count = cgltf_accessor_unpack_floats(
+                time_accessor, buffer, time_accessor->count
+            );
+
+
+            float* out =
+                    (float*) malloc(sizeof(float) * output_accessor->count);
+            int out_count = cgltf_accessor_unpack_floats(
+                output_accessor, out, output_accessor->count
+            );
+
+            printf("  Channel: %d (%d)(%d) \n", j, float_count, out_count);
+
+            for (int k = 0; k < out_count; k++) {
+                printf("    %3d|%.4f|%.4f|\n", k, buffer[k], out[k]);
+            }
+            
+
+  
+        } 
+    }
+    
 
     // size_t nodes_count = data->nodes_count;
     // for (int i = 0; i < data->nodes; i++) {

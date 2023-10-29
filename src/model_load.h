@@ -105,8 +105,10 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
             }
         }
 
-        for (cgltf_size i_prim = 0; i_prim < mesh->primitives_count;
-             i_prim++) {
+        for (cgltf_size i_prim = 0;            // Primitive index
+             i_prim < mesh->primitives_count;  // for each primitive
+             i_prim++                          // is increased
+        ) {
             cgltf_primitive* primitive = &mesh->primitives[i_prim];
 
             cgltf_accessor* position_accessor =
@@ -544,7 +546,7 @@ void DisplayAnimationChannelDetails(cgltf_animation_channel* channel) {
     cgltf_animation_path_type target_path = channel->target_path;
 
     printf("Channel Details:\n");
-    printf("Target Node Index: %d\n", target_node->name);
+    printf("Target Node Index: %d\n", targetx_node->name);
     printf("Target Path: %d\n", target_path);
 
     switch (target_path) {
