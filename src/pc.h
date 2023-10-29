@@ -79,7 +79,11 @@ pc_t *pc_create(
     model_t *renderable_model = model_create();
     model_load_from_file(renderable_model, "assets/gltf/cubeman.glb");
     mesh_t *renderable_mesh = (mesh_t *) renderable_model->meshes[0];
-    self->renderable        = renderable_create(
+
+    // TODO no texture is set for this renderable,
+    // becuase model does not pertain it
+    // This requires a big rewrite
+    self->renderable = renderable_create(
         renderable_mesh->vertices, renderable_mesh->vertex_count,
         renderable_mesh->indices, renderable_mesh->index_count, NULL
     );
