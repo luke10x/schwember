@@ -340,3 +340,18 @@ with accessing some of struct properties as if it was not a pointer
 but inlined struct, which was not the case.
 
 Printing sampler details
+
+## 2023-10-30, Mon
+
+The name of the controlled bone is actually accessible from
+channel samplers. (I had a bug before that made it look
+it is not there, but it actually is). Just need to see if 
+for rotation type I can get vec4 quarternion, and for translation
+vec3.
+
+- Maybe I should look to other projects
+- I need to port simple outputs to Dear Imgui browser
+- Also don't forget to colorcode the weights of bones
+- and why does input sampler count is higher than output by 1?
+
+

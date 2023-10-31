@@ -58,6 +58,30 @@ void ListBonesAndIDs(const cgltf_data* data)
             cgltf_accessor* time_accessor    = sampler->input;
             cgltf_accessor* output_accessor  = sampler->output;
             char* output_name = output_accessor->name;
+            cgltf_animation_path_type path_type = channel->target_path;
+            
+            const char* target_node_name = channel->target_node->name != NULL ? channel->target_node->name : "unnamed node";
+            char* path_type_label = (char*) malloc(sizeof(char*) * 99);
+            switch (path_type) {
+                case cgltf_animation_path_type_invalid:
+                    sprintf(path_type_label, "invalid");
+                    break;
+                case cgltf_animation_path_type_translation:
+                    sprintf(path_type_label, "translation");
+                    break;
+                case cgltf_animation_path_type_rotation:
+                    sprintf(path_type_label, "rotation");
+                    break;
+                case cgltf_animation_path_type_scale:
+                    sprintf(path_type_label, "scale");
+                    break;
+                case cgltf_animation_path_type_weights:
+                    sprintf(path_type_label, "weights");
+                    break;
+                case cgltf_animation_path_type_max_enum:
+                    sprintf(path_type_label, "enum");
+                    break;
+            }
 
             float* buffer =
                     (float*) malloc(sizeof(float) * time_accessor->count);
@@ -72,14 +96,11 @@ void ListBonesAndIDs(const cgltf_data* data)
                 output_accessor, out, output_accessor->count
             );
 
-            printf("  Channel: %d (%d)(%d) \n", j, float_count, out_count);
+            printf("  Channel: %d %s (%s) (%d)(%d) \n", j, target_node_name, path_type_label, float_count, out_count);
 
             for (int k = 0; k < out_count; k++) {
                 printf("    %3d|%.4f|%.4f|\n", k, buffer[k], out[k]);
             }
-            
-
-  
         } 
     }
     
