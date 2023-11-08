@@ -21,19 +21,19 @@ uniform mat4 modelToWorld;
 uniform uint u_selectedJointIndex;
 
 void main() {
-  uint firstJoint = uint(a_joints[0]);
-  // uint firstJoint = uint(3);
+  uint joint_1   = uint(a_joints[0]);
+  float weight_1 = a_weights[0];
 
-  //int index = int(a_joints[i]);
-  //float weight = a_weights[i];
+  // Default color gray
+  v_color = vec3(0.0f, 1.0f, 0.0f);
+
+  if (joint_1 == u_selectedJointIndex) {
+    v_color = vec3(1.0f, 0.0f, 1.0f);
+  }
 
   crntPos     = vec3(modelToWorld * vec4(aPos, 1.0f));
   gl_Position = worldToView       * vec4(crntPos, 1.0f);
-  if (firstJoint == u_selectedJointIndex) {
-    v_color = vec3(1.0f, 0.0f, 1.0f);
-  } else {
-    v_color = vec3(0.0f, 1.0f, 0.0f);
-  }
+
   texCoord = aTex;
   texId = aTexId;
   Normal = aNormal;

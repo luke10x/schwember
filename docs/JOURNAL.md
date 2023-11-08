@@ -355,3 +355,23 @@ vec3.
 - and why does input sampler count is higher than output by 1?
 
 
+
+## 2023-11-06, Mon
+
+This was a busy week, I was off of this project,
+trying to go back and continue, maybe colorcode wieghts
+as a first thing to do. Other wise it is hard to
+gain back momentum.
+
+## 2023-11-08, Wed
+
+It is so hard to work on this project, but today
+I opended the laptop while on the train.
+
+- Ok, so weights shader is responsive for weights code
+- data should be already in the shader
+- and currently it just checking index of the first bone
+  is the selected
+- but i need to add logic into shader
+- I noticed the bones again out of order
+- so i can reproduce the bug again, its great!
