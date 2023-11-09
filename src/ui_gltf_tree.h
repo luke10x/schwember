@@ -31,10 +31,10 @@ void ListBonesAndIDs(const cgltf_data* data)
             // Check if the boneNode represents a bone
             if (node) {
                 // Print the bone's name (if available) and its joint ID
-                printf(
-                    "Bone Name: %s, Joint ID: %d\n",
-                    node->name ? node->name : "Unnamed", j
-                );
+                // printf(
+                //     "Bone Name: %s, Joint ID: %d\n",
+                //     node->name ? node->name : "Unnamed", j
+                // );
             }
             /*
             // this block does some more diagnostics with children order
@@ -43,7 +43,7 @@ void ListBonesAndIDs(const cgltf_data* data)
 
                 char child_name[128];
                 sprintf(child_name, "%s", child->name);
-                printf("    %d child: %s\n", j, child_name);
+                // printf("    %d child: %s\n", j, child_name);
             }
             */
         }
@@ -51,7 +51,7 @@ void ListBonesAndIDs(const cgltf_data* data)
     
     for (int i = 0; i < data->animations_count; i++) {
         cgltf_animation* animation = data->animations + i;
-        printf("Animation: %s\n", animation->name);
+        // printf("Animation: %s\n", animation->name);
         for (int j = 0; j < animation->channels_count; j++) {
             cgltf_animation_channel* channel = animation->channels + j;
             cgltf_animation_sampler* sampler = channel->sampler;
@@ -96,10 +96,10 @@ void ListBonesAndIDs(const cgltf_data* data)
                 output_accessor, out, output_accessor->count
             );
 
-            printf("  Channel: %d %s (%s) (%d)(%d) \n", j, target_node_name, path_type_label, float_count, out_count);
+            // printf("  Channel: %d %s (%s) (%d)(%d) \n", j, target_node_name, path_type_label, float_count, out_count);
 
             for (int k = 0; k < out_count; k++) {
-                printf("    %3d|%.4f|%.4f|\n", k, buffer[k], out[k]);
+                // printf("    %3d|%.4f|%.4f|\n", k, buffer[k], out[k]);
             }
         } 
     }

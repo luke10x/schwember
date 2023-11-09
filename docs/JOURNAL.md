@@ -375,3 +375,26 @@ I opended the laptop while on the train.
 - but i need to add logic into shader
 - I noticed the bones again out of order
 - so i can reproduce the bug again, its great!
+
+Later in the day did another coding session:
+
+- Figured out how to render weights
+- At rendertime errors are not printed from shaders
+- All we have is shader compile time errors
+- But simplified color blue to green hotness function
+- And now it works.
+- the bones are in correct order once everything else is fixed
+- I pressume, bone order goes off when something else messes
+  the memory
+- This is the milestone that vertice skinning data (bones and their weights)
+  can be passed as a parat of buffer to shaders.
+- next thing to validate is to pass samplers data, and current frame.
+
+## 2023-11-09, Thu
+
+There are several things I can continue working on:
+
+- see if there is a way to render a number passed to shader
+  as uniform on screen (for debug).
+- display bones-shader does not have to be seen-through
+
