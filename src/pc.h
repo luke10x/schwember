@@ -77,7 +77,7 @@ pc_t *pc_create(
 
     // Create renderable
     model_t *renderable_model = model_create();
-    model_load_from_file(renderable_model, "assets/gltf/cubeman.glb");
+    model_load_from_file(renderable_model, "models/cubeman.glb");
     mesh_t *renderable_mesh = (mesh_t *) renderable_model->meshes[0];
 
     // TODO no texture is set for this renderable,
@@ -130,8 +130,8 @@ pc_t *pc_create(
     self->collider_mesh =
         mesh_sample_create_ellipsis(box.z * reach, box.y);
 
-    // self->glb = glb_create("assets/gltf/SimpleSkin.gltf");
-    self->glb = glb_create("assets/gltf/cubeman.glb");
+    // self->glb = glb_create("models/SimpleSkin.gltf");
+    self->glb = glb_create("models/cubeman.glb");
 
     return self;
 }

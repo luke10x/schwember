@@ -398,3 +398,47 @@ There are several things I can continue working on:
   as uniform on screen (for debug).
 - display bones-shader does not have to be seen-through
 
+
+## 2023-11-10, Fri
+
+Again is really difficult to start working on it.
+GLTF animation seems too hard for me,
+entire project feels already starting to degrade.
+perhaps I need to do some refactoring,
+specifically make sure I can load GLTF as a model, and not as
+just a mesh, so that I could still have textures loaded.
+
+Also I was thinking should I go with the node tree or
+with ECS or something else to organize the code,
+because I reached the point where this huge ctx_t is not maintainable
+anymore...
+
+pc should contain full model instead of just one renderable,
+but I want altogether:
+
+- This model NOT to be of existing model but rather brand new
+  GLTF based model, so basically, I need to rewrite model loading.
+- What kind of the name is PC? yes, playable character, but
+  i just hate this name.
+- Maybe the new model module does not need to be rewriten,
+  but mesh and primitive separation must be added.
+
+## 2023-11-11, Sat
+
+Trying to organize code a little bit simplier.
+I am planning to introduce some sort of Entity system,
+or even Flecs ECS.
+
+Also, I have some ideas to use Docker for building OSX binary too
+
+- What that would take, I don't know.
+- Possibly it would require another compiler
+- And at all if it is possible to cross-compile to macosx from
+  Docker I have no idea.
+- Final product will still require XCode, so it needs to be tested against
+  it anyhow, so perhaps using default XCode Clang is a better idea,
+  but I want to try at least, and use it for quick setup of local
+  development environment.
+- Finally, I am not aiming to ship desktop using Apple store,
+  and phones will require extensive testing anyway,
+  while Docker build for Mac could be useful for development.

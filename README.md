@@ -22,7 +22,8 @@ providing a wide range of possibilities.
     - **GLM**: A mathematics library for graphics programming.
     - **CGLTF**: Handling GLTF file formats.
     - **Flecs**: A fast and lightweight ECS (Entity-Component-System) framework.
-    - **Dear ImGui**: For creating intuitive and customizable user interfaces.
+    - **Dear ImGui**: For creating intuitive and customizable user interfaces for dev.
+    - **RmlUi**: Allows creating in-game UI using HTML/CSS based components.
     - **Emscripten**: Facilitating the use of WebAssembly for web deployment.
 
 ## Development environment

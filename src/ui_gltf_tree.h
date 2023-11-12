@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifndef CGLTF_IMPLEMENTATION
 #define CGLTF_IMPLEMENTATION
@@ -64,22 +65,22 @@ void ListBonesAndIDs(const cgltf_data* data)
             char* path_type_label = (char*) malloc(sizeof(char*) * 99);
             switch (path_type) {
                 case cgltf_animation_path_type_invalid:
-                    sprintf(path_type_label, "invalid");
+                    snprintf(path_type_label, 7, "invalid");
                     break;
                 case cgltf_animation_path_type_translation:
-                    sprintf(path_type_label, "translation");
+                    snprintf(path_type_label, 7, "translation");
                     break;
                 case cgltf_animation_path_type_rotation:
-                    sprintf(path_type_label, "rotation");
+                    snprintf(path_type_label, 7, "rotation");
                     break;
                 case cgltf_animation_path_type_scale:
-                    sprintf(path_type_label, "scale");
+                    snprintf(path_type_label, 5, "scale");
                     break;
                 case cgltf_animation_path_type_weights:
-                    sprintf(path_type_label, "weights");
+                    snprintf(path_type_label, 5, "weights");
                     break;
                 case cgltf_animation_path_type_max_enum:
-                    sprintf(path_type_label, "enum");
+                    snprintf(path_type_label, 4, "enum");
                     break;
             }
 

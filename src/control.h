@@ -66,11 +66,11 @@ uint8_t control_get_event(control_t* self)
             tab_pressed = false;
             if (self->mode == CONTROL_MODE_CAMERA) {
                 self->mode = CONTROL_MODE_PC;
-                return NULL;
+                return 0;
             }
             if (self->mode == CONTROL_MODE_PC) {
                 self->mode = CONTROL_MODE_CAMERA;
-                return NULL;
+                return 0;
             }
         }
     }
@@ -129,5 +129,5 @@ uint8_t control_get_event(control_t* self)
         }
     }
 
-    return NULL;
+    return 0;
 }

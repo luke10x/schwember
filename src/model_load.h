@@ -79,7 +79,10 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
         cgltf_parse_file(&options, gltf_file_name, &data);
 
     if (result != cgltf_result_success) {
-        std::cerr << "Error loading glTF file: " << result << std::endl;
+        fprintf(stderr, "Error loading glTF file (%s): %d\n",
+            gltf_file_name, result
+        );
+        exit(1);
     }
 
     result = cgltf_load_buffers(&options, data, gltf_file_name);

@@ -202,24 +202,24 @@ void ctx_load(ctx_t* ctx, int width, int height)
         ctx->sky_shader, "modelToWorld", skybox_transform
     );
     ctx->skybox = model_create();
-    model_load_from_file(ctx->skybox, "assets/gltf/skybox.glb");
+    model_load_from_file(ctx->skybox, "models/skybox.glb");
 
     ctx->sign = model_create();
     model_load_from_file(
-        ctx->sign, "assets/gltf/pixel-perfect-sign.glb"
+        ctx->sign, "models/pixel-perfect-sign.glb"
     );
     ctx->sign_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, -2));
 
     ctx->test_model = model_create();
     model_load_from_file(
-        ctx->test_model, "assets/gltf/texture-test.glb"
+        ctx->test_model, "models/texture-test.glb"
     );
 
     // Map
     ctx->map_model = model_create();
     model_load_from_file(
-        ctx->map_model, "assets/gltf/noob-level-map.glb"
+        ctx->map_model, "models/noob-level-map.glb"
     );
     ctx->map_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
@@ -237,19 +237,19 @@ void ctx_load(ctx_t* ctx, int width, int height)
     }
 
     ctx->subject = model_create();
-    model_load_from_file(ctx->subject, "assets/gltf/noob.glb");
+    model_load_from_file(ctx->subject, "models/noob.glb");
     ctx->subject_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(-6, 0, 1));
 
     ctx->suzanne = model_create();
-    model_load_from_file(ctx->suzanne, "assets/gltf/suzanne.glb");
+    model_load_from_file(ctx->suzanne, "models/suzanne.glb");
     ctx->suzanne_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(0, 4, 1));
 
     // ctx->stickman = model_create();
     // model_load_from_file(
     //     ctx->stickman,
-    //     "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
+    //     "models/ultra_low_poly_animated_character_mixamo_based.glb"
     // );
     // ctx->stickman_transform =
     //     glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
@@ -257,7 +257,7 @@ void ctx_load(ctx_t* ctx, int width, int height)
     // ctx->stickman = model_create();
     // model_load_from_file(
     //     ctx->stickman,
-    //     "assets/gltf/ultra_low_poly_animated_character_mixamo_based.glb"
+    //     "models/ultra_low_poly_animated_character_mixamo_based.glb"
     // );
     // ctx->stickman_transform =
     //     glm::translate(glm::mat4(1.0f), glm::vec3(2, 4.0, -24));
@@ -270,7 +270,7 @@ void ctx_load(ctx_t* ctx, int width, int height)
 
     // Sphere
     ctx->sphere = model_create();
-    model_load_from_file(ctx->sphere, "assets/gltf/sphere.glb");
+    model_load_from_file(ctx->sphere, "models/sphere.glb");
     ctx->sphere_transform =
         glm::translate(glm::mat4(1.0f), glm::vec3(0, 12, 20 - 20));
     ctx->sphere_transform =
