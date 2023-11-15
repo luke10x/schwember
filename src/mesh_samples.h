@@ -100,8 +100,7 @@ mesh_t* mesh_sample_create_pyramid()
     // clang-format on
 
     texture_t* texture_wall1 = texture_load_from_file(
-        "img/01-16-stone.png", GL_TEXTURE0, GL_RGBA,
-        GL_UNSIGNED_BYTE
+        "img/01-16-stone.png", GL_RGBA, GL_UNSIGNED_BYTE
     );
 
     return mesh_create(
@@ -132,8 +131,7 @@ mesh_t* mesh_sample_create_floor()
     // clang-format on
 
     texture_t* texture_floor = texture_load_from_file(
-        "img/19-13-floor.png", GL_TEXTURE0, GL_RGBA,
-        GL_UNSIGNED_BYTE
+        "img/19-13-floor.png", GL_RGBA, GL_UNSIGNED_BYTE
     );
 
     return mesh_create(

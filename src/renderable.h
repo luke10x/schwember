@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "buffers.h"
 #include "camera.h"
 #include "gl.h"
@@ -52,19 +54,18 @@ renderable_t* renderable_create(
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 
-    
-	// Links VBO attributes such as coordinates and colors to VAO
-	// clang-format off
+    // Links VBO attributes such as coordinates and colors to VAO
+    // clang-format off
 
     // What is the second param ??? 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);                    // position
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 3  * sizeof(float))); // color
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 6  * sizeof(float))); // tex_UV
-	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 8  * sizeof(float))); // tex_id
-	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 9  * sizeof(float))); // normal
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)  0);                  // position
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 3 * sizeof(float))); // color
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 6 * sizeof(float))); // tex_UV
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 8 * sizeof(float))); // tex_id
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)( 9 * sizeof(float))); // normal
 	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(12 * sizeof(float))); // 4 weights
 	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)(16 * sizeof(float))); // 4 bones
-	// clang-format on
+    // clang-format on
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -91,40 +92,46 @@ void renderable_draw(
 )
 {
     shader_activate(shader);
+    
+    glUniform1i(glGetUniformLocation(shader->ID, "u_albedoTexture"), 0);
+    glUniform1i(glGetUniformLocation(shader->ID, "u_ambientOcclusionTexture"), 1);
 
-    GLint use_sampler_location =
-        glGetUniformLocation(shader->ID, "useSampler");
-
-    if (self->albedo_texture != NULL) {
-        glUniform1i(use_sampler_location, true);
-
-        // Texture unit
-        GLuint location = glGetUniformLocation(shader->ID, "sampler");
-        glUniform1i(location, 0);
-
-        // Texture bind
-        glActiveTexture(self->albedo_texture->unit);
+    // Renderable may or may not have Albedo (base color) texture...
+    bool has_albedo_texture = self->albedo_texture != NULL;
+    // ...either way set the flag as uniform 
+    glUniform1i(
+        glGetUniformLocation(shader->ID, "u_hasAlbedoTexture"),
+        has_albedo_texture
+    );
+    // If it has albedo texture, also bind it to this shader
+    if (has_albedo_texture) {
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, self->albedo_texture->ID);
-    } else {
-        glUniform1i(use_sampler_location, false);
     }
 
-    // Take care of the camera Matrix
+    // Set camera-position uniform value
     glUniform3f(
-        glGetUniformLocation(shader->ID, "camPos"),
-        camera->view_matrix[3][0], camera->view_matrix[3][1],
-        camera->view_matrix[3][2]
+        glGetUniformLocation(shader->ID, "camPos"),  // uniform location
+        camera->view_matrix[3][0],  // camera position X
+        camera->view_matrix[3][1],  // camera position Y
+        camera->view_matrix[3][2]   // camera position Z
     );
 
-    // Camera matrix
-    GLuint location = glGetUniformLocation(shader->ID, "worldToView");
+    // Set camera-view-to-world-transfomation matrix unifrom value
     glUniformMatrix4fv(
-        location, 1, GL_FALSE, glm::value_ptr(camera->camera_matrix)
+        glGetUniformLocation(
+            shader->ID, "worldToView"
+        ),                                     // uniform location
+        1,                                     // number of matrices
+        GL_FALSE,                              // transpose
+        glm::value_ptr(camera->camera_matrix)  // value
     );
 
     glBindVertexArray(self->vao_id);
     glDrawElements(
-        GL_TRIANGLES, self->index_count, GL_UNSIGNED_INT,
-        (void*) (0 * sizeof(unsigned int))
+        GL_TRIANGLES,       // Mode, OpenGL ES 2
+        self->index_count,  // Index count
+        GL_UNSIGNED_INT,    // Data type of indices array
+        (void*) (0 * sizeof(unsigned int))  // Indices pointer
     );
 }

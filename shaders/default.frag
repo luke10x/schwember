@@ -10,10 +10,13 @@ in float texId;
 
 in vec3 Normal;
 
-uniform sampler2D sampler;
+// Textures for different texture samplers
+uniform sampler2D u_albedoTexture;
+uniform sampler2D u_ambientOcclusionTexture;
+
 uniform vec4 lightColor;
 uniform vec3 lightPos;
-uniform bool useSampler;
+uniform bool u_hasAlbedoTexture;
 
 // for specular
 uniform vec3 camPos;
@@ -37,8 +40,8 @@ void main() {
 
 	// outputs final color
     vec4 surface_color;
-    if (useSampler) {
-	    surface_color = texture(sampler, texCoord);
+    if (u_hasAlbedoTexture) {
+	    surface_color = texture(u_albedoTexture, texCoord);
     } else {
         surface_color = vec4(color, 1.0f);
     }

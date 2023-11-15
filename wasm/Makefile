@@ -18,19 +18,17 @@ IMGUI_SOURCES += $(IMGUI_DIR)/imgui_widgets.cpp
 IMGUI_SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp
 IMGUI_SOURCES += $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 
-
-# LDLIBS += -lLinearlMath -lBulletDynamics -lBulletCollision
 EMSCRIPTENFLAGS := -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1 
 EMSCRIPTENFLAGS += -s USE_ZLIB=1 -sNO_DISABLE_EXCEPTION_CATCHING=1
 EMSCRIPTENFLAGS += -s FULL_ES2=1 -s USE_GLFW=3 -s USE_WEBGL2=1 -O0
 EMSCRIPTENFLAGS += -s ALLOW_MEMORY_GROWTH=1 -s GL_UNSAFE_OPTS=0
 EMSCRIPTENFLAGS += -s ASSERTIONS=1 -s SAFE_HEAP=1
-EMSCRIPTENFLAGS += $(shell ls ../src/shaders | sed -e \
-	's|.*|--preload-file ../src/shaders/\0@src/shaders/\0|')
-EMSCRIPTENFLAGS += $(shell ls ../assets/gltf | sed -e \
-	's|.*|--preload-file ../assets/gltf/\0@assets/gltf/\0|')
-EMSCRIPTENFLAGS += $(shell ls ../assets/png | sed -e \
-	's|.*|--preload-file ../assets/png/\0@assets/png/\0|')
+EMSCRIPTENFLAGS += $(shell ls ../shaders | sed -e \
+	's|.*|--preload-file ../shaders/\0@shaders/\0|')
+EMSCRIPTENFLAGS += $(shell ls ../models | sed -e \
+	's|.*|--preload-file ../models/\0@models/\0|')
+EMSCRIPTENFLAGS += $(shell ls ../img | sed -e \
+	's|.*|--preload-file ../img/\0@img/\0|')
 
 build:
 	mkdir -p ./build

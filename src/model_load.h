@@ -79,7 +79,8 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
         cgltf_parse_file(&options, gltf_file_name, &data);
 
     if (result != cgltf_result_success) {
-        fprintf(stderr, "Error loading glTF file (%s): %d\n",
+        fprintf(
+            stderr, "Error loading glTF file (%s): %d\n",
             gltf_file_name, result
         );
         exit(1);
@@ -166,8 +167,11 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                                 : 1;
 
                         // Copy buffer data to memory for loading
-                        for (unsigned int i = 0;
-                             i < cgltfImage->buffer_view->size; i++) {
+                        for (
+                            unsigned int i = 0; // iterate
+                            i < cgltfImage->buffer_view->size; // 
+                            i++
+                        ) {
                             data[i] = ((unsigned char*) cgltfImage
                                            ->buffer_view->buffer->data
                             )[offset];
@@ -181,9 +185,8 @@ mesh_t* model_load_from_file(model_t* model, const char* gltf_file_name)
                             data, size, &width, &height, &bpp, 0
                         );
 
-                        texture_of_primitive = texture_create(
-                            stbi, GL_TEXTURE0, width, height, bpp
-                        );
+                        texture_of_primitive =
+                            texture_create(stbi, width, height, bpp);
                         free(data);
                     }
                 }

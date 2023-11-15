@@ -133,17 +133,17 @@ void ctx_load(ctx_t* ctx, int width, int height)
 
     // Setup shaders
     ctx->default_shader = shader_create(
-        "src/shaders/default.vert", "src/shaders/default.frag"
+        "shaders/default.vert", "shaders/default.frag"
     );
     ctx->light_shader = shader_create(
-        "src/shaders/light.vert", "src/shaders/light.frag"
+        "shaders/light.vert", "shaders/light.frag"
     );
     ctx->sky_shader = shader_create(
-        "src/shaders/default.vert", "src/shaders/sky.frag"
+        "shaders/default.vert", "shaders/sky.frag"
     );
 
     ctx->weight_shader = shader_create(
-        "src/shaders/weight.vert", "src/shaders/weight.frag"
+        "shaders/weight.vert", "shaders/weight.frag"
     );
 
     // light source

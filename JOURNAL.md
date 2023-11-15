@@ -442,3 +442,28 @@ Also, I have some ideas to use Docker for building OSX binary too
 - Finally, I am not aiming to ship desktop using Apple store,
   and phones will require extensive testing anyway,
   while Docker build for Mac could be useful for development.
+
+## 2023-11-12, Sun
+
+Just moving shaders from src to separate directory,
+and ensure that wasm still works
+
+- Still thinking if I should integrate Flecs right now
+- And mostly leaning to yes, it is more to details "how"
+
+## 2023-11-14, Tue
+
+Refactoring and cleanup in renderable.
+
+- Finally I understood how OpenGl texture binding works
+- For now GL_TEXTURE0 is allocated for albedo texture
+- Texture to this slot always rebinded rendering each renderable
+- I am not going to implement using textures from different slots
+  for the same rendering type
+- GL_TEXTURE0 is always albedo
+- GL_TEXTURE1 is always ambient-occlusion
+- This will be like this unless the performace is affected really bad
+- Which I highly doubt will happen
+
+
+

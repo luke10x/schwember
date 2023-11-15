@@ -9,7 +9,9 @@ services:
       - "${WASM_PORT:-9900}:8080"
     volumes:
       - ./wasm:/mnt/wasm:rw
-      - ./assets:/mnt/assets:ro
+      - ./shaders:/mnt/shaders:ro
+      - ./models:/mnt/models:ro
+      - ./img:/mnt/img:ro
       - ./external:/mnt/external:ro
       - ./src:/mnt/src:ro
     entrypoint: "bash -c"

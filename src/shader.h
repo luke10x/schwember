@@ -27,7 +27,7 @@ char* _get_file_contents(const char* filename)
 {
     FILE* fp = fopen(filename, "r");
     if (fp == NULL) {
-        fprintf(stderr, "Error opening file %s", filename);
+        fprintf(stderr, "Error opening file %s\n", filename);
         return NULL;
     }
 
